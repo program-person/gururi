@@ -1,0 +1,23 @@
+[
+  { "from_km": 1,   "to_km": 3,   "fare_ic": 133,  "fare_ticket": 140  },
+  { "from_km": 4,   "to_km": 6,   "fare_ic": 143,  "fare_ticket": 150  },
+  { "from_km": 7,   "to_km": 10,  "fare_ic": 165,  "fare_ticket": 170  },
+  { "from_km": 11,  "to_km": 15,  "fare_ic": 198,  "fare_ticket": 200  },
+  { "from_km": 16,  "to_km": 20,  "fare_ic": 220,  "fare_ticket": 230  },
+  { "from_km": 21,  "to_km": 25,  "fare_ic": 253,  "fare_ticket": 260  },
+  { "from_km": 26,  "to_km": 30,  "fare_ic": 286,  "fare_ticket": 290  },
+  { "from_km": 31,  "to_km": 35,  "fare_ic": 330,  "fare_ticket": 340  },
+  { "from_km": 36,  "to_km": 40,  "fare_ic": 363,  "fare_ticket": 370  },
+  { "from_km": 41,  "to_km": 45,  "fare_ic": 396,  "fare_ticket": 410  },
+  { "from_km": 46,  "to_km": 50,  "fare_ic": 429,  "fare_ticket": 440  },
+  { "from_km": 51,  "to_km": 60,  "fare_ic": 462,  "fare_ticket": 480  },
+  { "from_km": 61,  "to_km": 70,  "fare_ic": 528,  "fare_ticket": 540  },
+  { "from_km": 71,  "to_km": 80,  "fare_ic": 594,  "fare_ticket": 610  },
+  { "from_km": 81,  "to_km": 90,  "fare_ic": 660,  "fare_ticket": 680  },
+  { "from_km": 91,  "to_km": 100, "fare_ic": 726,  "fare_ticket": 750  },
+  { "from_km": 101, "to_km": 120, "fare_ic": 792,  "fare_ticket": 820  },
+  { "from_km": 121, "to_km": 140, "fare_ic": 924,  "fare_ticket": 950  },
+  { "from_km": 141, "to_km": 160, "fare_ic": 1056, "fare_ticket": 1080 },
+  { "from_km": 161, "to_km": 180, "fare_ic": 1188, "fare_ticket": 1210 },
+  { "from_km": 181, "to_km": 200, "fare_ic": 1320, "fare_ticket": 1340 }
+]

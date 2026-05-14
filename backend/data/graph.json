@@ -1,0 +1,2216 @@
+{
+  "stations": [
+    {
+      "id": "abkm",
+      "name": "我孫子町"
+    },
+    {
+      "id": "aibm",
+      "name": "藍本"
+    },
+    {
+      "id": "aino",
+      "name": "相野"
+    },
+    {
+      "id": "aksh",
+      "name": "明石"
+    },
+    {
+      "id": "amaz",
+      "name": "尼崎"
+    },
+    {
+      "id": "asag",
+      "name": "朝霧"
+    },
+    {
+      "id": "asak",
+      "name": "浅香"
+    },
+    {
+      "id": "ashi",
+      "name": "芦原橋"
+    },
+    {
+      "id": "ashy",
+      "name": "芦屋"
+    },
+    {
+      "id": "azut",
+      "name": "安土"
+    },
+    {
+      "id": "bent",
+      "name": "弁天町"
+    },
+    {
+      "id": "dojo",
+      "name": "道場"
+    },
+    {
+      "id": "ebig",
+      "name": "海老江"
+    },
+    {
+      "id": "ehim",
+      "name": "東姫路"
+    },
+    {
+      "id": "ekak",
+      "name": "東加古川"
+    },
+    {
+      "id": "fujs",
+      "name": "藤阪"
+    },
+    {
+      "id": "fuku",
+      "name": "福島"
+    },
+    {
+      "id": "furu",
+      "name": "古市"
+    },
+    {
+      "id": "hant",
+      "name": "放出"
+    },
+    {
+      "id": "higf",
+      "name": "東福寺"
+    },
+    {
+      "id": "higk",
+      "name": "東岸和田"
+    },
+    {
+      "id": "hiko",
+      "name": "彦根"
+    },
+    {
+      "id": "hime",
+      "name": "姫路"
+    },
+    {
+      "id": "hine",
+      "name": "日根野"
+    },
+    {
+      "id": "hiro",
+      "name": "広野"
+    },
+    {
+      "id": "hmbs",
+      "name": "ひめじ別所"
+    },
+    {
+      "id": "hogn",
+      "name": "祝園"
+    },
+    {
+      "id": "horj",
+      "name": "法隆寺"
+    },
+    {
+      "id": "hosd",
+      "name": "宝殿"
+    },
+    {
+      "id": "hosh",
+      "name": "星田"
+    },
+    {
+      "id": "hyog",
+      "name": "兵庫"
+    },
+    {
+      "id": "ibrk",
+      "name": "茨木"
+    },
+    {
+      "id": "imam",
+      "name": "今宮"
+    },
+    {
+      "id": "inan",
+      "name": "猪名寺"
+    },
+    {
+      "id": "inar",
+      "name": "稲荷"
+    },
+    {
+      "id": "ineb",
+      "name": "稲枝"
+    },
+    {
+      "id": "ishi",
+      "name": "石山"
+    },
+    {
+      "id": "itam",
+      "name": "伊丹"
+    },
+    {
+      "id": "izfc",
+      "name": "和泉府中"
+    },
+    {
+      "id": "jlwj",
+      "name": "JR淡路"
+    },
+    {
+      "id": "jobj",
+      "name": "城陽"
+    },
+    {
+      "id": "jrfj",
+      "name": "JR藤森"
+    },
+    {
+      "id": "jrnb",
+      "name": "JR難波"
+    },
+    {
+      "id": "jrne",
+      "name": "JR野江"
+    },
+    {
+      "id": "jrng",
+      "name": "JR長瀬"
+    },
+    {
+      "id": "jrss",
+      "name": "JR俊徳道"
+    },
+    {
+      "id": "kaim",
+      "name": "河内磐船"
+    },
+    {
+      "id": "kami",
+      "name": "加美"
+    },
+    {
+      "id": "kamo",
+      "name": "加茂"
+    },
+    {
+      "id": "kasm",
+      "name": "加島"
+    },
+    {
+      "id": "kasw",
+      "name": "柏原"
+    },
+    {
+      "id": "katg",
+      "name": "桂川"
+    },
+    {
+      "id": "kawa",
+      "name": "河瀬"
+    },
+    {
+      "id": "kgkm",
+      "name": "上狛"
+    },
+    {
+      "id": "kisb",
+      "name": "岸辺"
+    },
+    {
+      "id": "kish",
+      "name": "北信太"
+    },
+    {
+      "id": "kita",
+      "name": "北伊丹"
+    },
+    {
+      "id": "kitj",
+      "name": "北新地"
+    },
+    {
+      "id": "kizu",
+      "name": "木津"
+    },
+    {
+      "id": "kjhk",
+      "name": "城北公園通"
+    },
+    {
+      "id": "kkok",
+      "name": "加古川"
+    },
+    {
+      "id": "kktg",
+      "name": "河内堅上"
+    },
+    {
+      "id": "kobe",
+      "name": "神戸"
+    },
+    {
+      "id": "kobj",
+      "name": "木幡"
+    },
+    {
+      "id": "komy",
+      "name": "甲南山手"
+    },
+    {
+      "id": "kory",
+      "name": "郡山"
+    },
+    {
+      "id": "kosg",
+      "name": "甲子園口"
+    },
+    {
+      "id": "kshk",
+      "name": "衣摺加美北"
+    },
+    {
+      "id": "kubd",
+      "name": "久宝寺"
+    },
+    {
+      "id": "kumt",
+      "name": "熊取"
+    },
+    {
+      "id": "kuno",
+      "name": "草野"
+    },
+    {
+      "id": "kusa",
+      "name": "草津"
+    },
+    {
+      "id": "kwig",
+      "name": "川西池田"
+    },
+    {
+      "id": "kyob",
+      "name": "京橋"
+    },
+    {
+      "id": "kyot",
+      "name": "京都"
+    },
+    {
+      "id": "maib",
+      "name": "米原"
+    },
+    {
+      "id": "maik",
+      "name": "舞子"
+    },
+    {
+      "id": "maya",
+      "name": "摩耶"
+    },
+    {
+      "id": "mhik",
+      "name": "南彦根"
+    },
+    {
+      "id": "miko",
+      "name": "三国ヶ丘"
+    },
+    {
+      "id": "miku",
+      "name": "南草津"
+    },
+    {
+      "id": "mobs",
+      "name": "百舌鳥"
+    },
+    {
+      "id": "momo",
+      "name": "桃谷"
+    },
+    {
+      "id": "momy",
+      "name": "桃山"
+    },
+    {
+      "id": "mori",
+      "name": "森ノ宮"
+    },
+    {
+      "id": "morm",
+      "name": "守山"
+    },
+    {
+      "id": "moto",
+      "name": "元町"
+    },
+    {
+      "id": "mshe",
+      "name": "美章園"
+    },
+    {
+      "id": "msut",
+      "name": "南吹田"
+    },
+    {
+      "id": "mtsm",
+      "name": "松井山手"
+    },
+    {
+      "id": "mukt",
+      "name": "向日町"
+    },
+    {
+      "id": "nada",
+      "name": "灘"
+    },
+    {
+      "id": "nage",
+      "name": "長居"
+    },
+    {
+      "id": "nagk",
+      "name": "長岡京"
+    },
+    {
+      "id": "nago",
+      "name": "長尾"
+    },
+    {
+      "id": "nagp",
+      "name": "長池"
+    },
+    {
+      "id": "naks",
+      "name": "西明石"
+    },
+    {
+      "id": "nara",
+      "name": "奈良"
+    },
+    {
+      "id": "nase",
+      "name": "生瀬"
+    },
+    {
+      "id": "nfuk",
+      "name": "新福島"
+    },
+    {
+      "id": "niim",
+      "name": "新今宮"
+    },
+    {
+      "id": "nkam",
+      "name": "新加美"
+    },
+    {
+      "id": "nkiz",
+      "name": "西木津"
+    },
+    {
+      "id": "nkuj",
+      "name": "西九条"
+    },
+    {
+      "id": "nkym",
+      "name": "中山寺"
+    },
+    {
+      "id": "nmat",
+      "name": "南矢代"
+    },
+    {
+      "id": "noda",
+      "name": "野田"
+    },
+    {
+      "id": "noej",
+      "name": "野江"
+    },
+    {
+      "id": "nori",
+      "name": "西大路"
+    },
+    {
+      "id": "notg",
+      "name": "能登川"
+    },
+    {
+      "id": "nozk",
+      "name": "野崎"
+    },
+    {
+      "id": "nsmg",
+      "name": "西宮名塩"
+    },
+    {
+      "id": "nsmy",
+      "name": "西ノ宮"
+    },
+    {
+      "id": "nsnd",
+      "name": "新三田"
+    },
+    {
+      "id": "obik",
+      "name": "帯解"
+    },
+    {
+      "id": "ojii",
+      "name": "王寺"
+    },
+    {
+      "id": "ojkk",
+      "name": "大阪城北詰"
+    },
+    {
+      "id": "ojko",
+      "name": "大阪城公園"
+    },
+    {
+      "id": "okts",
+      "name": "御着"
+    },
+    {
+      "id": "okub",
+      "name": "大久保"
+    },
+    {
+      "id": "omih",
+      "name": "近江八幡"
+    },
+    {
+      "id": "omij",
+      "name": "御幣島"
+    },
+    {
+      "id": "oogb",
+      "name": "黄檗"
+    },
+    {
+      "id": "ootu",
+      "name": "大津"
+    },
+    {
+      "id": "osak",
+      "name": "大阪"
+    },
+    {
+      "id": "osml",
+      "name": "大住"
+    },
+    {
+      "id": "osng",
+      "name": "忍ヶ丘"
+    },
+    {
+      "id": "otma",
+      "name": "大阪天満宮"
+    },
+    {
+      "id": "rito",
+      "name": "栗東"
+    },
+    {
+      "id": "rokj",
+      "name": "六地蔵"
+    },
+    {
+      "id": "rokk",
+      "name": "六甲道"
+    },
+    {
+      "id": "sakm",
+      "name": "堺市"
+    },
+    {
+      "id": "saku",
+      "name": "桜ノ宮"
+    },
+    {
+      "id": "sand",
+      "name": "三田"
+    },
+    {
+      "id": "sang",
+      "name": "三郷"
+    },
+    {
+      "id": "sass",
+      "name": "篠山口"
+    },
+    {
+      "id": "seta",
+      "name": "瀬田"
+    },
+    {
+      "id": "sgmt",
+      "name": "杉本町"
+    },
+    {
+      "id": "shgy",
+      "name": "鴫野"
+    },
+    {
+      "id": "shik",
+      "name": "志紀"
+    },
+    {
+      "id": "shin",
+      "name": "篠原"
+    },
+    {
+      "id": "shio",
+      "name": "塩屋"
+    },
+    {
+      "id": "shit",
+      "name": "信太山"
+    },
+    {
+      "id": "sima",
+      "name": "島本"
+    },
+    {
+      "id": "sjnw",
+      "name": "四条畷"
+    },
+    {
+      "id": "skuy",
+      "name": "さくら夙川"
+    },
+    {
+      "id": "smtn",
+      "name": "摂津本山"
+    },
+    {
+      "id": "sngg",
+      "name": "新長田"
+    },
+    {
+      "id": "snmy",
+      "name": "三ノ宮"
+    },
+    {
+      "id": "sone",
+      "name": "曽根"
+    },
+    {
+      "id": "srik",
+      "name": "千里丘"
+    },
+    {
+      "id": "ssin",
+      "name": "新大阪"
+    },
+    {
+      "id": "stbn",
+      "name": "南田辺"
+    },
+    {
+      "id": "stom",
+      "name": "摂津富田"
+    },
+    {
+      "id": "suit",
+      "name": "吹田"
+    },
+    {
+      "id": "suma",
+      "name": "須磨"
+    },
+    {
+      "id": "sumd",
+      "name": "住道"
+    },
+    {
+      "id": "sumo",
+      "name": "須磨海浜公園"
+    },
+    {
+      "id": "sums",
+      "name": "住吉"
+    },
+    {
+      "id": "tacd",
+      "name": "宝塚"
+    },
+    {
+      "id": "tach",
+      "name": "立花"
+    },
+    {
+      "id": "tais",
+      "name": "大正"
+    },
+    {
+      "id": "taka",
+      "name": "鷹取"
+    },
+    {
+      "id": "takt",
+      "name": "高槻"
+    },
+    {
+      "id": "tama",
+      "name": "玉造"
+    },
+    {
+      "id": "tamy",
+      "name": "玉水"
+    },
+    {
+      "id": "tank",
+      "name": "棚倉"
+    },
+    {
+      "id": "tema",
+      "name": "天満"
+    },
+    {
+      "id": "tenn",
+      "name": "天王寺"
+    },
+    {
+      "id": "teri",
+      "name": "寺田町"
+    },
+    {
+      "id": "tkdh",
+      "name": "高井田中央"
+    },
+    {
+      "id": "tkdo",
+      "name": "武田尾"
+    },
+    {
+      "id": "tobm",
+      "name": "東部市場前"
+    },
+    {
+      "id": "tskm",
+      "name": "塚本"
+    },
+    {
+      "id": "tsny",
+      "name": "津久野"
+    },
+    {
+      "id": "tsrg",
+      "name": "鶴ヶ丘"
+    },
+    {
+      "id": "tsuc",
+      "name": "土山"
+    },
+    {
+      "id": "tsud",
+      "name": "津田"
+    },
+    {
+      "id": "tsuk",
+      "name": "塚口"
+    },
+    {
+      "id": "tsur",
+      "name": "鶴橋"
+    },
+    {
+      "id": "uji",
+      "name": "宇治"
+    },
+    {
+      "id": "unsh",
+      "name": "上野芝"
+    },
+    {
+      "id": "uozu",
+      "name": "魚住"
+    },
+    {
+      "id": "waka",
+      "name": "和歌山"
+    },
+    {
+      "id": "yama",
+      "name": "山崎"
+    },
+    {
+      "id": "yams",
+      "name": "山科"
+    },
+    {
+      "id": "yaox",
+      "name": "八尾"
+    },
+    {
+      "id": "yasu",
+      "name": "野洲"
+    },
+    {
+      "id": "ymkj",
+      "name": "大和小泉"
+    },
+    {
+      "id": "ymkw",
+      "name": "山田川"
+    },
+    {
+      "id": "ymtg",
+      "name": "山城多賀"
+    },
+    {
+      "id": "zeze",
+      "name": "膳所"
+    }
+  ],
+  "lines": [
+    {
+      "id": "C",
+      "name": "大阪環状線"
+    },
+    {
+      "id": "A",
+      "name": "JR京都線・琵琶湖線"
+    },
+    {
+      "id": "JK",
+      "name": "JR神戸線"
+    },
+    {
+      "id": "G",
+      "name": "JR宝塚線"
+    },
+    {
+      "id": "T",
+      "name": "JR東西線"
+    },
+    {
+      "id": "H",
+      "name": "学研都市線"
+    },
+    {
+      "id": "Q",
+      "name": "大和路線"
+    },
+    {
+      "id": "F",
+      "name": "おおさか東線"
+    },
+    {
+      "id": "R",
+      "name": "阪和線"
+    },
+    {
+      "id": "D",
+      "name": "奈良線"
+    }
+  ],
+  "edges": [
+    {
+      "fromStationId": "osak",
+      "toStationId": "fuku",
+      "lineId": "C",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "fuku",
+      "toStationId": "noda",
+      "lineId": "C",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "noda",
+      "toStationId": "nkuj",
+      "lineId": "C",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nkuj",
+      "toStationId": "bent",
+      "lineId": "C",
+      "distance": 1.6,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "bent",
+      "toStationId": "tais",
+      "lineId": "C",
+      "distance": 1.3,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "tais",
+      "toStationId": "ashi",
+      "lineId": "C",
+      "distance": 1.2,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ashi",
+      "toStationId": "imam",
+      "lineId": "C",
+      "distance": 0.7,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "imam",
+      "toStationId": "niim",
+      "lineId": "C",
+      "distance": 0.4,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "niim",
+      "toStationId": "tenn",
+      "lineId": "C",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tenn",
+      "toStationId": "teri",
+      "lineId": "C",
+      "distance": 0.7,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "teri",
+      "toStationId": "momo",
+      "lineId": "C",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "momo",
+      "toStationId": "tsur",
+      "lineId": "C",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tsur",
+      "toStationId": "tama",
+      "lineId": "C",
+      "distance": 0.8,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tama",
+      "toStationId": "mori",
+      "lineId": "C",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "mori",
+      "toStationId": "ojko",
+      "lineId": "C",
+      "distance": 0.7,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "ojko",
+      "toStationId": "kyob",
+      "lineId": "C",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kyob",
+      "toStationId": "saku",
+      "lineId": "C",
+      "distance": 1.1,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "saku",
+      "toStationId": "tema",
+      "lineId": "C",
+      "distance": 0.8,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tema",
+      "toStationId": "osak",
+      "lineId": "C",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "osak",
+      "toStationId": "ssin",
+      "lineId": "A",
+      "distance": 3.8,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "ssin",
+      "toStationId": "suit",
+      "lineId": "A",
+      "distance": 2.9,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "suit",
+      "toStationId": "kisb",
+      "lineId": "A",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kisb",
+      "toStationId": "srik",
+      "lineId": "A",
+      "distance": 1.5,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "srik",
+      "toStationId": "ibrk",
+      "lineId": "A",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ibrk",
+      "toStationId": "stom",
+      "lineId": "A",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "stom",
+      "toStationId": "takt",
+      "lineId": "A",
+      "distance": 2.8,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "takt",
+      "toStationId": "sima",
+      "lineId": "A",
+      "distance": 5.8,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "sima",
+      "toStationId": "yama",
+      "lineId": "A",
+      "distance": 3.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "yama",
+      "toStationId": "nagk",
+      "lineId": "A",
+      "distance": 3.5,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nagk",
+      "toStationId": "mukt",
+      "lineId": "A",
+      "distance": 1.7,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "mukt",
+      "toStationId": "katg",
+      "lineId": "A",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "katg",
+      "toStationId": "nori",
+      "lineId": "A",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nori",
+      "toStationId": "kyot",
+      "lineId": "A",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kyot",
+      "toStationId": "yams",
+      "lineId": "A",
+      "distance": 5.5,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "yams",
+      "toStationId": "ootu",
+      "lineId": "A",
+      "distance": 4.8,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "ootu",
+      "toStationId": "zeze",
+      "lineId": "A",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "zeze",
+      "toStationId": "ishi",
+      "lineId": "A",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ishi",
+      "toStationId": "seta",
+      "lineId": "A",
+      "distance": 2.7,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "seta",
+      "toStationId": "miku",
+      "lineId": "A",
+      "distance": 3.0,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "miku",
+      "toStationId": "kusa",
+      "lineId": "A",
+      "distance": 2.2,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kusa",
+      "toStationId": "rito",
+      "lineId": "A",
+      "distance": 4.2,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "rito",
+      "toStationId": "morm",
+      "lineId": "A",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "morm",
+      "toStationId": "yasu",
+      "lineId": "A",
+      "distance": 3.6,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "yasu",
+      "toStationId": "shin",
+      "lineId": "A",
+      "distance": 4.2,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "shin",
+      "toStationId": "omih",
+      "lineId": "A",
+      "distance": 4.8,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "omih",
+      "toStationId": "azut",
+      "lineId": "A",
+      "distance": 4.4,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "azut",
+      "toStationId": "notg",
+      "lineId": "A",
+      "distance": 4.0,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "notg",
+      "toStationId": "ineb",
+      "lineId": "A",
+      "distance": 5.5,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "ineb",
+      "toStationId": "hiko",
+      "lineId": "A",
+      "distance": 5.0,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "hiko",
+      "toStationId": "mhik",
+      "lineId": "A",
+      "distance": 2.8,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "mhik",
+      "toStationId": "kawa",
+      "lineId": "A",
+      "distance": 4.5,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "kawa",
+      "toStationId": "maib",
+      "lineId": "A",
+      "distance": 6.2,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "osak",
+      "toStationId": "tskm",
+      "lineId": "JK",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "tskm",
+      "toStationId": "amaz",
+      "lineId": "JK",
+      "distance": 2.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "amaz",
+      "toStationId": "tach",
+      "lineId": "JK",
+      "distance": 3.3,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tach",
+      "toStationId": "kosg",
+      "lineId": "JK",
+      "distance": 1.3,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kosg",
+      "toStationId": "nsmy",
+      "lineId": "JK",
+      "distance": 1.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nsmy",
+      "toStationId": "skuy",
+      "lineId": "JK",
+      "distance": 1.3,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "skuy",
+      "toStationId": "ashy",
+      "lineId": "JK",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "ashy",
+      "toStationId": "komy",
+      "lineId": "JK",
+      "distance": 1.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "komy",
+      "toStationId": "smtn",
+      "lineId": "JK",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "smtn",
+      "toStationId": "sums",
+      "lineId": "JK",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "sums",
+      "toStationId": "rokk",
+      "lineId": "JK",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "rokk",
+      "toStationId": "maya",
+      "lineId": "JK",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "maya",
+      "toStationId": "nada",
+      "lineId": "JK",
+      "distance": 1.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nada",
+      "toStationId": "snmy",
+      "lineId": "JK",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "snmy",
+      "toStationId": "moto",
+      "lineId": "JK",
+      "distance": 0.8,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "moto",
+      "toStationId": "kobe",
+      "lineId": "JK",
+      "distance": 0.7,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kobe",
+      "toStationId": "hyog",
+      "lineId": "JK",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "hyog",
+      "toStationId": "sngg",
+      "lineId": "JK",
+      "distance": 1.6,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "sngg",
+      "toStationId": "taka",
+      "lineId": "JK",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "taka",
+      "toStationId": "sumo",
+      "lineId": "JK",
+      "distance": 1.7,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "sumo",
+      "toStationId": "suma",
+      "lineId": "JK",
+      "distance": 0.8,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "suma",
+      "toStationId": "shio",
+      "lineId": "JK",
+      "distance": 3.0,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "shio",
+      "toStationId": "maik",
+      "lineId": "JK",
+      "distance": 2.2,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "maik",
+      "toStationId": "asag",
+      "lineId": "JK",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "asag",
+      "toStationId": "aksh",
+      "lineId": "JK",
+      "distance": 2.6,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "aksh",
+      "toStationId": "naks",
+      "lineId": "JK",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "naks",
+      "toStationId": "okub",
+      "lineId": "JK",
+      "distance": 2.7,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "okub",
+      "toStationId": "uozu",
+      "lineId": "JK",
+      "distance": 2.8,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "uozu",
+      "toStationId": "tsuc",
+      "lineId": "JK",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tsuc",
+      "toStationId": "ekak",
+      "lineId": "JK",
+      "distance": 2.3,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ekak",
+      "toStationId": "kkok",
+      "lineId": "JK",
+      "distance": 2.8,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "kkok",
+      "toStationId": "hosd",
+      "lineId": "JK",
+      "distance": 5.3,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "hosd",
+      "toStationId": "sone",
+      "lineId": "JK",
+      "distance": 3.8,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "sone",
+      "toStationId": "hmbs",
+      "lineId": "JK",
+      "distance": 3.5,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "hmbs",
+      "toStationId": "okts",
+      "lineId": "JK",
+      "distance": 3.2,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "okts",
+      "toStationId": "ehim",
+      "lineId": "JK",
+      "distance": 2.1,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ehim",
+      "toStationId": "hime",
+      "lineId": "JK",
+      "distance": 2.3,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "amaz",
+      "toStationId": "tsuk",
+      "lineId": "G",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "tsuk",
+      "toStationId": "inan",
+      "lineId": "G",
+      "distance": 2.2,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "inan",
+      "toStationId": "itam",
+      "lineId": "G",
+      "distance": 1.1,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "itam",
+      "toStationId": "kita",
+      "lineId": "G",
+      "distance": 2.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kita",
+      "toStationId": "kwig",
+      "lineId": "G",
+      "distance": 3.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "kwig",
+      "toStationId": "nkym",
+      "lineId": "G",
+      "distance": 3.6,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nkym",
+      "toStationId": "tacd",
+      "lineId": "G",
+      "distance": 3.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tacd",
+      "toStationId": "nase",
+      "lineId": "G",
+      "distance": 3.4,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nase",
+      "toStationId": "nsmg",
+      "lineId": "G",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "nsmg",
+      "toStationId": "tkdo",
+      "lineId": "G",
+      "distance": 5.5,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "tkdo",
+      "toStationId": "dojo",
+      "lineId": "G",
+      "distance": 7.7,
+      "travelTime": 10
+    },
+    {
+      "fromStationId": "dojo",
+      "toStationId": "sand",
+      "lineId": "G",
+      "distance": 5.6,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "sand",
+      "toStationId": "nsnd",
+      "lineId": "G",
+      "distance": 3.2,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nsnd",
+      "toStationId": "hiro",
+      "lineId": "G",
+      "distance": 3.8,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "hiro",
+      "toStationId": "aino",
+      "lineId": "G",
+      "distance": 5.3,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "aino",
+      "toStationId": "aibm",
+      "lineId": "G",
+      "distance": 4.8,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "aibm",
+      "toStationId": "kuno",
+      "lineId": "G",
+      "distance": 4.0,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "kuno",
+      "toStationId": "furu",
+      "lineId": "G",
+      "distance": 4.9,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "furu",
+      "toStationId": "nmat",
+      "lineId": "G",
+      "distance": 2.8,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nmat",
+      "toStationId": "sass",
+      "lineId": "G",
+      "distance": 5.2,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "kyob",
+      "toStationId": "ojkk",
+      "lineId": "T",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "ojkk",
+      "toStationId": "otma",
+      "lineId": "T",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "otma",
+      "toStationId": "kitj",
+      "lineId": "T",
+      "distance": 1.5,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kitj",
+      "toStationId": "nfuk",
+      "lineId": "T",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "nfuk",
+      "toStationId": "ebig",
+      "lineId": "T",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "ebig",
+      "toStationId": "omij",
+      "lineId": "T",
+      "distance": 1.5,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "omij",
+      "toStationId": "kasm",
+      "lineId": "T",
+      "distance": 1.1,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kasm",
+      "toStationId": "amaz",
+      "lineId": "T",
+      "distance": 2.1,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kyob",
+      "toStationId": "shgy",
+      "lineId": "H",
+      "distance": 1.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "shgy",
+      "toStationId": "sumd",
+      "lineId": "H",
+      "distance": 2.9,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "sumd",
+      "toStationId": "nozk",
+      "lineId": "H",
+      "distance": 2.8,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "nozk",
+      "toStationId": "sjnw",
+      "lineId": "H",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "sjnw",
+      "toStationId": "osng",
+      "lineId": "H",
+      "distance": 2.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "osng",
+      "toStationId": "hosh",
+      "lineId": "H",
+      "distance": 2.0,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "hosh",
+      "toStationId": "kaim",
+      "lineId": "H",
+      "distance": 2.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "kaim",
+      "toStationId": "tsud",
+      "lineId": "H",
+      "distance": 2.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tsud",
+      "toStationId": "fujs",
+      "lineId": "H",
+      "distance": 1.6,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "fujs",
+      "toStationId": "nago",
+      "lineId": "H",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nago",
+      "toStationId": "mtsm",
+      "lineId": "H",
+      "distance": 2.9,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "mtsm",
+      "toStationId": "osml",
+      "lineId": "H",
+      "distance": 3.0,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "osml",
+      "toStationId": "ymkw",
+      "lineId": "H",
+      "distance": 2.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "ymkw",
+      "toStationId": "hogn",
+      "lineId": "H",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "hogn",
+      "toStationId": "nkiz",
+      "lineId": "H",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nkiz",
+      "toStationId": "kizu",
+      "lineId": "H",
+      "distance": 1.6,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "jrnb",
+      "toStationId": "imam",
+      "lineId": "Q",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "imam",
+      "toStationId": "niim",
+      "lineId": "Q",
+      "distance": 0.4,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "niim",
+      "toStationId": "tenn",
+      "lineId": "Q",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tenn",
+      "toStationId": "tobm",
+      "lineId": "Q",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "tobm",
+      "toStationId": "kami",
+      "lineId": "Q",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kami",
+      "toStationId": "kubd",
+      "lineId": "Q",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kubd",
+      "toStationId": "yaox",
+      "lineId": "Q",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "yaox",
+      "toStationId": "shik",
+      "lineId": "Q",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "shik",
+      "toStationId": "kasw",
+      "lineId": "Q",
+      "distance": 2.4,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "kasw",
+      "toStationId": "kktg",
+      "lineId": "Q",
+      "distance": 3.3,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "kktg",
+      "toStationId": "sang",
+      "lineId": "Q",
+      "distance": 5.3,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "sang",
+      "toStationId": "ojii",
+      "lineId": "Q",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ojii",
+      "toStationId": "horj",
+      "lineId": "Q",
+      "distance": 4.5,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "horj",
+      "toStationId": "ymkj",
+      "lineId": "Q",
+      "distance": 4.6,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "ymkj",
+      "toStationId": "kory",
+      "lineId": "Q",
+      "distance": 2.2,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "kory",
+      "toStationId": "nara",
+      "lineId": "Q",
+      "distance": 4.4,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "nara",
+      "toStationId": "obik",
+      "lineId": "Q",
+      "distance": 2.6,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "obik",
+      "toStationId": "kizu",
+      "lineId": "Q",
+      "distance": 9.2,
+      "travelTime": 12
+    },
+    {
+      "fromStationId": "kizu",
+      "toStationId": "kamo",
+      "lineId": "Q",
+      "distance": 6.0,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "ssin",
+      "toStationId": "msut",
+      "lineId": "F",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "msut",
+      "toStationId": "jlwj",
+      "lineId": "F",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "jlwj",
+      "toStationId": "kjhk",
+      "lineId": "F",
+      "distance": 1.6,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kjhk",
+      "toStationId": "noej",
+      "lineId": "F",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "noej",
+      "toStationId": "jrne",
+      "lineId": "F",
+      "distance": 0.6,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "jrne",
+      "toStationId": "shgy",
+      "lineId": "F",
+      "distance": 0.8,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "shgy",
+      "toStationId": "hant",
+      "lineId": "F",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "hant",
+      "toStationId": "tkdh",
+      "lineId": "F",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "tkdh",
+      "toStationId": "jrss",
+      "lineId": "F",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "jrss",
+      "toStationId": "jrng",
+      "lineId": "F",
+      "distance": 1.0,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "jrng",
+      "toStationId": "kshk",
+      "lineId": "F",
+      "distance": 1.1,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kshk",
+      "toStationId": "nkam",
+      "lineId": "F",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "nkam",
+      "toStationId": "kubd",
+      "lineId": "F",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "shgy",
+      "toStationId": "hant",
+      "lineId": "H",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tenn",
+      "toStationId": "mshe",
+      "lineId": "R",
+      "distance": 1.1,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "mshe",
+      "toStationId": "stbn",
+      "lineId": "R",
+      "distance": 0.6,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "stbn",
+      "toStationId": "tsrg",
+      "lineId": "R",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tsrg",
+      "toStationId": "nage",
+      "lineId": "R",
+      "distance": 0.8,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "nage",
+      "toStationId": "abkm",
+      "lineId": "R",
+      "distance": 1.3,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "abkm",
+      "toStationId": "sgmt",
+      "lineId": "R",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "sgmt",
+      "toStationId": "asak",
+      "lineId": "R",
+      "distance": 1.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "asak",
+      "toStationId": "sakm",
+      "lineId": "R",
+      "distance": 1.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "sakm",
+      "toStationId": "miko",
+      "lineId": "R",
+      "distance": 2.4,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "miko",
+      "toStationId": "mobs",
+      "lineId": "R",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "mobs",
+      "toStationId": "unsh",
+      "lineId": "R",
+      "distance": 1.7,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "unsh",
+      "toStationId": "tsny",
+      "lineId": "R",
+      "distance": 2.6,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tsny",
+      "toStationId": "izfc",
+      "lineId": "R",
+      "distance": 4.5,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "izfc",
+      "toStationId": "shit",
+      "lineId": "R",
+      "distance": 3.5,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "shit",
+      "toStationId": "kish",
+      "lineId": "R",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kish",
+      "toStationId": "higk",
+      "lineId": "R",
+      "distance": 5.8,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "higk",
+      "toStationId": "kumt",
+      "lineId": "R",
+      "distance": 6.8,
+      "travelTime": 10
+    },
+    {
+      "fromStationId": "kumt",
+      "toStationId": "hine",
+      "lineId": "R",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "hine",
+      "toStationId": "waka",
+      "lineId": "R",
+      "distance": 28.0,
+      "travelTime": 35
+    },
+    {
+      "fromStationId": "kyot",
+      "toStationId": "higf",
+      "lineId": "D",
+      "distance": 2.0,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "higf",
+      "toStationId": "inar",
+      "lineId": "D",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "inar",
+      "toStationId": "jrfj",
+      "lineId": "D",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "jrfj",
+      "toStationId": "momy",
+      "lineId": "D",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "momy",
+      "toStationId": "rokj",
+      "lineId": "D",
+      "distance": 2.7,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "rokj",
+      "toStationId": "kobj",
+      "lineId": "D",
+      "distance": 1.3,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kobj",
+      "toStationId": "oogb",
+      "lineId": "D",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "oogb",
+      "toStationId": "uji",
+      "lineId": "D",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "uji",
+      "toStationId": "jobj",
+      "lineId": "D",
+      "distance": 4.3,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "jobj",
+      "toStationId": "nagp",
+      "lineId": "D",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nagp",
+      "toStationId": "ymtg",
+      "lineId": "D",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ymtg",
+      "toStationId": "tamy",
+      "lineId": "D",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tamy",
+      "toStationId": "tank",
+      "lineId": "D",
+      "distance": 2.6,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tank",
+      "toStationId": "kgkm",
+      "lineId": "D",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kgkm",
+      "toStationId": "kizu",
+      "lineId": "D",
+      "distance": 2.5,
+      "travelTime": 4
+    }
+  ]
+}
