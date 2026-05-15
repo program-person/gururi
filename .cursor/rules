@@ -1,0 +1,75 @@
+# Cursor Rules
+
+## Project Context
+
+This project is a route planning system for JR West railway networks.
+
+The goal (Phase 1) is to implement a shortest path search between two stations using graph algorithms.
+
+---
+
+## Tech Stack
+
+- Backend: Python (FastAPI)
+- Data: JSON or SQLite
+- Algorithm: Dijkstra
+
+---
+
+## Data Model Constraints
+
+You must follow these data models:
+
+### Station
+- id: string
+- name: string
+
+### Line
+- id: string
+- name: string
+
+### Edge
+- fromStationId: string
+- toStationId: string
+- lineId: string
+- distance: number
+- travelTime: number
+
+Do not modify these structures unless explicitly instructed.
+
+---
+
+## Coding Guidelines
+
+- Use Python type hints in all functions
+- Keep functions small and focused (single responsibility)
+- Write clear and simple code
+- Add comments for non-trivial logic
+- Avoid magic numbers
+
+---
+
+## Implementation Rules
+
+- Do NOT implement large features at once
+- Always propose a plan before writing code
+- Wait for approval before implementing
+- Ask questions if requirements are unclear
+
+---
+
+## Constraints
+
+- Do not introduce new libraries without permission
+- Do not assume undefined requirements
+- Do not over-engineer the solution
+
+---
+
+## Output Expectations
+
+When responding:
+
+1. Explain the approach
+2. Provide code
+3. Add brief explanation if necessary

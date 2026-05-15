@@ -26,6 +26,7 @@ const LINE_MAP: Record<string, string> = {
 export default function Home() {
   const [stations, setStations] = useState<Station[]>([]);
   const [stationMap, setStationMap] = useState<Record<string, string>>({});
+  const [stationGeo, setStationGeo] = useState<Record<string, { lat: number; lng: number }>>({});
 
   const [startStation, setStartStation] = useState<Station | null>(null);
   const [mode, setMode] = useState<Mode>("free");
@@ -40,8 +41,13 @@ export default function Home() {
     api.stations().then((data) => {
       setStations(data);
       const sm: Record<string, string> = {};
-      data.forEach((s) => (sm[s.id] = s.name));
+      const geo: Record<string, { lat: number; lng: number }> = {};
+      data.forEach((s) => {
+        sm[s.id] = s.name;
+        if (s.lat != null && s.lng != null) geo[s.id] = { lat: s.lat, lng: s.lng };
+      });
       setStationMap(sm);
+      setStationGeo(geo);
     });
   }, []);
 
@@ -164,6 +170,7 @@ export default function Home() {
                 rank={i + 1}
                 stationMap={stationMap}
                 lineMap={LINE_MAP}
+                stationGeo={stationGeo}
               />
             ))}
           </div>

@@ -3,6 +3,8 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 export interface Station {
   id: string;
   name: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface PathSegment {

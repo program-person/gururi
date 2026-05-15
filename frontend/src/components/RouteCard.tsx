@@ -9,9 +9,10 @@ interface Props {
   rank: number;
   stationMap: Record<string, string>;
   lineMap: Record<string, string>;
+  stationGeo: Record<string, { lat: number; lng: number }>;
 }
 
-export default function RouteCard({ route, rank, stationMap, lineMap }: Props) {
+export default function RouteCard({ route, rank, stationMap, lineMap, stationGeo }: Props) {
   const [showMap, setShowMap] = useState(false);
 
   const start = stationMap[route.path[0]?.stationId] ?? route.path[0]?.stationId;
@@ -98,7 +99,7 @@ export default function RouteCard({ route, rank, stationMap, lineMap }: Props) {
 
       {/* ルート図 */}
       {showMap && (
-        <RouteMap route={route} stationMap={stationMap} lineMap={lineMap} />
+        <RouteMap route={route} stationMap={stationMap} lineMap={lineMap} stationGeo={stationGeo} />
       )}
     </div>
   );

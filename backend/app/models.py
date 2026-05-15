@@ -11,6 +11,8 @@ class OptimizeBy(str, Enum):
 class Station(BaseModel):
     id: str
     name: str
+    lat: float | None = None
+    lng: float | None = None
 
 
 class Line(BaseModel):
