@@ -57,9 +57,10 @@ export const api = {
 
   omawari: (
     startStationId: string,
-    opts: { maxTimeMin?: number; maxStations?: number; numResults?: number } = {}
+    opts: { endStationId?: string; maxTimeMin?: number; maxStations?: number; numResults?: number } = {}
   ): Promise<OmawariRoute[]> => {
     const p = new URLSearchParams({ startStationId });
+    if (opts.endStationId) p.set("endStationId", opts.endStationId);
     if (opts.maxTimeMin) p.set("maxTimeMin", String(opts.maxTimeMin));
     if (opts.maxStations) p.set("maxStations", String(opts.maxStations));
     if (opts.numResults) p.set("numResults", String(opts.numResults));

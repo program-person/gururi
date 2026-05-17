@@ -123,17 +123,23 @@ def get_fare(
 def get_omawari(
     request: Request,
     start_station_id: str = Query(..., alias="startStationId"),
+    end_station_id: str | None = Query(None, alias="endStationId"),
     max_time_min: float = Query(480.0, alias="maxTimeMin", ge=30, le=720),
-    max_stations: int = Query(40, alias="maxStations", ge=5, le=80),
+    max_stations: int = Query(50, alias="maxStations", ge=5, le=100),
     num_results: int = Query(5, alias="numResults", ge=1, le=20),
 ) -> list[OmawariRoute]:
     rail = get_rail(request)
     _check_station(rail, start_station_id, "Start station")
+    if end_station_id is not None:
+        _check_station(rail, end_station_id, "End station")
+        if end_station_id == start_station_id:
+            raise HTTPException(status_code=400, detail="Start and end station must differ")
 
     return find_omawari_routes(
         rail.adj,
         start_station_id,
         rail.fare_table,
+        end=end_station_id,
         max_stations=max_stations,
         max_time_min=max_time_min,
         num_results=num_results,

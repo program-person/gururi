@@ -7,6 +7,12 @@
       "lng": 135.53
     },
     {
+      "id": "abuhi",
+      "name": "油日",
+      "lat": 34.757,
+      "lng": 136.027
+    },
+    {
       "id": "aibm",
       "name": "藍本",
       "lat": 34.988,
@@ -29,6 +35,12 @@
       "name": "尼崎",
       "lat": 34.726,
       "lng": 135.408
+    },
+    {
+      "id": "arakw",
+      "name": "新家",
+      "lat": 34.348,
+      "lng": 135.346
     },
     {
       "id": "asag",
@@ -55,6 +67,12 @@
       "lng": 135.301
     },
     {
+      "id": "azmk",
+      "name": "安曇川",
+      "lat": 35.384,
+      "lng": 135.951
+    },
+    {
       "id": "azut",
       "name": "安土",
       "lat": 35.154,
@@ -65,6 +83,12 @@
       "name": "弁天町",
       "lat": 34.669,
       "lng": 135.467
+    },
+    {
+      "id": "chiyg",
+      "name": "千代川",
+      "lat": 35.011,
+      "lng": 135.516
     },
     {
       "id": "dojo",
@@ -91,6 +115,12 @@
       "lng": 134.859
     },
     {
+      "id": "enis",
+      "name": "近江塩津",
+      "lat": 35.504,
+      "lng": 136.143
+    },
+    {
       "id": "fujs",
       "name": "藤阪",
       "lat": 34.833,
@@ -109,10 +139,52 @@
       "lng": 135.177
     },
     {
+      "id": "gojo",
+      "name": "五条",
+      "lat": 34.352,
+      "lng": 135.698
+    },
+    {
+      "id": "gose",
+      "name": "御所",
+      "lat": 34.456,
+      "lng": 135.739
+    },
+    {
+      "id": "hanaz",
+      "name": "花園",
+      "lat": 35.012,
+      "lng": 135.711
+    },
+    {
       "id": "hant",
       "name": "放出",
       "lat": 34.684,
       "lng": 135.562
+    },
+    {
+      "id": "hashim",
+      "name": "橋本",
+      "lat": 34.312,
+      "lng": 135.601
+    },
+    {
+      "id": "hatad",
+      "name": "畠田",
+      "lat": 34.537,
+      "lng": 135.679
+    },
+    {
+      "id": "heiz",
+      "name": "比叡山坂本",
+      "lat": 35.075,
+      "lng": 135.874
+    },
+    {
+      "id": "hgmo",
+      "name": "東羽衣",
+      "lat": 34.553,
+      "lng": 135.499
     },
     {
       "id": "higf",
@@ -181,6 +253,12 @@
       "lng": 135.665
     },
     {
+      "id": "hozuk",
+      "name": "保津峡",
+      "lat": 35.042,
+      "lng": 135.63
+    },
+    {
       "id": "hyog",
       "name": "兵庫",
       "lat": 34.672,
@@ -223,16 +301,40 @@
       "lng": 135.906
     },
     {
+      "id": "isibe",
+      "name": "石部",
+      "lat": 34.946,
+      "lng": 135.884
+    },
+    {
       "id": "itam",
       "name": "伊丹",
       "lat": 34.772,
       "lng": 135.404
     },
     {
+      "id": "iwade",
+      "name": "岩出",
+      "lat": 34.249,
+      "lng": 135.317
+    },
+    {
       "id": "izfc",
       "name": "和泉府中",
       "lat": 34.506,
       "lng": 135.477
+    },
+    {
+      "id": "izsk",
+      "name": "和泉砂川",
+      "lat": 34.325,
+      "lng": 135.366
+    },
+    {
+      "id": "iztot",
+      "name": "和泉鳥取",
+      "lat": 34.296,
+      "lng": 135.367
     },
     {
       "id": "jlwj",
@@ -283,6 +385,12 @@
       "lng": 135.685
     },
     {
+      "id": "kameo",
+      "name": "亀岡",
+      "lat": 35.021,
+      "lng": 135.577
+    },
+    {
       "id": "kami",
       "name": "加美",
       "lat": 34.645,
@@ -293,6 +401,24 @@
       "name": "加茂",
       "lat": 34.761,
       "lng": 135.9
+    },
+    {
+      "id": "kanh",
+      "name": "金橋",
+      "lat": 34.519,
+      "lng": 135.753
+    },
+    {
+      "id": "karas",
+      "name": "唐崎",
+      "lat": 35.051,
+      "lng": 135.861
+    },
+    {
+      "id": "kasag",
+      "name": "笠置",
+      "lat": 34.773,
+      "lng": 135.961
     },
     {
       "id": "kasm",
@@ -307,6 +433,12 @@
       "lng": 135.648
     },
     {
+      "id": "kata",
+      "name": "堅田",
+      "lat": 35.151,
+      "lng": 135.928
+    },
+    {
       "id": "katg",
       "name": "桂川",
       "lat": 34.96,
@@ -319,10 +451,40 @@
       "lng": 136.282
     },
     {
+      "id": "kawmk",
+      "name": "河毛",
+      "lat": 35.421,
+      "lng": 136.231
+    },
+    {
       "id": "kgkm",
       "name": "上狛",
       "lat": 34.79,
       "lng": 135.794
+    },
+    {
+      "id": "kgwa",
+      "name": "粉河",
+      "lat": 34.212,
+      "lng": 135.395
+    },
+    {
+      "id": "kibuk",
+      "name": "貴生川",
+      "lat": 34.795,
+      "lng": 135.943
+    },
+    {
+      "id": "kii",
+      "name": "紀伊",
+      "lat": 34.238,
+      "lng": 135.238
+    },
+    {
+      "id": "kinsh",
+      "name": "紀伊中ノ島",
+      "lat": 34.246,
+      "lng": 135.195
     },
     {
       "id": "kisb",
@@ -373,6 +535,18 @@
       "lng": 135.67
     },
     {
+      "id": "knmot",
+      "name": "木ノ本",
+      "lat": 35.463,
+      "lng": 136.175
+    },
+    {
+      "id": "knog",
+      "name": "高野口",
+      "lat": 34.223,
+      "lng": 135.522
+    },
+    {
       "id": "kobe",
       "name": "神戸",
       "lat": 34.679,
@@ -383,6 +557,12 @@
       "name": "木幡",
       "lat": 34.925,
       "lng": 135.815
+    },
+    {
+      "id": "koka",
+      "name": "甲賀",
+      "lat": 34.829,
+      "lng": 135.914
     },
     {
       "id": "komy",
@@ -401,6 +581,12 @@
       "name": "甲子園口",
       "lat": 34.721,
       "lng": 135.373
+    },
+    {
+      "id": "ksei",
+      "name": "甲西",
+      "lat": 34.913,
+      "lng": 135.882
     },
     {
       "id": "kshk",
@@ -451,6 +637,18 @@
       "lng": 135.768
     },
     {
+      "id": "kyots",
+      "name": "京終",
+      "lat": 34.663,
+      "lng": 135.831
+    },
+    {
+      "id": "mabor",
+      "name": "馬堀",
+      "lat": 35.028,
+      "lng": 135.591
+    },
+    {
       "id": "maib",
       "name": "米原",
       "lat": 35.319,
@@ -461,6 +659,18 @@
       "name": "舞子",
       "lat": 34.628,
       "lng": 135.038
+    },
+    {
+      "id": "maki",
+      "name": "マキノ",
+      "lat": 35.495,
+      "lng": 136.039
+    },
+    {
+      "id": "makk",
+      "name": "巻向",
+      "lat": 34.589,
+      "lng": 135.848
     },
     {
       "id": "maya",
@@ -485,6 +695,18 @@
       "name": "南草津",
       "lat": 35.013,
       "lng": 135.968
+    },
+    {
+      "id": "miwa",
+      "name": "三輪",
+      "lat": 34.557,
+      "lng": 135.847
+    },
+    {
+      "id": "mkumo",
+      "name": "三雲",
+      "lat": 34.862,
+      "lng": 135.883
     },
     {
       "id": "mobs",
@@ -547,10 +769,28 @@
       "lng": 135.692
     },
     {
+      "id": "muts",
+      "name": "六十谷",
+      "lat": 34.254,
+      "lng": 135.218
+    },
+    {
+      "id": "myoji",
+      "name": "妙寺",
+      "lat": 34.258,
+      "lng": 135.525
+    },
+    {
       "id": "nada",
       "name": "灘",
       "lat": 34.711,
       "lng": 135.209
+    },
+    {
+      "id": "nagar",
+      "name": "永原",
+      "lat": 35.503,
+      "lng": 136.091
     },
     {
       "id": "nage",
@@ -577,10 +817,28 @@
       "lng": 135.803
     },
     {
+      "id": "nagr",
+      "name": "長柄",
+      "lat": 34.638,
+      "lng": 135.837
+    },
+    {
+      "id": "nagtk",
+      "name": "長滝",
+      "lat": 34.374,
+      "lng": 135.329
+    },
+    {
       "id": "naks",
       "name": "西明石",
       "lat": 34.641,
       "lng": 134.969
+    },
+    {
+      "id": "namik",
+      "name": "並河",
+      "lat": 35.015,
+      "lng": 135.546
     },
     {
       "id": "nara",
@@ -601,10 +859,22 @@
       "lng": 135.484
     },
     {
+      "id": "ngham",
+      "name": "長浜",
+      "lat": 35.377,
+      "lng": 136.281
+    },
+    {
       "id": "niim",
       "name": "新今宮",
       "lat": 34.649,
       "lng": 135.501
+    },
+    {
+      "id": "nijo",
+      "name": "二条",
+      "lat": 35.013,
+      "lng": 135.733
     },
     {
       "id": "nkam",
@@ -617,6 +887,12 @@
       "name": "西木津",
       "lat": 34.932,
       "lng": 135.812
+    },
+    {
+      "id": "nkmt",
+      "name": "北小松",
+      "lat": 35.241,
+      "lng": 135.964
     },
     {
       "id": "nkuj",
@@ -691,6 +967,24 @@
       "lng": 135.856
     },
     {
+      "id": "ogot",
+      "name": "おごと温泉",
+      "lat": 35.112,
+      "lng": 135.901
+    },
+    {
+      "id": "oimts",
+      "name": "近江今津",
+      "lat": 35.463,
+      "lng": 135.937
+    },
+    {
+      "id": "oinsl",
+      "name": "近江中庄",
+      "lat": 35.48,
+      "lng": 135.99
+    },
+    {
       "id": "ojii",
       "name": "王寺",
       "lat": 34.552,
@@ -707,6 +1001,12 @@
       "name": "大阪城公園",
       "lat": 34.686,
       "lng": 135.532
+    },
+    {
+      "id": "okrw",
+      "name": "大河原",
+      "lat": 34.789,
+      "lng": 136.009
     },
     {
       "id": "okts",
@@ -731,6 +1031,12 @@
       "name": "御幣島",
       "lat": 34.706,
       "lng": 135.459
+    },
+    {
+      "id": "onoks",
+      "name": "小野",
+      "lat": 35.183,
+      "lng": 135.944
     },
     {
       "id": "oogb",
@@ -763,10 +1069,28 @@
       "lng": 135.647
     },
     {
+      "id": "otakn",
+      "name": "近江高島",
+      "lat": 35.33,
+      "lng": 135.996
+    },
+    {
+      "id": "otky",
+      "name": "大津京",
+      "lat": 35.024,
+      "lng": 135.786
+    },
+    {
       "id": "otma",
       "name": "大阪天満宮",
       "lat": 34.695,
       "lng": 135.51
+    },
+    {
+      "id": "otori",
+      "name": "鳳",
+      "lat": 34.543,
+      "lng": 135.509
     },
     {
       "id": "rito",
@@ -787,16 +1111,34 @@
       "lng": 135.236
     },
     {
+      "id": "sagaa",
+      "name": "嵯峨嵐山",
+      "lat": 35.018,
+      "lng": 135.673
+    },
+    {
       "id": "sakm",
       "name": "堺市",
       "lat": 34.567,
       "lng": 135.537
     },
     {
+      "id": "sakta",
+      "name": "坂田",
+      "lat": 35.335,
+      "lng": 136.282
+    },
+    {
       "id": "saku",
       "name": "桜ノ宮",
       "lat": 34.702,
       "lng": 135.524
+    },
+    {
+      "id": "sakur",
+      "name": "桜井",
+      "lat": 34.513,
+      "lng": 135.845
     },
     {
       "id": "sand",
@@ -841,6 +1183,12 @@
       "lng": 135.626
     },
     {
+      "id": "shimag",
+      "name": "島ヶ原",
+      "lat": 34.762,
+      "lng": 136.089
+    },
+    {
       "id": "shin",
       "name": "篠原",
       "lat": 35.126,
@@ -883,6 +1231,12 @@
       "lng": 135.265
     },
     {
+      "id": "snasl",
+      "name": "新旭",
+      "lat": 35.417,
+      "lng": 135.932
+    },
+    {
       "id": "sngg",
       "name": "新長田",
       "lat": 34.668,
@@ -899,6 +1253,12 @@
       "name": "曽根",
       "lat": 34.806,
       "lng": 134.773
+    },
+    {
+      "id": "sonob",
+      "name": "園部",
+      "lat": 35.086,
+      "lng": 135.449
     },
     {
       "id": "srik",
@@ -943,6 +1303,12 @@
       "lng": 135.601
     },
     {
+      "id": "sumid",
+      "name": "隅田",
+      "lat": 34.282,
+      "lng": 135.573
+    },
+    {
       "id": "sumo",
       "name": "須磨海浜公園",
       "lat": 34.654,
@@ -979,6 +1345,18 @@
       "lng": 135.132
     },
     {
+      "id": "takat",
+      "name": "高田",
+      "lat": 34.52,
+      "lng": 135.716
+    },
+    {
+      "id": "takm",
+      "name": "高月",
+      "lat": 35.444,
+      "lng": 136.208
+    },
+    {
       "id": "takt",
       "name": "高槻",
       "lat": 34.85,
@@ -989,6 +1367,18 @@
       "name": "玉造",
       "lat": 34.676,
       "lng": 135.533
+    },
+    {
+      "id": "tamba",
+      "name": "丹波口",
+      "lat": 35.003,
+      "lng": 135.724
+    },
+    {
+      "id": "tamrb",
+      "name": "田村",
+      "lat": 35.354,
+      "lng": 136.277
     },
     {
       "id": "tamy",
@@ -1021,6 +1411,12 @@
       "lng": 135.525
     },
     {
+      "id": "tewr",
+      "name": "手原",
+      "lat": 34.979,
+      "lng": 135.921
+    },
+    {
       "id": "tkdh",
       "name": "高井田中央",
       "lat": 34.675,
@@ -1037,6 +1433,12 @@
       "name": "東部市場前",
       "lat": 34.645,
       "lng": 135.526
+    },
+    {
+      "id": "tonhm",
+      "name": "虎姫",
+      "lat": 35.408,
+      "lng": 136.264
     },
     {
       "id": "tskm",
@@ -1069,10 +1471,22 @@
       "lng": 135.697
     },
     {
+      "id": "tsuge",
+      "name": "柘植",
+      "lat": 34.737,
+      "lng": 136.128
+    },
+    {
       "id": "tsuk",
       "name": "塚口",
       "lat": 34.747,
       "lng": 135.412
+    },
+    {
+      "id": "tsukig",
+      "name": "月ヶ瀬口",
+      "lat": 34.781,
+      "lng": 136.055
     },
     {
       "id": "tsur",
@@ -1087,6 +1501,12 @@
       "lng": 135.806
     },
     {
+      "id": "umek",
+      "name": "梅小路京都西",
+      "lat": 34.996,
+      "lng": 135.737
+    },
+    {
       "id": "unsh",
       "name": "上野芝",
       "lat": 34.539,
@@ -1099,10 +1519,28 @@
       "lng": 134.9
     },
     {
+      "id": "uzum",
+      "name": "太秦",
+      "lat": 35.018,
+      "lng": 135.697
+    },
+    {
       "id": "waka",
       "name": "和歌山",
       "lat": 34.231,
       "lng": 135.175
+    },
+    {
+      "id": "wani",
+      "name": "和邇",
+      "lat": 35.209,
+      "lng": 135.952
+    },
+    {
+      "id": "yagi",
+      "name": "八木",
+      "lat": 35.022,
+      "lng": 135.477
     },
     {
       "id": "yama",
@@ -1129,6 +1567,12 @@
       "lng": 136.032
     },
     {
+      "id": "ymkdv",
+      "name": "山中渓",
+      "lat": 34.271,
+      "lng": 135.342
+    },
+    {
       "id": "ymkj",
       "name": "大和小泉",
       "lat": 34.634,
@@ -1144,6 +1588,24 @@
       "id": "ymtg",
       "name": "山城多賀",
       "lat": 34.829,
+      "lng": 135.791
+    },
+    {
+      "id": "yogo",
+      "name": "余呉",
+      "lat": 35.48,
+      "lng": 136.156
+    },
+    {
+      "id": "yoshi",
+      "name": "吉富",
+      "lat": 35.044,
+      "lng": 135.441
+    },
+    {
+      "id": "yyagi",
+      "name": "大和八木",
+      "lat": 34.513,
       "lng": 135.791
     },
     {
@@ -1193,6 +1655,38 @@
     {
       "id": "D",
       "name": "奈良線"
+    },
+    {
+      "id": "KS",
+      "name": "湖西線"
+    },
+    {
+      "id": "NR",
+      "name": "北陸本線"
+    },
+    {
+      "id": "KB",
+      "name": "草津線"
+    },
+    {
+      "id": "KN",
+      "name": "関西本線"
+    },
+    {
+      "id": "E",
+      "name": "嵯峨野線"
+    },
+    {
+      "id": "U",
+      "name": "桜井線"
+    },
+    {
+      "id": "W",
+      "name": "和歌山線"
+    },
+    {
+      "id": "HA",
+      "name": "羽衣支線"
     }
   ],
   "edges": [
@@ -2437,17 +2931,24 @@
     },
     {
       "fromStationId": "unsh",
+      "toStationId": "otori",
+      "lineId": "R",
+      "distance": 1.5,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "otori",
       "toStationId": "tsny",
       "lineId": "R",
-      "distance": 2.6,
-      "travelTime": 4
+      "distance": 1.1,
+      "travelTime": 2
     },
     {
       "fromStationId": "tsny",
       "toStationId": "izfc",
       "lineId": "R",
-      "distance": 4.5,
-      "travelTime": 6
+      "distance": 2.0,
+      "travelTime": 3
     },
     {
       "fromStationId": "izfc",
@@ -2486,10 +2987,66 @@
     },
     {
       "fromStationId": "hine",
+      "toStationId": "nagtk",
+      "lineId": "R",
+      "distance": 4.3,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "nagtk",
+      "toStationId": "arakw",
+      "lineId": "R",
+      "distance": 3.3,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "arakw",
+      "toStationId": "izsk",
+      "lineId": "R",
+      "distance": 2.8,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "izsk",
+      "toStationId": "iztot",
+      "lineId": "R",
+      "distance": 3.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "iztot",
+      "toStationId": "ymkdv",
+      "lineId": "R",
+      "distance": 3.6,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "ymkdv",
+      "toStationId": "kii",
+      "lineId": "R",
+      "distance": 5.1,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "kii",
+      "toStationId": "muts",
+      "lineId": "R",
+      "distance": 2.1,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "muts",
+      "toStationId": "kinsh",
+      "lineId": "R",
+      "distance": 1.6,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "kinsh",
       "toStationId": "waka",
       "lineId": "R",
-      "distance": 28.0,
-      "travelTime": 35
+      "distance": 2.0,
+      "travelTime": 3
     },
     {
       "fromStationId": "kyot",
@@ -2594,6 +3151,517 @@
       "toStationId": "kizu",
       "lineId": "D",
       "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "yams",
+      "toStationId": "otky",
+      "lineId": "KS",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "otky",
+      "toStationId": "karas",
+      "lineId": "KS",
+      "distance": 3.5,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "karas",
+      "toStationId": "heiz",
+      "lineId": "KS",
+      "distance": 2.7,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "heiz",
+      "toStationId": "ogot",
+      "lineId": "KS",
+      "distance": 4.7,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "ogot",
+      "toStationId": "kata",
+      "lineId": "KS",
+      "distance": 4.2,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "kata",
+      "toStationId": "onoks",
+      "lineId": "KS",
+      "distance": 3.8,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "onoks",
+      "toStationId": "wani",
+      "lineId": "KS",
+      "distance": 2.9,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "wani",
+      "toStationId": "nkmt",
+      "lineId": "KS",
+      "distance": 3.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "nkmt",
+      "toStationId": "otakn",
+      "lineId": "KS",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "otakn",
+      "toStationId": "azmk",
+      "lineId": "KS",
+      "distance": 9.8,
+      "travelTime": 12
+    },
+    {
+      "fromStationId": "azmk",
+      "toStationId": "snasl",
+      "lineId": "KS",
+      "distance": 6.3,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "snasl",
+      "toStationId": "oimts",
+      "lineId": "KS",
+      "distance": 3.5,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "oimts",
+      "toStationId": "oinsl",
+      "lineId": "KS",
+      "distance": 5.4,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "oinsl",
+      "toStationId": "maki",
+      "lineId": "KS",
+      "distance": 3.6,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "maki",
+      "toStationId": "nagar",
+      "lineId": "KS",
+      "distance": 3.3,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nagar",
+      "toStationId": "enis",
+      "lineId": "KS",
+      "distance": 6.3,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "maib",
+      "toStationId": "sakta",
+      "lineId": "NR",
+      "distance": 2.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "sakta",
+      "toStationId": "tamrb",
+      "lineId": "NR",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "tamrb",
+      "toStationId": "ngham",
+      "lineId": "NR",
+      "distance": 2.9,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "ngham",
+      "toStationId": "tonhm",
+      "lineId": "NR",
+      "distance": 4.3,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "tonhm",
+      "toStationId": "kawmk",
+      "lineId": "NR",
+      "distance": 3.8,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "kawmk",
+      "toStationId": "takm",
+      "lineId": "NR",
+      "distance": 2.4,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "takm",
+      "toStationId": "knmot",
+      "lineId": "NR",
+      "distance": 3.9,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "knmot",
+      "toStationId": "yogo",
+      "lineId": "NR",
+      "distance": 4.2,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "yogo",
+      "toStationId": "enis",
+      "lineId": "NR",
+      "distance": 4.1,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "kusa",
+      "toStationId": "tewr",
+      "lineId": "KB",
+      "distance": 3.5,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "tewr",
+      "toStationId": "isibe",
+      "lineId": "KB",
+      "distance": 4.6,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "isibe",
+      "toStationId": "ksei",
+      "lineId": "KB",
+      "distance": 4.8,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "ksei",
+      "toStationId": "mkumo",
+      "lineId": "KB",
+      "distance": 4.5,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "mkumo",
+      "toStationId": "koka",
+      "lineId": "KB",
+      "distance": 6.8,
+      "travelTime": 9
+    },
+    {
+      "fromStationId": "koka",
+      "toStationId": "kibuk",
+      "lineId": "KB",
+      "distance": 5.0,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "kibuk",
+      "toStationId": "abuhi",
+      "lineId": "KB",
+      "distance": 3.6,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "abuhi",
+      "toStationId": "tsuge",
+      "lineId": "KB",
+      "distance": 7.3,
+      "travelTime": 10
+    },
+    {
+      "fromStationId": "kamo",
+      "toStationId": "kasag",
+      "lineId": "KN",
+      "distance": 8.8,
+      "travelTime": 13
+    },
+    {
+      "fromStationId": "kasag",
+      "toStationId": "okrw",
+      "lineId": "KN",
+      "distance": 7.5,
+      "travelTime": 11
+    },
+    {
+      "fromStationId": "okrw",
+      "toStationId": "tsukig",
+      "lineId": "KN",
+      "distance": 7.5,
+      "travelTime": 11
+    },
+    {
+      "fromStationId": "tsukig",
+      "toStationId": "shimag",
+      "lineId": "KN",
+      "distance": 5.8,
+      "travelTime": 9
+    },
+    {
+      "fromStationId": "shimag",
+      "toStationId": "tsuge",
+      "lineId": "KN",
+      "distance": 5.0,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "kyot",
+      "toStationId": "umek",
+      "lineId": "E",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "umek",
+      "toStationId": "tamba",
+      "lineId": "E",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "tamba",
+      "toStationId": "nijo",
+      "lineId": "E",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "nijo",
+      "toStationId": "hanaz",
+      "lineId": "E",
+      "distance": 1.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "hanaz",
+      "toStationId": "uzum",
+      "lineId": "E",
+      "distance": 1.3,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "uzum",
+      "toStationId": "sagaa",
+      "lineId": "E",
+      "distance": 0.9,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "sagaa",
+      "toStationId": "hozuk",
+      "lineId": "E",
+      "distance": 3.7,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "hozuk",
+      "toStationId": "mabor",
+      "lineId": "E",
+      "distance": 7.3,
+      "travelTime": 10
+    },
+    {
+      "fromStationId": "mabor",
+      "toStationId": "kameo",
+      "lineId": "E",
+      "distance": 2.9,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "kameo",
+      "toStationId": "namik",
+      "lineId": "E",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "namik",
+      "toStationId": "chiyg",
+      "lineId": "E",
+      "distance": 3.2,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "chiyg",
+      "toStationId": "yagi",
+      "lineId": "E",
+      "distance": 2.9,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "yagi",
+      "toStationId": "yoshi",
+      "lineId": "E",
+      "distance": 4.3,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "yoshi",
+      "toStationId": "sonob",
+      "lineId": "E",
+      "distance": 3.6,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nara",
+      "toStationId": "kyots",
+      "lineId": "U",
+      "distance": 1.7,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kyots",
+      "toStationId": "nagr",
+      "lineId": "U",
+      "distance": 3.1,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "nagr",
+      "toStationId": "makk",
+      "lineId": "U",
+      "distance": 4.7,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "makk",
+      "toStationId": "miwa",
+      "lineId": "U",
+      "distance": 4.5,
+      "travelTime": 7
+    },
+    {
+      "fromStationId": "miwa",
+      "toStationId": "sakur",
+      "lineId": "U",
+      "distance": 2.2,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "sakur",
+      "toStationId": "yyagi",
+      "lineId": "U",
+      "distance": 6.0,
+      "travelTime": 9
+    },
+    {
+      "fromStationId": "yyagi",
+      "toStationId": "kanh",
+      "lineId": "U",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kanh",
+      "toStationId": "takat",
+      "lineId": "U",
+      "distance": 3.2,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "ojii",
+      "toStationId": "hatad",
+      "lineId": "W",
+      "distance": 6.0,
+      "travelTime": 9
+    },
+    {
+      "fromStationId": "hatad",
+      "toStationId": "takat",
+      "lineId": "W",
+      "distance": 7.9,
+      "travelTime": 12
+    },
+    {
+      "fromStationId": "takat",
+      "toStationId": "gose",
+      "lineId": "W",
+      "distance": 9.8,
+      "travelTime": 15
+    },
+    {
+      "fromStationId": "gose",
+      "toStationId": "gojo",
+      "lineId": "W",
+      "distance": 10.1,
+      "travelTime": 15
+    },
+    {
+      "fromStationId": "gojo",
+      "toStationId": "hashim",
+      "lineId": "W",
+      "distance": 15.1,
+      "travelTime": 22
+    },
+    {
+      "fromStationId": "hashim",
+      "toStationId": "sumid",
+      "lineId": "W",
+      "distance": 12.0,
+      "travelTime": 18
+    },
+    {
+      "fromStationId": "sumid",
+      "toStationId": "myoji",
+      "lineId": "W",
+      "distance": 5.1,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "myoji",
+      "toStationId": "knog",
+      "lineId": "W",
+      "distance": 4.3,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "knog",
+      "toStationId": "kgwa",
+      "lineId": "W",
+      "distance": 5.8,
+      "travelTime": 9
+    },
+    {
+      "fromStationId": "kgwa",
+      "toStationId": "iwade",
+      "lineId": "W",
+      "distance": 12.5,
+      "travelTime": 18
+    },
+    {
+      "fromStationId": "iwade",
+      "toStationId": "kii",
+      "lineId": "W",
+      "distance": 9.4,
+      "travelTime": 14
+    },
+    {
+      "fromStationId": "kii",
+      "toStationId": "waka",
+      "lineId": "W",
+      "distance": 8.1,
+      "travelTime": 12
+    },
+    {
+      "fromStationId": "otori",
+      "toStationId": "hgmo",
+      "lineId": "HA",
+      "distance": 1.7,
       "travelTime": 4
     }
   ]

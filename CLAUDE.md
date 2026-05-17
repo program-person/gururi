@@ -46,23 +46,25 @@ train/
 ### バックエンド（venv を有効化した状態で）
 
 ```powershell
-# venv 有効化
-.\.venv\Scripts\Activate.ps1
+# venv 有効化（backend/ ディレクトリから）
+cd backend
+.\venv\Scripts\Activate.ps1
 
-# 依存関係インストール
-cd backend && pip install -r requirements.txt
+# 依存関係インストール（初回のみ）
+pip install -r requirements.txt
 
-# 開発サーバー起動
-cd backend && uvicorn app.main:app --reload
+# 開発サーバー起動（chcp 65001 で文字化け防止）
+chcp 65001
+uvicorn app.main:app --reload
 
 # テスト実行
-cd backend && pytest tests -v
+pytest tests -v
 
 # 単一テスト実行
-cd backend && pytest tests/test_route.py::test_dijkstra_by_distance -v
+pytest tests/test_route.py::test_dijkstra_by_distance -v
 
 # グラフデータ再生成
-cd backend && python generate_graph.py
+python generate_graph.py
 ```
 
 ### フロントエンド
@@ -115,7 +117,7 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 
 ## 対象路線
 
-大阪環状線(C)・JR京都線＋琵琶湖線(A)・JR神戸線(JK)・JR宝塚線(G)・JR東西線(T)・学研都市線(H)・大和路線(Q)・おおさか東線(F)・阪和線(R)・奈良線(D)
+大阪環状線(C)・JR京都線＋琵琶湖線(A)・JR神戸線(JK)・JR宝塚線(G)・JR東西線(T)・学研都市線(H)・大和路線(Q)・おおさか東線(F)・阪和線(R)・奈良線(D)・湖西線(KS)・北陸本線(NR)・草津線(KB)・関西本線非電化(KN)・嵯峨野線(E)・桜井線(U)・和歌山線(W)・羽衣支線(HA)
 
 ## 未実装（Phase 5）
 
