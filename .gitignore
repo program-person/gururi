@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# 環境変数
+.env
+.env.*
+!.env.example
+
+# Node.js
+node_modules/
+.next/
+out/
+*.log
+npm-debug.log*
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# データ生成物（graph.json は generate_graph.py で生成するが管理対象に含める）
+# 除外しない: backend/data/graph.json

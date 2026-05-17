@@ -1,0 +1,34 @@
+{
+  "stations": [
+    { "id": "A", "name": "Station A" },
+    { "id": "B", "name": "Station B" },
+    { "id": "C", "name": "Station C" }
+  ],
+  "lines": [
+    { "id": "L1", "name": "Line 1" },
+    { "id": "L2", "name": "Line 2" }
+  ],
+  "edges": [
+    {
+      "fromStationId": "A",
+      "toStationId": "B",
+      "lineId": "L1",
+      "distance": 5.0,
+      "travelTime": 10
+    },
+    {
+      "fromStationId": "B",
+      "toStationId": "C",
+      "lineId": "L1",
+      "distance": 1.0,
+      "travelTime": 30
+    },
+    {
+      "fromStationId": "A",
+      "toStationId": "C",
+      "lineId": "L2",
+      "distance": 10.0,
+      "travelTime": 12
+    }
+  ]
+}
