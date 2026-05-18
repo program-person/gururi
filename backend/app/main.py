@@ -51,7 +51,7 @@ app = FastAPI(title="JR West Omawari Route Planner", version="0.2.0", lifespan=l
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=settings.cors_origins,
     allow_methods=["GET"],
     allow_headers=["*"],
 )
