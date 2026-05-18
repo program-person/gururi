@@ -1,6 +1,3 @@
-[build]
-dockerfilePath = "Dockerfile.railway"
-
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 30
