@@ -225,8 +225,14 @@ export default function Home() {
         <button
           onClick={search}
           disabled={!canSearch}
-          className="w-full rounded-md bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-600 dark:disabled:text-gray-400"
+          className="w-full rounded-md bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 flex items-center justify-center gap-2"
         >
+          {loading && (
+            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          )}
           {loading ? "探索中..." : "ルートを探索"}
         </button>
       </div>
@@ -238,8 +244,53 @@ export default function Home() {
         </div>
       )}
 
+      {/* スケルトンUI（探索中） */}
+      {loading && (
+        <div>
+          <div className="mb-3 h-5 w-24 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: numResults > 3 ? 3 : numResults }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden animate-pulse"
+              >
+                <div className="px-4 pt-4 pb-3 space-y-3">
+                  {/* 起終点 */}
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-3 w-3 rounded bg-gray-100 dark:bg-gray-600" />
+                    <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                  {/* 路線バッジ */}
+                  <div className="flex gap-1">
+                    <div className="h-5 w-20 rounded-full bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-5 w-16 rounded-full bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-5 w-24 rounded-full bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                  {/* 数値サマリー */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {[...Array(4)].map((_, j) => (
+                      <div key={j} className="rounded-lg bg-gray-50 dark:bg-gray-700/50 py-2 flex flex-col items-center gap-1">
+                        <div className="h-3 w-8 rounded bg-gray-200 dark:bg-gray-600" />
+                        <div className="h-5 w-10 rounded bg-gray-200 dark:bg-gray-600" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* フッター */}
+                <div className="flex gap-2 border-t border-gray-100 dark:border-gray-700 px-4 py-2">
+                  <div className="h-7 w-20 rounded-md bg-gray-100 dark:bg-gray-700" />
+                  <div className="h-7 w-28 rounded-md bg-gray-100 dark:bg-gray-700" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 結果 */}
-      {routes.length > 0 && (
+      {!loading && routes.length > 0 && (
         <div>
           <h2 className="mb-3 text-base font-semibold text-gray-700 dark:text-gray-300">
             探索結果 {routes.length}件
