@@ -5,6 +5,8 @@ import { api, OmawariRoute, Station } from "@/lib/api";
 import StationSearch from "@/components/StationSearch";
 import RouteCard from "@/components/RouteCard";
 
+const APP_VERSION = "0.3.0";
+
 type Mode = "free" | "fare" | "dest";
 
 export const LINE_MAP: Record<string, string> = {
@@ -117,7 +119,10 @@ export default function Home() {
     <main className="mx-auto max-w-2xl px-4 py-8">
       {/* ヘッダー */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">大回り乗車 ルート検索</h1>
+        <div className="flex items-baseline gap-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">大回り乗車 ルート検索</h1>
+          <span className="text-xs text-gray-400 dark:text-gray-500">v{APP_VERSION}</span>
+        </div>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           JR西日本 大阪近郊区間 — 18路線 / 260駅
         </p>
