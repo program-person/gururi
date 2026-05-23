@@ -202,6 +202,7 @@ def _dfs(
     rng: random.Random | None = None,
     noise_scale: float = 0.0,
     end_distances: dict[str, float] | None = None,
+    min_detour_distance: float = 0.0,
 ) -> "_Route":
     """スコア誘導DFS。
 
@@ -211,7 +212,8 @@ def _dfs(
     eligible_ends が指定された場合は通過のたびにスナップショットを収集する。
     """
     if eligible_ends is not None and collected is not None:
-        if current in eligible_ends and route.station_count >= 3:
+        if current in eligible_ends and route.station_count >= 3 \
+                and route.total_distance >= min_detour_distance:
             collected.append(route.copy())
 
     best = route.copy()
@@ -248,7 +250,7 @@ def _dfs(
         if end_distances is not None and n_id in end_distances:
             progress = route.station_count / max_stations
             sign = 1.0 if progress < 0.6 else -1.0
-            detour_bonus = sign * end_distances[n_id] * 0.8
+            detour_bonus = sign * end_distances[n_id] * 3.0
         else:
             detour_bonus = 0.0
         return new_line + dist * 0.5 + remaining_deg * avg_dist * 0.15 + noise + detour_bonus
@@ -268,7 +270,7 @@ def _dfs(
             adj, n_id, visited, route,
             max_stations, max_time, avg_dist, total_lines, best_score,
             eligible_ends, collected, rng, noise_scale,
-            end_distances,
+            end_distances, min_detour_distance,
         )
         if eligible_ends is None and candidate.score() > best.score():
             best = candidate
@@ -358,6 +360,9 @@ def find_omawari_routes(
         collected: list[_Route] = []
         best_score = [0.0]
         noise_scale = avg_dist * 2.0  # sigma ≈ 6km で十分な多様性
+        start_distances = _nearest_km(adj, start)
+        direct_dist = start_distances.get(end, 0.0)
+        min_detour_distance = direct_dist * 2.5
         end_distances = _nearest_km(adj, end)
         for _ in range(num_trials):
             init = _Route(stations=[start], lines=[""])
@@ -365,7 +370,7 @@ def find_omawari_routes(
                 adj, start, {start}, init, max_stations, max_time_min,
                 avg_dist, total_lines, best_score,
                 eligible_ends, collected, rng, noise_scale,
-                end_distances,
+                end_distances, min_detour_distance,
             )
         valid = [r for r in collected if r.station_count >= 3]
         return _build_output(valid, adj, start, fare_table, num_results)
