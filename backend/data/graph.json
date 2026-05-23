@@ -187,6 +187,12 @@
       "lng": 135.499
     },
     {
+      "id": "hgtsuka",
+      "name": "東貝塚",
+      "lat": 34.446,
+      "lng": 135.373
+    },
+    {
       "id": "higf",
       "name": "東福寺",
       "lat": 34.978,
@@ -223,6 +229,12 @@
       "lng": 135.202
     },
     {
+      "id": "hjyod",
+      "name": "東淀川",
+      "lat": 34.726,
+      "lng": 135.491
+    },
+    {
       "id": "hmbs",
       "name": "ひめじ別所",
       "lat": 34.821,
@@ -257,6 +269,12 @@
       "name": "保津峡",
       "lat": 35.042,
       "lng": 135.63
+    },
+    {
+      "id": "hsano",
+      "name": "東佐野",
+      "lat": 34.406,
+      "lng": 135.373
     },
     {
       "id": "hyog",
@@ -335,6 +353,12 @@
       "name": "和泉鳥取",
       "lat": 34.296,
       "lng": 135.367
+    },
+    {
+      "id": "izuha",
+      "name": "和泉橋本",
+      "lat": 34.427,
+      "lng": 135.371
     },
     {
       "id": "jlwj",
@@ -509,6 +533,12 @@
       "name": "北新地",
       "lat": 34.696,
       "lng": 135.498
+    },
+    {
+      "id": "kixap",
+      "name": "関西空港",
+      "lat": 34.434,
+      "lng": 135.242
     },
     {
       "id": "kizu",
@@ -847,6 +877,12 @@
       "lng": 135.833
     },
     {
+      "id": "naray",
+      "name": "平城山",
+      "lat": 34.714,
+      "lng": 135.836
+    },
+    {
       "id": "nase",
       "name": "生瀬",
       "lat": 34.856,
@@ -919,12 +955,6 @@
       "lng": 135.473
     },
     {
-      "id": "noej",
-      "name": "野江",
-      "lat": 34.715,
-      "lng": 135.533
-    },
-    {
       "id": "nori",
       "name": "西大路",
       "lat": 34.983,
@@ -971,6 +1001,12 @@
       "name": "おごと温泉",
       "lat": 35.112,
       "lng": 135.901
+    },
+    {
+      "id": "oimaiko",
+      "name": "近江舞子",
+      "lat": 35.279,
+      "lng": 135.979
     },
     {
       "id": "oimts",
@@ -1091,6 +1127,12 @@
       "name": "鳳",
       "lat": 34.543,
       "lng": 135.509
+    },
+    {
+      "id": "rinkuu",
+      "name": "りんくうタウン",
+      "lat": 34.416,
+      "lng": 135.301
     },
     {
       "id": "rito",
@@ -1685,6 +1727,10 @@
       "name": "和歌山線"
     },
     {
+      "id": "KA",
+      "name": "関西空港線"
+    },
+    {
       "id": "HA",
       "name": "羽衣支線"
     }
@@ -1825,10 +1871,17 @@
     },
     {
       "fromStationId": "osak",
+      "toStationId": "hjyod",
+      "lineId": "A",
+      "distance": 2.0,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "hjyod",
       "toStationId": "ssin",
       "lineId": "A",
-      "distance": 3.8,
-      "travelTime": 4
+      "distance": 1.8,
+      "travelTime": 3
     },
     {
       "fromStationId": "ssin",
@@ -2518,10 +2571,17 @@
     },
     {
       "fromStationId": "shgy",
+      "toStationId": "hant",
+      "lineId": "H",
+      "distance": 1.2,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "hant",
       "toStationId": "sumd",
       "lineId": "H",
-      "distance": 2.9,
-      "travelTime": 4
+      "distance": 3.6,
+      "travelTime": 6
     },
     {
       "fromStationId": "sumd",
@@ -2742,10 +2802,17 @@
     },
     {
       "fromStationId": "obik",
+      "toStationId": "naray",
+      "lineId": "Q",
+      "distance": 5.8,
+      "travelTime": 8
+    },
+    {
+      "fromStationId": "naray",
       "toStationId": "kizu",
       "lineId": "Q",
-      "distance": 9.2,
-      "travelTime": 12
+      "distance": 2.7,
+      "travelTime": 4
     },
     {
       "fromStationId": "kizu",
@@ -2777,17 +2844,10 @@
     },
     {
       "fromStationId": "kjhk",
-      "toStationId": "noej",
-      "lineId": "F",
-      "distance": 1.0,
-      "travelTime": 2
-    },
-    {
-      "fromStationId": "noej",
       "toStationId": "jrne",
       "lineId": "F",
-      "distance": 0.6,
-      "travelTime": 2
+      "distance": 1.6,
+      "travelTime": 3
     },
     {
       "fromStationId": "jrne",
@@ -2842,13 +2902,6 @@
       "fromStationId": "nkam",
       "toStationId": "kubd",
       "lineId": "F",
-      "distance": 1.2,
-      "travelTime": 2
-    },
-    {
-      "fromStationId": "shgy",
-      "toStationId": "hant",
-      "lineId": "H",
       "distance": 1.2,
       "travelTime": 2
     },
@@ -2973,10 +3026,31 @@
     },
     {
       "fromStationId": "higk",
+      "toStationId": "hgtsuka",
+      "lineId": "R",
+      "distance": 2.2,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "hgtsuka",
+      "toStationId": "izuha",
+      "lineId": "R",
+      "distance": 1.7,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "izuha",
+      "toStationId": "hsano",
+      "lineId": "R",
+      "distance": 2.1,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "hsano",
       "toStationId": "kumt",
       "lineId": "R",
-      "distance": 6.8,
-      "travelTime": 10
+      "distance": 1.8,
+      "travelTime": 3
     },
     {
       "fromStationId": "kumt",
@@ -3211,10 +3285,17 @@
     },
     {
       "fromStationId": "nkmt",
+      "toStationId": "oimaiko",
+      "lineId": "KS",
+      "distance": 3.2,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "oimaiko",
       "toStationId": "otakn",
       "lineId": "KS",
-      "distance": 1.2,
-      "travelTime": 2
+      "distance": 6.6,
+      "travelTime": 8
     },
     {
       "fromStationId": "otakn",
@@ -3656,6 +3737,20 @@
       "lineId": "W",
       "distance": 8.1,
       "travelTime": 12
+    },
+    {
+      "fromStationId": "hine",
+      "toStationId": "rinkuu",
+      "lineId": "KA",
+      "distance": 6.5,
+      "travelTime": 9
+    },
+    {
+      "fromStationId": "rinkuu",
+      "toStationId": "kixap",
+      "lineId": "KA",
+      "distance": 4.6,
+      "travelTime": 6
     },
     {
       "fromStationId": "otori",

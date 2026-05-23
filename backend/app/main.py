@@ -1,4 +1,4 @@
-from contextlib import asynccontextmanager
+﻿from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="JR West Omawari Route Planner", version="0.3.0", lifespan=lifespan)
+app = FastAPI(title="JR West Omawari Route Planner", version="0.3.1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -67,7 +67,7 @@ def _check_station(rail: RailState, station_id: str, label: str) -> None:
 
 
 # ------------------------------------------------------------------
-# 既存エンドポイント
+# 譌｢蟄倥お繝ｳ繝峨・繧､繝ｳ繝・
 # ------------------------------------------------------------------
 
 @app.get("/route", response_model=RouteResponse, response_model_by_alias=True)
@@ -96,7 +96,7 @@ def health() -> dict[str, str]:
 
 
 # ------------------------------------------------------------------
-# 新エンドポイント
+# 譁ｰ繧ｨ繝ｳ繝峨・繧､繝ｳ繝・
 # ------------------------------------------------------------------
 
 @app.get("/stations", response_model=list[Station])
@@ -165,3 +165,4 @@ def get_omawari_by_fare(
         max_time_min=max_time_min,
         num_results=num_results,
     )
+
