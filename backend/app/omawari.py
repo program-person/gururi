@@ -201,6 +201,7 @@ def _dfs(
     collected: list["_Route"] | None,
     rng: random.Random | None = None,
     noise_scale: float = 0.0,
+    end_distances: dict[str, float] | None = None,
 ) -> "_Route":
     """スコア誘導DFS。
 
@@ -244,7 +245,13 @@ def _dfs(
         remaining_deg = sum(1 for v, _, _, _ in adj.get(n_id, []) if v not in visited)
         new_line = 10.0 if (lid and lid not in route.line_counts) else 0.0
         noise = (rng.gauss(0, noise_scale) if (rng and noise_scale > 0) else 0.0)
-        return new_line + dist * 0.5 + remaining_deg * avg_dist * 0.15 + noise
+        if end_distances is not None and n_id in end_distances:
+            progress = route.station_count / max_stations
+            sign = 1.0 if progress < 0.6 else -1.0
+            detour_bonus = sign * end_distances[n_id] * 0.8
+        else:
+            detour_bonus = 0.0
+        return new_line + dist * 0.5 + remaining_deg * avg_dist * 0.15 + noise + detour_bonus
 
     candidates.sort(key=promise, reverse=True)
 
@@ -261,6 +268,7 @@ def _dfs(
             adj, n_id, visited, route,
             max_stations, max_time, avg_dist, total_lines, best_score,
             eligible_ends, collected, rng, noise_scale,
+            end_distances,
         )
         if eligible_ends is None and candidate.score() > best.score():
             best = candidate
@@ -350,12 +358,14 @@ def find_omawari_routes(
         collected: list[_Route] = []
         best_score = [0.0]
         noise_scale = avg_dist * 2.0  # sigma ≈ 6km で十分な多様性
+        end_distances = _nearest_km(adj, end)
         for _ in range(num_trials):
             init = _Route(stations=[start], lines=[""])
             _dfs(
                 adj, start, {start}, init, max_stations, max_time_min,
                 avg_dist, total_lines, best_score,
                 eligible_ends, collected, rng, noise_scale,
+                end_distances,
             )
         valid = [r for r in collected if r.station_count >= 3]
         return _build_output(valid, adj, start, fare_table, num_results)
