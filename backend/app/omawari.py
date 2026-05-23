@@ -341,7 +341,7 @@ def find_omawari_routes(
     start: str,
     fare_table: list[FareEntry],
     end: str | None = None,
-    max_stations: int = 60,
+    max_stations: int = 120,
     max_time_min: float = 480.0,
     num_results: int = 5,
     num_trials: int = 600,
