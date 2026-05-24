@@ -65,4 +65,6 @@ def test_get_route_unknown_station(client: TestClient) -> None:
 def test_health(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(app_config.settings, "data_path", TINY_GRAPH)
     with TestClient(app) as client:
-        assert client.get("/health").json() == {"status": "ok"}
+        body = client.get("/health").json()
+        assert body["status"] == "ok"
+        assert "version" in body

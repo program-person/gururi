@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { api, OmawariRoute, Station } from "@/lib/api";
+import type { Line } from "@/lib/api";
 import StationSearch from "@/components/StationSearch";
 import RouteCard from "@/components/RouteCard";
 
-const APP_VERSION = "0.3.2";
+const APP_VERSION = "0.3.3";
 
 type Mode = "free" | "fare" | "dest";
 
-export const LINE_MAP: Record<string, string> = {
+// バックエンド /lines の取得前に使うフォールバック（一覧名のデフォルト）
+export const LINE_MAP_FALLBACK: Record<string, string> = {
   C:  "大阪環状線",
   A:  "JR京都線（東海道・山陽本線）",
   JK: "JR神戸線",
@@ -51,6 +53,7 @@ export default function Home() {
   const [stations, setStations] = useState<Station[]>([]);
   const [stationMap, setStationMap] = useState<Record<string, string>>({});
   const [stationGeo, setStationGeo] = useState<Record<string, { lat: number; lng: number }>>({});
+  const [lineMap, setLineMap] = useState<Record<string, string>>(LINE_MAP_FALLBACK);
 
   const [startStation, setStartStation] = useState<Station | null>(null);
   const [endStation, setEndStation] = useState<Station | null>(null);
@@ -75,6 +78,11 @@ export default function Home() {
       setStationMap(sm);
       setStationGeo(geo);
     });
+    api.lines().then((data: Line[]) => {
+      const lm: Record<string, string> = {};
+      data.forEach((l) => { lm[l.id] = l.name; });
+      setLineMap((prev) => ({ ...prev, ...lm }));
+    }).catch(() => { /* フォールバックを使う */ });
   }, []);
 
   const canSearch =
@@ -308,7 +316,7 @@ export default function Home() {
                 route={r}
                 rank={i + 1}
                 stationMap={stationMap}
-                lineMap={LINE_MAP}
+                lineMap={lineMap}
                 stationGeo={stationGeo}
               />
             ))}

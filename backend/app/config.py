@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     data_path: Path = Path(__file__).resolve().parent.parent / "data" / "graph.json"
     allow_all_origins: bool = True
+    allowed_origins: list[str] = ["http://localhost:3000"]
 
 
 settings = Settings()

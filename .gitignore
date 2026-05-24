@@ -33,3 +33,6 @@ Thumbs.db
 
 # データ生成物（graph.json は generate_graph.py で生成するが管理対象に含める）
 # 除外しない: backend/data/graph.json
+
+# Claude Code が一時的に作るワークツリー
+.claude/worktrees/

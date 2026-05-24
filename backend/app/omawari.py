@@ -199,6 +199,8 @@ def _random_walk(
     rng: random.Random,
     eligible_ends: set[str] | None = None,
     collected: list["_Route"] | None = None,
+    end_distances: dict[str, float] | None = None,
+    min_detour_distance: float = 0.0,
 ) -> "_Route":
     """重み付きランダムウォーク（バックトラックなし）。
 
@@ -206,6 +208,9 @@ def _random_walk(
     本質的に異なる経路を生成するため多様性に優れる。
 
     eligible_ends が指定された場合、通過のたびにスナップショットを収集する。
+    end_distances が指定された場合、終着駅までの距離で重みをバイアスし、
+    前半は遠ざかる方向・後半は近づく方向を優先する。
+    min_detour_distance を満たさないスナップショットは収集しない。
     """
     route = _Route(stations=[start], lines=[""])
     visited: set[str] = {start}
@@ -214,7 +219,8 @@ def _random_walk(
     while route.station_count < max_stations and route.total_time < max_time:
         # 通過時スナップショット収集（by-fare / end 指定モード）
         if eligible_ends is not None and collected is not None:
-            if current in eligible_ends and route.station_count >= 3:
+            if (current in eligible_ends and route.station_count >= 3
+                    and route.total_distance >= min_detour_distance):
                 collected.append(route.copy())
 
         candidates = [
@@ -229,6 +235,24 @@ def _random_walk(
             _neighbor_weight(n_id, lid, dist, adj, visited, route.line_counts)
             for n_id, lid, dist, _t in candidates
         ]
+
+        # 終着駅からの距離によるバイアス（DFS の detour_bonus と整合）
+        if end_distances is not None:
+            progress = route.station_count / max_stations
+            biased: list[float] = []
+            for w, (n_id, _lid, _d, _t) in zip(weights, candidates):
+                d_end = end_distances.get(n_id)
+                if d_end is None:
+                    biased.append(w)
+                    continue
+                if progress < 0.6:
+                    # 前半: 終着駅から遠い駅を優先
+                    biased.append(w * (1.0 + d_end * 0.1))
+                else:
+                    # 後半: 終着駅に近い駅を優先（近いほど大きく）
+                    biased.append(w * (1.0 + 10.0 / (1.0 + d_end * 0.5)))
+            weights = biased
+
         n_id, lid, dist, t = rng.choices(candidates, weights=weights, k=1)[0]
 
         visited.add(n_id)
@@ -242,7 +266,8 @@ def _random_walk(
 
     # ウォーク終了時も eligible_ends チェック
     if eligible_ends is not None and collected is not None:
-        if current in eligible_ends and route.station_count >= 3:
+        if (current in eligible_ends and route.station_count >= 3
+                and route.total_distance >= min_detour_distance):
             collected.append(route.copy())
 
     return route
@@ -407,7 +432,6 @@ def _build_output(
 WAYPOINT_ROUTES: dict[tuple[str, str], list[list[str]]] = {
     ("大阪", "天王寺"): [
         ["京都", "近江今津", "近江塩津", "米原", "草津", "柘植"],
-        ["尼崎", "加古川", "谷川", "篠山口", "福知山", "園部", "京都", "奈良", "王寺"],
     ],
     ("天王寺", "大阪"): [
         ["王寺", "奈良", "柘植", "草津", "米原", "近江塩津", "近江今津", "京都"],
@@ -528,12 +552,20 @@ def find_omawari_routes(
         direct_dist = start_distances.get(end, 0.0)
         min_detour_distance = direct_dist * 2.5
         end_distances = _nearest_km(adj, end)
+        # DFS による品質重視の探索
         for _ in range(num_trials):
             init = _Route(stations=[start], lines=[""])
             _dfs(
                 adj, start, {start}, init, max_stations, max_time_min,
                 avg_dist, total_lines, best_score,
                 eligible_ends, collected, rng, noise_scale,
+                end_distances, min_detour_distance,
+            )
+        # Random walk による多様性確保の探索（end_distances でバイアス）
+        for _ in range(num_trials):
+            _random_walk(
+                adj, start, max_stations, max_time_min, rng,
+                eligible_ends, collected,
                 end_distances, min_detour_distance,
             )
         valid = [r for r in collected if r.station_count >= 3]

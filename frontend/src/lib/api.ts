@@ -10,6 +10,11 @@ export interface Station {
   lng?: number;
 }
 
+export interface Line {
+  id: string;
+  name: string;
+}
+
 export interface PathSegment {
   stationId: string;
   lineId: string;
@@ -47,6 +52,8 @@ async function get<T>(path: string): Promise<T> {
 
 export const api = {
   stations: (): Promise<Station[]> => get("/stations"),
+
+  lines: (): Promise<Line[]> => get("/lines"),
 
   route: (
     startStationId: string,

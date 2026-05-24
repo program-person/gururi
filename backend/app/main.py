@@ -12,6 +12,7 @@ from app.models import (
     FareEntry,
     FareResponse,
     GraphData,
+    Line,
     OmawariRoute,
     OptimizeBy,
     PathSegment,
@@ -47,11 +48,11 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="JR West Omawari Route Planner", version="0.3.2", lifespan=lifespan)
+app = FastAPI(title="JR West Omawari Route Planner", version="0.3.3", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"] if settings.allow_all_origins else settings.allowed_origins,
     allow_methods=["GET"],
     allow_headers=["*"],
 )
@@ -103,6 +104,12 @@ def health() -> dict[str, str]:
 def list_stations(request: Request) -> list[Station]:
     rail = get_rail(request)
     return sorted(rail.data.stations, key=lambda s: s.id)
+
+
+@app.get("/lines", response_model=list[Line])
+def list_lines(request: Request) -> list[Line]:
+    rail = get_rail(request)
+    return rail.data.lines
 
 
 @app.get("/fare", response_model=FareResponse, response_model_by_alias=True)
