@@ -96,6 +96,71 @@ def _max_km_for_fare(max_fare: int, table: list[FareEntry]) -> float:
     return float(table[0].to_km)
 
 
+def _shortest_avoiding(
+    adj: Adjacency,
+    start: str,
+    end: str,
+    blocked: set[str],
+) -> tuple[list[str], list[str], float, float] | None:
+    """blocked にある駅を通らずに start→end の最短経路（時間ベース）を返す。
+
+    戻り値: (stations, lines, total_distance, total_time)
+      stations[0]==start, stations[-1]==end
+      lines[0]="" (起点)、lines[i] は stations[i-1]→stations[i] のエッジの路線ID
+    到達不能の場合は None を返す。
+    """
+    if start == end:
+        return [start], [""], 0.0, 0.0
+
+    best: dict[str, float] = {start: 0.0}
+    prev: dict[str, tuple[str, str, float, float]] = {}
+    heap: list[tuple[float, str]] = [(0.0, start)]
+    seen: set[str] = set()
+
+    while heap:
+        d, u = heapq.heappop(heap)
+        if u in seen:
+            continue
+        seen.add(u)
+        if u == end:
+            break
+        for v, line_id, edge_dist, edge_time in adj.get(u, []):
+            if v in blocked and v != end:
+                continue
+            cand = d + edge_time
+            if cand < best.get(v, float("inf")):
+                best[v] = cand
+                prev[v] = (u, line_id, edge_dist, edge_time)
+                heapq.heappush(heap, (cand, v))
+
+    if end not in prev:
+        return None
+
+    stations_rev: list[str] = [end]
+    edges_rev: list[tuple[str, float, float]] = []
+    cur = end
+    while cur != start:
+        p = prev.get(cur)
+        if p is None:
+            return None
+        u, line_id, edge_dist, edge_time = p
+        edges_rev.append((line_id, edge_dist, edge_time))
+        cur = u
+        stations_rev.append(cur)
+
+    stations_rev.reverse()
+    edges_rev.reverse()
+
+    total_distance = sum(d for _, d, _ in edges_rev)
+    total_time = sum(t for _, _, t in edges_rev)
+
+    lines: list[str] = [""]
+    for line_id, _, _ in edges_rev:
+        lines.append(line_id)
+
+    return stations_rev, lines, total_distance, total_time
+
+
 # --------------------------------------------------------------------------- #
 # 隣接駅の重み計算
 # --------------------------------------------------------------------------- #
@@ -333,6 +398,77 @@ def _build_output(
 
 
 # --------------------------------------------------------------------------- #
+# ウェイポイント方式（決定論的な経由地指定ルート）
+# --------------------------------------------------------------------------- #
+
+# (出発駅名, 到着駅名) → [経由地名のリスト, ...]
+# 各経由地リストは start → waypoints[0] → ... → end の順を意味する。
+# 駅名は graph データの stations[].name と一致する必要がある。
+WAYPOINT_ROUTES: dict[tuple[str, str], list[list[str]]] = {
+    ("大阪", "天王寺"): [
+        ["京都", "近江今津", "近江塩津", "米原", "草津", "柘植"],
+        ["尼崎", "加古川", "谷川", "篠山口", "福知山", "園部", "京都", "奈良", "王寺"],
+    ],
+    ("天王寺", "大阪"): [
+        ["王寺", "奈良", "柘植", "草津", "米原", "近江塩津", "近江今津", "京都"],
+    ],
+}
+
+
+def find_routes_via_waypoints(
+    adj: Adjacency,
+    start: str,
+    end: str,
+    waypoints: list[str],
+    fare_table: list[FareEntry],
+) -> OmawariRoute | None:
+    """start → waypoints[0] → waypoints[1] → ... → end の順にDijkstraで
+    各区間をつなぎ、1本のルートを返す。
+
+    経由地間でvisitedを引き継いで同じ駅を通らないようにする。
+    つなげない区間があればNoneを返す。
+    """
+    chain = [start] + waypoints + [end]
+
+    full_stations: list[str] = [start]
+    full_lines: list[str] = [""]
+    visited: set[str] = {start}
+    total_distance = 0.0
+    total_time = 0.0
+
+    for i in range(len(chain) - 1):
+        seg_from = chain[i]
+        seg_to = chain[i + 1]
+        # 現区間の出発駅は通れる、それ以外の訪問済み駅は避ける
+        blocked = visited - {seg_from}
+        result = _shortest_avoiding(adj, seg_from, seg_to, blocked)
+        if result is None:
+            return None
+        seg_stations, seg_lines, seg_dist, seg_time = result
+        # seg_stations[0] は前区間の終点と一致するため skip
+        for j in range(1, len(seg_stations)):
+            full_stations.append(seg_stations[j])
+            full_lines.append(seg_lines[j])
+            visited.add(seg_stations[j])
+        total_distance += seg_dist
+        total_time += seg_time
+
+    path = [
+        PathSegment(station_id=sid, line_id=lid)
+        for sid, lid in zip(full_stations, full_lines)
+    ]
+    direct_km, fare_ic, _ = calc_direct_fare(adj, start, end, fare_table)
+    return OmawariRoute(
+        path=path,
+        total_distance=round(total_distance, 1),
+        total_time=round(total_time, 1),
+        station_count=len(full_stations),
+        direct_km=round(direct_km, 1),
+        fare_ic=fare_ic,
+    )
+
+
+# --------------------------------------------------------------------------- #
 # 公開API
 # --------------------------------------------------------------------------- #
 
@@ -346,15 +482,43 @@ def find_omawari_routes(
     num_results: int = 5,
     num_trials: int = 600,
     seed: int | None = None,
+    name_to_id: dict[str, str] | None = None,
 ) -> list[OmawariRoute]:
     """大回りルートを複数探索して返す。
 
     end を指定した場合はその駅に到達するルートだけを収集する。
+    name_to_id が指定されており、WAYPOINT_ROUTES に該当する定義があれば、
+    そのウェイポイント経由ルートを結果の先頭に追加する。
     """
     rng = random.Random(seed)
     avg_dist, _max_dist, total_lines = _compute_graph_stats(adj)
 
     if end is not None:
+        # WAYPOINT_ROUTES から該当する経由地リストを取得して決定論的ルートを構築
+        waypoint_results: list[OmawariRoute] = []
+        if name_to_id is not None:
+            id_to_name = {v: k for k, v in name_to_id.items()}
+            start_name = id_to_name.get(start)
+            end_name = id_to_name.get(end)
+            if start_name and end_name:
+                key = (start_name, end_name)
+                for waypoint_names in WAYPOINT_ROUTES.get(key, []):
+                    waypoint_ids: list[str] = []
+                    ok = True
+                    for n in waypoint_names:
+                        wid = name_to_id.get(n)
+                        if wid is None:
+                            ok = False
+                            break
+                        waypoint_ids.append(wid)
+                    if not ok:
+                        continue
+                    wp_route = find_routes_via_waypoints(
+                        adj, start, end, waypoint_ids, fare_table
+                    )
+                    if wp_route is not None:
+                        waypoint_results.append(wp_route)
+
         # 終着駅指定モード: ノイズ付きDFS で eligible_ends に到達するたびに収集
         eligible_ends = {end}
         collected: list[_Route] = []
@@ -373,7 +537,8 @@ def find_omawari_routes(
                 end_distances, min_detour_distance,
             )
         valid = [r for r in collected if r.station_count >= 3]
-        return _build_output(valid, adj, start, fare_table, num_results)
+        dfs_results = _build_output(valid, adj, start, fare_table, num_results)
+        return waypoint_results + dfs_results
 
     # 自由探索モード
     results: list[_Route] = []

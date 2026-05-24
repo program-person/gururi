@@ -5,7 +5,7 @@ import { api, OmawariRoute, Station } from "@/lib/api";
 import StationSearch from "@/components/StationSearch";
 import RouteCard from "@/components/RouteCard";
 
-const APP_VERSION = "0.3.1";
+const APP_VERSION = "0.3.2";
 
 type Mode = "free" | "fare" | "dest";
 

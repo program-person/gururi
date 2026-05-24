@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="JR West Omawari Route Planner", version="0.3.1", lifespan=lifespan)
+app = FastAPI(title="JR West Omawari Route Planner", version="0.3.2", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -135,6 +135,7 @@ def get_omawari(
         if end_station_id == start_station_id:
             raise HTTPException(status_code=400, detail="Start and end station must differ")
 
+    name_to_id = {s.name: s.id for s in rail.data.stations}
     return find_omawari_routes(
         rail.adj,
         start_station_id,
@@ -143,6 +144,7 @@ def get_omawari(
         max_stations=max_stations,
         max_time_min=max_time_min,
         num_results=num_results,
+        name_to_id=name_to_id,
     )
 
 
