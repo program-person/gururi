@@ -71,7 +71,7 @@ export const api = {
   ): Promise<OmawariRoute[]> => {
     const p = new URLSearchParams({ startStationId });
     if (opts.endStationId) p.set("endStationId", opts.endStationId);
-    if (opts.maxTimeMin) p.set("maxTimeMin", String(opts.maxTimeMin));
+    if (opts.maxTimeMin !== undefined) p.set("maxTimeMin", String(opts.maxTimeMin));
     if (opts.maxStations) p.set("maxStations", String(opts.maxStations));
     if (opts.numResults) p.set("numResults", String(opts.numResults));
     return get(`/omawari?${p}`);
@@ -83,7 +83,7 @@ export const api = {
     opts: { maxTimeMin?: number; numResults?: number } = {}
   ): Promise<OmawariRoute[]> => {
     const p = new URLSearchParams({ startStationId, maxFare: String(maxFare) });
-    if (opts.maxTimeMin) p.set("maxTimeMin", String(opts.maxTimeMin));
+    if (opts.maxTimeMin !== undefined) p.set("maxTimeMin", String(opts.maxTimeMin));
     if (opts.numResults) p.set("numResults", String(opts.numResults));
     return get(`/omawari/by-fare?${p}`);
   },

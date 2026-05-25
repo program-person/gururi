@@ -516,6 +516,7 @@ def find_omawari_routes(
     """
     rng = random.Random(seed)
     avg_dist, _max_dist, total_lines = _compute_graph_stats(adj)
+    effective_time = float("inf") if max_time_min == 0.0 else max_time_min
 
     if end is not None:
         # WAYPOINT_ROUTES から該当する経由地リストを取得して決定論的ルートを構築
@@ -556,7 +557,7 @@ def find_omawari_routes(
         for _ in range(num_trials):
             init = _Route(stations=[start], lines=[""])
             _dfs(
-                adj, start, {start}, init, max_stations, max_time_min,
+                adj, start, {start}, init, max_stations, effective_time,
                 avg_dist, total_lines, best_score,
                 eligible_ends, collected, rng, noise_scale,
                 end_distances, min_detour_distance,
@@ -564,7 +565,7 @@ def find_omawari_routes(
         # Random walk による多様性確保の探索（end_distances でバイアス）
         for _ in range(num_trials):
             _random_walk(
-                adj, start, max_stations, max_time_min, rng,
+                adj, start, max_stations, effective_time, rng,
                 eligible_ends, collected,
                 end_distances, min_detour_distance,
             )
@@ -579,7 +580,7 @@ def find_omawari_routes(
     global_best: list[float] = [0.0]
     seed_init = _Route(stations=[start], lines=[""])
     seed_route = _dfs(
-        adj, start, {start}, seed_init, max_stations, max_time_min,
+        adj, start, {start}, seed_init, max_stations, effective_time,
         avg_dist, total_lines, global_best,
         None, None,  # 自由探索, 収集なし
     )
@@ -591,7 +592,7 @@ def find_omawari_routes(
     # DFS は同じグラフ構造に収束しやすいが、ランダムウォークは
     # 各ステップで確率的に分岐するため本質的に異なるルートを生成できる
     for _ in range(num_trials):
-        walk = _random_walk(adj, start, max_stations, max_time_min, rng)
+        walk = _random_walk(adj, start, max_stations, effective_time, rng)
         if walk.station_count >= 3:
             results.append(walk)
 
@@ -615,13 +616,14 @@ def find_omawari_by_fare(
     1回のウォークで複数の有効ルートを収集できる。
     """
     rng = random.Random(seed)
+    effective_time = float("inf") if max_time_min == 0.0 else max_time_min
     max_km = _max_km_for_fare(max_fare, fare_table)
     eligible_ends = _stations_within_km(adj, start, max_km)
     eligible_ends.discard(start)
 
     collected: list[_Route] = []
     for _ in range(num_trials):
-        _random_walk(adj, start, 60, max_time_min, rng, eligible_ends, collected)
+        _random_walk(adj, start, 60, effective_time, rng, eligible_ends, collected)
 
     valid = [r for r in collected if r.station_count >= 3]
     filtered_output = [

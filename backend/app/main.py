@@ -131,7 +131,7 @@ def get_omawari(
     request: Request,
     start_station_id: str = Query(..., alias="startStationId"),
     end_station_id: str | None = Query(None, alias="endStationId"),
-    max_time_min: float = Query(480.0, alias="maxTimeMin", ge=30, le=720),
+    max_time_min: float = Query(480.0, alias="maxTimeMin", ge=0, le=10000),
     max_stations: int = Query(120, alias="maxStations", ge=5, le=200),
     num_results: int = Query(5, alias="numResults", ge=1, le=20),
 ) -> list[OmawariRoute]:
@@ -160,7 +160,7 @@ def get_omawari_by_fare(
     request: Request,
     start_station_id: str = Query(..., alias="startStationId"),
     max_fare: int = Query(..., alias="maxFare", ge=100, le=5000),
-    max_time_min: float = Query(480.0, alias="maxTimeMin", ge=30, le=720),
+    max_time_min: float = Query(480.0, alias="maxTimeMin", ge=0, le=10000),
     num_results: int = Query(5, alias="numResults", ge=1, le=20),
 ) -> list[OmawariRoute]:
     rail = get_rail(request)
