@@ -440,10 +440,16 @@ def _random_walk_fsa(
                 phase = Phase.RETURN
 
         # --- 候補駅を取得 ---
+        # RETURN かつ十分な駅数を通過済みの場合のみ、目的地（= 出発駅）への帰還を許可
         candidates = [
             (n_id, lid, dist, t)
             for n_id, lid, dist, t in adj.get(current, [])
-            if n_id not in visited and route.total_time + t <= max_time
+            if (
+                n_id not in visited
+                or (n_id == end and phase == Phase.RETURN
+                    and route.station_count >= min_loop)
+            )
+            and route.total_time + t <= max_time
         ]
         if not candidates:
             break
