@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="JR West Omawari Route Planner", version="0.3.3", lifespan=lifespan)
+app = FastAPI(title="JR West Omawari Route Planner", version="0.3.4", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
