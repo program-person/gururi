@@ -238,6 +238,73 @@ def _neighbor_weight_fsa(
 
 
 # --------------------------------------------------------------------------- #
+# マルチアトラクター チェイン生成
+# --------------------------------------------------------------------------- #
+
+def _build_attractor_chain(
+    adj: Adjacency,
+    start: str,
+    end: str,
+    rng: random.Random,
+    num_attractors: int = 3,
+    dist_cache: dict[str, dict[str, float]] | None = None,
+) -> list[str]:
+    """出発駅から貪欲法で互いに遠いアトラクター列を生成する。
+
+    最後のアトラクターは目的地に帰りやすいよう、
+    目的地からの距離でペナルティをかける。
+    dist_cache は呼び出し元が渡した辞書をインプレースに更新する（再利用）。
+    """
+    if dist_cache is None:
+        dist_cache = {}
+
+    if start not in dist_cache:
+        dist_cache[start] = _nearest_km(adj, start)
+
+    start_dists = dist_cache[start]
+
+    median = sorted(start_dists.values())[len(start_dists) // 2]
+    candidates = [
+        s for s, d in start_dists.items()
+        if d > median and s != start and s != end
+    ]
+    if not candidates:
+        return []
+
+    chain: list[str] = []
+    current_ref = start
+
+    for i in range(num_attractors):
+        if not candidates:
+            break
+        if current_ref not in dist_cache:
+            dist_cache[current_ref] = _nearest_km(adj, current_ref)
+
+        ref_dists = dist_cache[current_ref]
+
+        end_dists: dict[str, float] | None = None
+        if i == num_attractors - 1:
+            if end not in dist_cache:
+                dist_cache[end] = _nearest_km(adj, end)
+            end_dists = dist_cache[end]
+
+        def attractor_score(s: str, _ref: dict = ref_dists, _end: dict | None = end_dists) -> float:
+            far_score = _ref.get(s, 0.0)
+            if _end is not None:
+                return far_score - _end.get(s, 999.0) * 0.3
+            return far_score
+
+        top_candidates = sorted(candidates, key=attractor_score, reverse=True)[:10]
+        chosen = rng.choice(top_candidates)
+
+        chain.append(chosen)
+        candidates = [c for c in candidates if c != chosen]
+        current_ref = chosen
+
+    return chain
+
+
+# --------------------------------------------------------------------------- #
 # ランダムウォーク（多様性確保の主力）
 # --------------------------------------------------------------------------- #
 
@@ -328,30 +395,48 @@ def _random_walk_fsa(
     start: str,
     end: str,
     end_distances: dict[str, float],
+    attractor_chain: list[str],
+    attractor_dist_cache: dict[str, dict[str, float]],
     max_stations: int,
     max_time: float,
     rng: random.Random,
 ) -> "_Route | None":
-    """FSAベースのランダムウォーク。3つの状態で次の駅の重みを切り替える。"""
+    """マルチアトラクター FSAランダムウォーク。
+
+    attractor_chain のアトラクターを順番に巡回してから目的地に帰還する。
+    DEPART→(EXPLORE×N アトラクター切り替え)→RETURN の3状態。
+    """
     route = _Route(stations=[start], lines=[""])
     visited: set[str] = {start}
     current = start
     phase = Phase.DEPART
-    max_dist_seen = 0.0
+    attractor_idx = 0
+
+    def current_attractor_dists() -> dict[str, float]:
+        if attractor_idx < len(attractor_chain):
+            return attractor_dist_cache[attractor_chain[attractor_idx]]
+        return end_distances
 
     while route.station_count < max_stations and route.total_time < max_time:
-        # 目的地に到着したら収集して終了
         if current == end and route.station_count >= 3:
             return route
 
-        current_dist = end_distances.get(current, 0.0)
-        max_dist_seen = max(max_dist_seen, current_dist)
-
         # --- 状態遷移 ---
-        if phase == Phase.DEPART and current_dist > max_dist_seen * 0.5 and route.station_count >= 5:
-            phase = Phase.EXPLORE
-        elif phase == Phase.EXPLORE and max_dist_seen > 0 and current_dist < max_dist_seen * 0.4:
-            phase = Phase.RETURN
+        if phase == Phase.DEPART:
+            if attractor_chain and attractor_idx < len(attractor_chain):
+                dist_to_attr = current_attractor_dists().get(current, 999.0)
+                if dist_to_attr < 20.0 or route.station_count >= 10:
+                    phase = Phase.EXPLORE
+
+        elif phase == Phase.EXPLORE:
+            if attractor_idx < len(attractor_chain):
+                dist_to_attr = current_attractor_dists().get(current, 999.0)
+                if dist_to_attr < 15.0:
+                    attractor_idx += 1
+                    if attractor_idx >= len(attractor_chain):
+                        phase = Phase.RETURN
+            else:
+                phase = Phase.RETURN
 
         # --- 候補駅を取得 ---
         candidates = [
@@ -362,20 +447,26 @@ def _random_walk_fsa(
         if not candidates:
             break
 
-        # --- 状態ごとの重み計算 ---
         last_line = route.lines[-1] if route.lines else ""
         weights = []
         for n_id, lid, dist, t in candidates:
-            n_dist = end_distances.get(n_id, 0.0)
             remaining_deg = sum(1 for v, _, _, _ in adj.get(n_id, []) if v not in visited)
             new_line_bonus = 3.0 if (lid and lid not in route.line_counts) else 1.0
 
             if phase == Phase.DEPART:
-                w = n_dist * 2.0 + new_line_bonus * 3.0 + remaining_deg * 0.5
+                attract_dist = current_attractor_dists().get(n_id, 999.0)
+                attract_score = 1.0 / (1.0 + attract_dist) * 50.0
+                w = attract_score + new_line_bonus * 3.0 + remaining_deg * 0.5
             elif phase == Phase.EXPLORE:
                 momentum = 5.0 if (lid and lid == last_line) else 1.0
-                w = new_line_bonus * 3.0 * momentum + dist * 0.5 + remaining_deg * 0.3
+                attract_dist = current_attractor_dists().get(n_id, 999.0)
+                direction_bonus = 1.0 / (1.0 + attract_dist) * 10.0
+                w = (new_line_bonus * 3.0 * momentum
+                     + direction_bonus
+                     + dist * 0.5
+                     + remaining_deg * 0.3)
             else:  # RETURN
+                n_dist = end_distances.get(n_id, 0.0)
                 closeness = 1.0 / (1.0 + n_dist) * 10.0
                 w = closeness + remaining_deg * 0.5
 
@@ -666,19 +757,34 @@ def find_omawari_routes(
                     if wp_route is not None:
                         waypoint_results.append(wp_route)
 
-        # 終着駅指定モード: FSAランダムウォークを num_trials 回実行
+        # 終着駅指定モード: マルチアトラクター FSAランダムウォークを num_trials 回実行
         end_distances = _nearest_km(adj, end)
+        # 試行間でDijkstra結果を共有するグローバルキャッシュ
+        global_dist_cache: dict[str, dict[str, float]] = {end: end_distances}
         collected: list[_Route] = []
         for _ in range(num_trials):
+            chain = _build_attractor_chain(
+                adj, start, end, rng,
+                num_attractors=rng.randint(2, 4),
+                dist_cache=global_dist_cache,
+            )
+            # チェイン内の未キャッシュ駅を補完（_build_attractor_chain で大半は計算済み）
+            for attr in chain:
+                if attr not in global_dist_cache:
+                    global_dist_cache[attr] = _nearest_km(adj, attr)
             result = _random_walk_fsa(
                 adj, start, end, end_distances,
+                chain, global_dist_cache,
                 max_stations, effective_time, rng,
             )
             if result is not None and result.station_count >= 3:
                 collected.append(result)
 
+        # 乗車時間上限でフィルタリング（0.0は制限なし）
+        time_filtered = [r for r in collected if r.total_time <= effective_time]
+        final = time_filtered if time_filtered else collected
         # ウェイポイントルートを先頭に追加
-        return waypoint_results + _build_output(collected, adj, start, fare_table, num_results)
+        return waypoint_results + _build_output(final, adj, start, fare_table, num_results)
 
     # 自由探索モード
     results: list[_Route] = []
@@ -701,7 +807,10 @@ def find_omawari_routes(
         if walk.station_count >= 3:
             results.append(walk)
 
-    return _build_output(results, adj, start, fare_table, num_results)
+    # 乗車時間上限でフィルタリング（0.0は制限なし）
+    time_filtered = [r for r in results if r.total_time <= effective_time]
+    final = time_filtered if time_filtered else results
+    return _build_output(final, adj, start, fare_table, num_results)
 
 
 def find_omawari_by_fare(
