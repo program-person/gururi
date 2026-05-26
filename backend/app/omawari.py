@@ -417,8 +417,9 @@ def _random_walk_fsa(
             return attractor_dist_cache[attractor_chain[attractor_idx]]
         return end_distances
 
+    min_loop = 10 if start == end else 3
     while route.station_count < max_stations and route.total_time < max_time:
-        if current == end and route.station_count >= 3:
+        if current == end and route.station_count >= min_loop:
             return route
 
         # --- 状態遷移 ---
@@ -467,8 +468,20 @@ def _random_walk_fsa(
                      + remaining_deg * 0.3)
             else:  # RETURN
                 n_dist = end_distances.get(n_id, 0.0)
-                closeness = 1.0 / (1.0 + n_dist) * 10.0
-                w = closeness + remaining_deg * 0.5
+                # 残り予算を計算（時間・駅数のうち小さい方）
+                time_ratio = (max_time - route.total_time) / max_time if max_time > 0 else 0
+                station_ratio = (max_stations - route.station_count) / max_stations if max_stations > 0 else 0
+                budget_ratio = min(time_ratio, station_ratio)
+
+                if budget_ratio > 0.3:
+                    # のんびりRETURN: 寄り道しながら帰る
+                    closeness = 1.0 / (1.0 + n_dist) * 5.0
+                    momentum = 5.0 if (lid and lid == last_line) else 1.0
+                    w = closeness + new_line_bonus * 3.0 * momentum + remaining_deg * 0.3
+                else:
+                    # 急ぎRETURN: 確実に帰着する
+                    closeness = 1.0 / (1.0 + n_dist) * 15.0
+                    w = closeness + remaining_deg * 0.5
 
             weights.append(max(w, 0.01))
 
@@ -786,31 +799,34 @@ def find_omawari_routes(
         # ウェイポイントルートを先頭に追加
         return waypoint_results + _build_output(final, adj, start, fare_table, num_results)
 
-    # 自由探索モード
-    results: list[_Route] = []
+    # 自由探索モード → 出発駅に戻るループとして FSA を使う
+    else:
+        loop_end = start
+        end_distances = _nearest_km(adj, loop_end)
+        global_dist_cache: dict[str, dict[str, float]] = {loop_end: end_distances}
+        collected: list[_Route] = []
 
-    # Phase 1 — 貪欲DFS で最良ルートを1本確保（スコア上限の基準値を引き上げる）
-    global_best: list[float] = [0.0]
-    seed_init = _Route(stations=[start], lines=[""])
-    seed_route = _dfs(
-        adj, start, {start}, seed_init, max_stations, effective_time,
-        avg_dist, total_lines, global_best,
-        None, None,  # 自由探索, 収集なし
-    )
-    if seed_route.station_count >= 3:
-        results.append(seed_route)
-        global_best[0] = seed_route.score()
+        for _ in range(num_trials):
+            chain = _build_attractor_chain(
+                adj, start, loop_end, rng,
+                num_attractors=rng.randint(2, 4),
+                dist_cache=global_dist_cache,
+            )
+            for attr in chain:
+                if attr not in global_dist_cache:
+                    global_dist_cache[attr] = _nearest_km(adj, attr)
+            result = _random_walk_fsa(
+                adj, start, loop_end, end_distances,
+                chain, global_dist_cache,
+                max_stations, effective_time, rng,
+            )
+            if result is not None and result.station_count >= 3:
+                collected.append(result)
 
-    # Phase 2 — ランダムウォークで多様な経路を大量生成
-    for _ in range(num_trials):
-        walk = _random_walk_legacy(adj, start, max_stations, effective_time, rng)
-        if walk.station_count >= 3:
-            results.append(walk)
-
-    # 乗車時間上限でフィルタリング（0.0は制限なし）
-    time_filtered = [r for r in results if r.total_time <= effective_time]
-    final = time_filtered if time_filtered else results
-    return _build_output(final, adj, start, fare_table, num_results)
+        # 乗車時間上限でフィルタリング（0.0は制限なし）
+        time_filtered = [r for r in collected if r.total_time <= effective_time]
+        final = time_filtered if time_filtered else collected
+        return _build_output(final, adj, start, fare_table, num_results)
 
 
 def find_omawari_by_fare(
