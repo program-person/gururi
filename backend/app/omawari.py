@@ -3,7 +3,7 @@
 スコア三軸: 路線多様性(主)・走行距離(副)・駅数(補助)
 探索戦略:
   自由探索    → 貪欲DFS(最良1本) + 重み付きランダムウォーク(多様性)
-  終着駅指定  → ノイズ付きDFS + eligible_ends スナップショット収集
+  終着駅指定  → FSAランダムウォーク（DEPART/EXPLORE/RETURN の 3 状態）
   運賃指定    → ランダムウォーク + eligible_ends スナップショット収集
 """
 
@@ -11,6 +11,12 @@ import heapq
 import random
 from dataclasses import dataclass, field
 from enum import Enum, auto
+
+
+class Phase(Enum):
+    DEPART = "depart"
+    EXPLORE = "explore"
+    RETURN = "return"
 
 from app.fare import calc_direct_fare
 from app.graph import Adjacency
@@ -320,46 +326,34 @@ def _random_walk_legacy(
 def _random_walk_fsa(
     adj: Adjacency,
     start: str,
+    end: str,
+    end_distances: dict[str, float],
     max_stations: int,
     max_time: float,
     rng: random.Random,
-    eligible_ends: set[str] | None = None,
-    collected: list["_Route"] | None = None,
-    end_distances: dict[str, float] | None = None,
-    min_detour_distance: float = 0.0,
-) -> "_Route":
-    """FSA（DEPART/EXPLORE/RETURN）ベースの重み付きランダムウォーク。
-
-    EXPLORE 状態では last_line を記憶した1次マルコフ連鎖で同路線継続を優先し、
-    広域を横断する大回りらしいルートを生成する。
-    end_distances が None の場合（自由探索）は EXPLORE 固定で動作する。
-    """
+) -> "_Route | None":
+    """FSAベースのランダムウォーク。3つの状態で次の駅の重みを切り替える。"""
     route = _Route(stations=[start], lines=[""])
     visited: set[str] = {start}
     current = start
-
-    state: _WalkState = _WalkState.DEPART if end_distances is not None else _WalkState.EXPLORE
-    max_end_dist = 0.0
+    phase = Phase.DEPART
+    max_dist_seen = 0.0
 
     while route.station_count < max_stations and route.total_time < max_time:
-        # 通過時スナップショット収集（by-fare / end 指定モード）
-        if eligible_ends is not None and collected is not None:
-            if (current in eligible_ends and route.station_count >= 3
-                    and route.total_distance >= min_detour_distance):
-                collected.append(route.copy())
+        # 目的地に到着したら収集して終了
+        if current == end and route.station_count >= 3:
+            return route
 
-        # 状態遷移チェック
-        if end_distances is not None:
-            current_end_dist = end_distances.get(current, 0.0)
-            if current_end_dist > max_end_dist:
-                max_end_dist = current_end_dist
-            if state == _WalkState.DEPART and current_end_dist > max_end_dist * 0.5:
-                state = _WalkState.EXPLORE
-            elif (state == _WalkState.EXPLORE
-                  and max_end_dist > 0.0
-                  and current_end_dist < max_end_dist * 0.7):
-                state = _WalkState.RETURN
+        current_dist = end_distances.get(current, 0.0)
+        max_dist_seen = max(max_dist_seen, current_dist)
 
+        # --- 状態遷移 ---
+        if phase == Phase.DEPART and current_dist > max_dist_seen * 0.5 and route.station_count >= 5:
+            phase = Phase.EXPLORE
+        elif phase == Phase.EXPLORE and max_dist_seen > 0 and current_dist < max_dist_seen * 0.4:
+            phase = Phase.RETURN
+
+        # --- 候補駅を取得 ---
         candidates = [
             (n_id, lid, dist, t)
             for n_id, lid, dist, t in adj.get(current, [])
@@ -368,14 +362,24 @@ def _random_walk_fsa(
         if not candidates:
             break
 
-        last_line = route.lines[-1]
-        weights = [
-            _neighbor_weight_fsa(
-                n_id, lid, dist, adj, visited, route.line_counts,
-                state, last_line, end_distances,
-            )
-            for n_id, lid, dist, _t in candidates
-        ]
+        # --- 状態ごとの重み計算 ---
+        last_line = route.lines[-1] if route.lines else ""
+        weights = []
+        for n_id, lid, dist, t in candidates:
+            n_dist = end_distances.get(n_id, 0.0)
+            remaining_deg = sum(1 for v, _, _, _ in adj.get(n_id, []) if v not in visited)
+            new_line_bonus = 3.0 if (lid and lid not in route.line_counts) else 1.0
+
+            if phase == Phase.DEPART:
+                w = n_dist * 2.0 + new_line_bonus * 3.0 + remaining_deg * 0.5
+            elif phase == Phase.EXPLORE:
+                momentum = 5.0 if (lid and lid == last_line) else 1.0
+                w = new_line_bonus * 3.0 * momentum + dist * 0.5 + remaining_deg * 0.3
+            else:  # RETURN
+                closeness = 1.0 / (1.0 + n_dist) * 10.0
+                w = closeness + remaining_deg * 0.5
+
+            weights.append(max(w, 0.01))
 
         n_id, lid, dist, t = rng.choices(candidates, weights=weights, k=1)[0]
 
@@ -388,13 +392,7 @@ def _random_walk_fsa(
         route.total_time += t
         current = n_id
 
-    # ウォーク終了時も eligible_ends チェック
-    if eligible_ends is not None and collected is not None:
-        if (current in eligible_ends and route.station_count >= 3
-                and route.total_distance >= min_detour_distance):
-            collected.append(route.copy())
-
-    return route
+    return None  # 目的地に到達できなかった
 
 
 # --------------------------------------------------------------------------- #
@@ -668,34 +666,19 @@ def find_omawari_routes(
                     if wp_route is not None:
                         waypoint_results.append(wp_route)
 
-        # 終着駅指定モード: ノイズ付きDFS で eligible_ends に到達するたびに収集
-        eligible_ends = {end}
-        collected: list[_Route] = []
-        best_score = [0.0]
-        noise_scale = avg_dist * 2.0  # sigma ≈ 6km で十分な多様性
-        start_distances = _nearest_km(adj, start)
-        direct_dist = start_distances.get(end, 0.0)
-        min_detour_distance = direct_dist * 2.5
+        # 終着駅指定モード: FSAランダムウォークを num_trials 回実行
         end_distances = _nearest_km(adj, end)
-        # DFS による品質重視の探索
+        collected: list[_Route] = []
         for _ in range(num_trials):
-            init = _Route(stations=[start], lines=[""])
-            _dfs(
-                adj, start, {start}, init, max_stations, effective_time,
-                avg_dist, total_lines, best_score,
-                eligible_ends, collected, rng, noise_scale,
-                end_distances, min_detour_distance,
+            result = _random_walk_fsa(
+                adj, start, end, end_distances,
+                max_stations, effective_time, rng,
             )
-        # FSA ウォークによる多様性確保の探索（end_distances でバイアス）
-        for _ in range(num_trials):
-            _random_walk_fsa(
-                adj, start, max_stations, effective_time, rng,
-                eligible_ends, collected,
-                end_distances, min_detour_distance,
-            )
-        valid = [r for r in collected if r.station_count >= 3]
-        dfs_results = _build_output(valid, adj, start, fare_table, num_results)
-        return waypoint_results + dfs_results
+            if result is not None and result.station_count >= 3:
+                collected.append(result)
+
+        # ウェイポイントルートを先頭に追加
+        return waypoint_results + _build_output(collected, adj, start, fare_table, num_results)
 
     # 自由探索モード
     results: list[_Route] = []
@@ -712,11 +695,9 @@ def find_omawari_routes(
         results.append(seed_route)
         global_best[0] = seed_route.score()
 
-    # Phase 2 — FSA ウォークで多様な経路を大量生成
-    # DFS は同じグラフ構造に収束しやすいが、FSA ウォークは
-    # 各ステップで確率的に分岐するため本質的に異なるルートを生成できる
+    # Phase 2 — ランダムウォークで多様な経路を大量生成
     for _ in range(num_trials):
-        walk = _random_walk_fsa(adj, start, max_stations, effective_time, rng)
+        walk = _random_walk_legacy(adj, start, max_stations, effective_time, rng)
         if walk.station_count >= 3:
             results.append(walk)
 
