@@ -6,7 +6,7 @@ import type { Line } from "@/lib/api";
 import StationSearch from "@/components/StationSearch";
 import RouteCard from "@/components/RouteCard";
 
-const APP_VERSION = "0.3.7";
+const APP_VERSION = "0.3.8";
 
 type Mode = "free" | "fare" | "dest";
 

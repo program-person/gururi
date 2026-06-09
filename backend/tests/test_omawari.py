@@ -190,6 +190,84 @@ def test_find_omawari_routes_free_mode_smoke() -> None:
 
 
 # --------------------------------------------------------------------------- #
+# ゴールデンループ方式のテスト
+# --------------------------------------------------------------------------- #
+
+REAL_GRAPH = Path(__file__).resolve().parent.parent / "data" / "graph.json"
+
+
+def test_find_loop_entry_junction_station() -> None:
+    """ジャンクション駅自身から最寄りジャンクションを探すと、距離0で自身を返す。"""
+    from app.omawari import _find_loop_entry, GOLDEN_LOOP_SET
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    
+    # "osak" は大阪駅で、GOLDEN_LOOP_SET に含まれる
+    jst, line, dist = _find_loop_entry(adj, "osak", GOLDEN_LOOP_SET)
+    assert jst == "osak"
+    assert dist == 0.0
+
+
+def test_find_loop_entry_non_junction() -> None:
+    """非ジャンクション駅（例: 吹田 suit）から最寄りジャンクションを探すと、正しい駅を返す。"""
+    from app.omawari import _find_loop_entry, GOLDEN_LOOP_SET
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    
+    # "suit" は吹田駅で、最寄りは "ssin"（新大阪）のはず
+    jst, line, dist = _find_loop_entry(adj, "suit", GOLDEN_LOOP_SET)
+    assert jst == "ssin"
+    assert dist > 0.0
+
+
+def test_expand_junction_path() -> None:
+    """2つのジャンクション駅間の全駅を展開する。"""
+    from app.omawari import _expand_junction_path
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    
+    # "osak" (大阪) から "tenn" (天王寺) へ大阪環状線 "C" で展開
+    path = _expand_junction_path(adj, "osak", "tenn", "C", set())
+    assert len(path) > 2
+    assert path[0][0] == "osak"
+    assert path[-1][0] == "tenn"
+    # 中間駅が含まれていること
+    station_ids = [st for st, _ in path]
+    assert "kyob" in station_ids  # 京橋駅
+
+
+def test_golden_loop_cw() -> None:
+    """大阪発・大阪着のゴールデンループ（時計回り）が正しく生成される。"""
+    from app.omawari import find_golden_loop_routes
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    fare_table = load_fare_table()
+    
+    routes = find_golden_loop_routes(adj, "osak", fare_table, "osak", max_time_min=0.0)
+    assert len(routes) > 0
+    # 先頭が最もスコアが高い
+    best_route = routes[0]
+    station_ids = [seg.station_id for seg in best_route.path]
+    # 大阪発大阪着
+    assert station_ids[0] == "osak"
+    assert station_ids[-1] == "osak"
+
+
+def test_find_omawari_routes_includes_golden() -> None:
+    """合成された大回りルートにゴールデンループが含まれる。"""
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    fare_table = load_fare_table()
+    
+    # 大阪→天王寺
+    routes = find_omawari_routes(adj, "osak", fare_table, "tenn", max_time_min=0.0, num_results=5)
+    assert len(routes) > 0
+    # いずれかのルートにゴールデンループの特徴的な駅（例: 近江塩津 enis）が含まれる
+    has_enis = any("enis" in [seg.station_id for seg in r.path] for r in routes)
+    assert has_enis
+
+
+# --------------------------------------------------------------------------- #
 # API レベル
 # --------------------------------------------------------------------------- #
 
