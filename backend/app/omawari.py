@@ -702,6 +702,42 @@ def _build_output(
 # ゴールデンループ方式
 # --------------------------------------------------------------------------- #
 
+def _trim_last_station(r: "_Route", adj: Adjacency) -> "_Route":
+    """末尾の駅（= 出発駅に戻る最後の1駅）を除去する。
+
+    大回りのルールでは同駅発着不可のため、ループルートの最終駅を
+    1つ手前で打ち切るときに使う。
+    """
+    if len(r.stations) < 2:
+        return r
+
+    last_st = r.stations[-1]
+    prev_st = r.stations[-2]
+    last_line = r.lines[-1]
+
+    edge_dist = 0.0
+    edge_time = 0.0
+    for v, lid, edist, etime in adj.get(prev_st, []):
+        if v == last_st and lid == last_line:
+            edge_dist = edist
+            edge_time = etime
+            break
+
+    new_line_counts = dict(r.line_counts)
+    if last_line and last_line in new_line_counts:
+        new_line_counts[last_line] -= 1
+        if new_line_counts[last_line] == 0:
+            del new_line_counts[last_line]
+
+    return _Route(
+        stations=r.stations[:-1],
+        lines=r.lines[:-1],
+        line_counts=new_line_counts,
+        total_distance=r.total_distance - edge_dist,
+        total_time=r.total_time - edge_time,
+    )
+
+
 def _find_loop_entry(adj: Adjacency, station: str, loop_set: frozenset[str]) -> tuple[str, str, float]:
     """任意の出発駅から、指定ループ上の最寄りジャンクション駅をDijkstraで探す。
     戻り値: (ジャンクション駅ID, 進出路線ID, 距離)
@@ -988,6 +1024,8 @@ def find_golden_loop_routes(
     num_results: int = 5,
 ) -> list[OmawariRoute]:
     effective_time = float("inf") if max_time_min == 0.0 else max_time_min
+    # 自由探索モード（同駅発着）は末尾の出発駅を除去する
+    trim_last = end is None or end == start
     if end is None:
         end = start
 
@@ -1041,6 +1079,13 @@ def find_golden_loop_routes(
             )
             if r_ccw_sc and r_ccw_sc.total_time <= effective_time:
                 routes.append(r_ccw_sc)
+
+    # 自由探索モードでは末尾の出発駅（ループの閉じ駅）を除去する
+    if trim_last:
+        routes = [
+            _trim_last_station(r, adj) if r.stations and r.stations[-1] == start else r
+            for r in routes
+        ]
 
     return _build_output(routes, adj, start, fare_table, num_results)
 
