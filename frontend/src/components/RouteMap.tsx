@@ -6,24 +6,25 @@ import PREFECTURES from "@/data/prefectures";
 import LAKES from "@/data/lakes";
 
 export const LINE_COLORS: Record<string, string> = {
-  C:  "#f97316", // 大阪環状線: オレンジ
-  A:  "#1d4ed8", // JR京都線・琵琶湖線: ブルー
-  JK: "#0284c7", // JR神戸線: スカイブルー
-  G:  "#7c3aed", // JR宝塚線: パープル
-  T:  "#0891b2", // JR東西線: シアン
-  H:  "#db2777", // 学研都市線: ピンク
-  Q:  "#16a34a", // 大和路線: グリーン
-  F:  "#d97706", // おおさか東線: アンバー
-  R:  "#dc2626", // 阪和線: レッド
-  D:  "#991b1b", // 奈良線: ダークレッド
-  KS: "#0e7490", // 湖西線: ダークシアン
-  NR: "#64748b", // 北陸本線: スレート
-  KB: "#65a30d", // 草津線: ライム
-  KN: "#92400e", // 関西本線(非電化): ブラウン
-  E:  "#ea580c", // 嵯峨野線: バーントオレンジ
-  U:  "#a855f7", // 桜井線: パープル
-  W:  "#155e75", // 和歌山線: ダークティール
-  HA: "#f43f5e", // 羽衣支線: ローズ
+  C:  "#e80000", // 大阪環状線: 赤 (O)
+  A:  "#0072ba", // JR京都線・琵琶湖線: 青 (A)
+  JK: "#0072ba", // JR神戸線: 青 (JK) ※A同色
+  G:  "#ffba00", // JR宝塚線: 黄 (G)
+  T:  "#ff1493", // JR東西線: 桜桃色 (T)
+  H:  "#ff1493", // 学研都市線: 桜桃色 (H) ※T同色・旧黄緑から2014年変更
+  Q:  "#00b17b", // 大和路線: 緑 (Q)
+  F:  "#347293", // おおさか東線: ブルーグレー (F)
+  R:  "#ff8e1f", // 阪和線: オレンジ (R)
+  D:  "#aa731c", // 奈良線: 茶色 (D)
+  KS: "#00acd1", // 湖西線: 水色 (KS)
+  NR: "#0072ba", // 北陸本線: 青 (NR) ※A同色
+  KB: "#5a9934", // 草津線: 緑 (KB)
+  KN: "#795548", // 関西本線(非電化): 茶系 ※公式未定義
+  E:  "#878ddc", // 嵯峨野線: 紫 (E)
+  U:  "#b31c31", // 桜井線: 赤系 (U)
+  W:  "#f79fba", // 和歌山線: ピーチ (W)
+  HA: "#ff8e1f", // 羽衣支線: ※阪和線(R)と同系統
+  KA: "#ff8e1f", // 関西空港線: ※阪和線(R)と同系統
 };
 
 const DEFAULT_COLOR = "#6b7280";
@@ -189,7 +190,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
             <rect width={SVG_W} height={svgH} fill={isDark ? "#0f172a" : "#bfdbfe"} />
 
             {/* 都道府県ポリゴン — fill層 */}
-            <g opacity={isDark ? 0.55 : 1}>
+            <g opacity={0.2}>
               {prefPolygons.map((pref) => (
                 <polygon
                   key={`fill-${pref.name}`}
@@ -268,7 +269,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               </text>
             ))}
 
-            {/* 路線セグメント（影） */}
+            {/* 路線セグメント（黒ケーシング） */}
             {path.slice(1).map((seg, i) => {
               const from = rawCoords[i];
               const to = rawCoords[i + 1];
@@ -277,9 +278,9 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               const [x2, y2] = toXY(to.lat, to.lng);
               return (
                 <line
-                  key={`shadow-${i}`}
+                  key={`casing-${i}`}
                   x1={x1} y1={y1} x2={x2} y2={y2}
-                  stroke="rgba(0,0,0,0.18)"
+                  stroke="#000"
                   strokeWidth={6}
                   strokeLinecap="round"
                 />
