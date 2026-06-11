@@ -31,6 +31,7 @@ export const LINE_MAP_FALLBACK: Record<string, string> = {
   W:  "和歌山線",
   HA: "羽衣支線",
   KA: "関西空港線",
+  I:  "加古川線",
 };
 
 const FARE_OPTIONS = [133, 143, 165, 198, 220, 253, 286, 330, 363, 396, 429, 462, 506, 550, 616];

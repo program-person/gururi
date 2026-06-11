@@ -3883,17 +3883,10 @@
     },
     {
       "fromStationId": "iwade",
-      "toStationId": "kii",
-      "lineId": "W",
-      "distance": 9.4,
-      "travelTime": 14
-    },
-    {
-      "fromStationId": "kii",
       "toStationId": "waka",
       "lineId": "W",
-      "distance": 8.1,
-      "travelTime": 12
+      "distance": 7.5,
+      "travelTime": 11
     },
     {
       "fromStationId": "hine",

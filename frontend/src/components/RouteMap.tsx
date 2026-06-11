@@ -25,6 +25,7 @@ export const LINE_COLORS: Record<string, string> = {
   W:  "#f79fba", // 和歌山線: ピーチ (W)
   HA: "#ff8e1f", // 羽衣支線: ※阪和線(R)と同系統
   KA: "#ff8e1f", // 関西空港線: ※阪和線(R)と同系統
+  I:  "#009944", // 加古川線: 緑系 ※公式未定義
 };
 
 const DEFAULT_COLOR = "#6b7280";
@@ -294,6 +295,9 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               if (!from || !to) return null;
               const [x1, y1] = toXY(from.lat, from.lng);
               const [x2, y2] = toXY(to.lat, to.lng);
+              if (seg.lineId && !(seg.lineId in LINE_COLORS)) {
+                console.warn(`[RouteMap] unknown lineId: "${seg.lineId}"`);
+              }
               const color = LINE_COLORS[seg.lineId] ?? DEFAULT_COLOR;
               return (
                 <line
