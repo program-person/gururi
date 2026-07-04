@@ -26,28 +26,28 @@ GOLDEN_LOOP: list[str] = [
 ]
 
 LOOP_LINES: list[str] = [
-    "W",   # 和歌山 → 高田（和歌山線）
-    "U",   # 高田 → 奈良（桜井線 = 万葉まほろば線）
-    "Q",   # 奈良 → 久宝寺（大和路線）
-    "F",   # 久宝寺 → 放出（おおさか東線）
-    "H",   # 放出 → 木津（学研都市線）
-    "Q",   # 木津 → 加茂（大和路線）
-    "KN",  # 加茂 → 柘植（関西本線）
-    "KB",  # 柘植 → 草津（草津線）
-    "A",   # 草津 → 米原（琵琶湖線 = JR京都線・琵琶湖線）
-    "NR",  # 米原 → 近江塩津（北陸本線）
-    "KS",  # 近江塩津 → 京都（湖西線）
-    "A",   # 京都 → 新大阪（JR京都線 = JR京都線・琵琶湖線）
-    "F",   # 新大阪 → 鴫野（おおさか東線）
-    "H",   # 鴫野 → 京橋（学研都市線）
-    "T",   # 京橋 → 尼崎（JR東西線）
-    "JK",  # 尼崎 → 大阪（JR神戸線）
-    "C",   # 大阪 → 天王寺（大阪環状線）
-    "R",   # 天王寺 → 和歌山（阪和線）
+    "T",  # 和歌山 → 高田（和歌山線）
+    "U",  # 高田 → 奈良（桜井線 = 万葉まほろば線）
+    "Q",  # 奈良 → 久宝寺（大和路線）
+    "F",  # 久宝寺 → 放出（おおさか東線）
+    "H",  # 放出 → 木津（学研都市線）
+    "Q",  # 木津 → 加茂（大和路線）
+    "V",  # 加茂 → 柘植（関西本線）
+    "C",  # 柘植 → 草津（草津線）
+    "A",  # 草津 → 米原（琵琶湖線 = JR京都線・琵琶湖線）
+    "A",  # 米原 → 近江塩津（北陸本線）
+    "B",  # 近江塩津 → 京都（湖西線）
+    "A",  # 京都 → 新大阪（JR京都線 = JR京都線・琵琶湖線）
+    "F",  # 新大阪 → 鴫野（おおさか東線）
+    "H",  # 鴫野 → 京橋（学研都市線）
+    "H",  # 京橋 → 尼崎（JR東西線）
+    "A",  # 尼崎 → 大阪（JR神戸線）
+    "O",  # 大阪 → 天王寺（大阪環状線）
+    "R",  # 天王寺 → 和歌山（阪和線）
 ]
 
 KOBE_LOOP: list[str] = ["amaz", "tani", "kkok"]
-KOBE_LINES: list[str] = ["G", "I", "JK"]
+KOBE_LINES: list[str] = ["G", "I", "A"]
 
 SHORTCUTS: list[dict] = [
     {
@@ -462,6 +462,31 @@ def _random_walk_fsa(
         return end_distances
 
     min_loop = 10 if start == end else 3
+
+    def close_home() -> "_Route | None":
+        """行き詰まったウォークを、未訪問駅のみの最短路で目的地まで接いで完結させる。
+
+        再訪禁止のため行き止まり路線（末端駅）に入ると通常のウォークでは
+        帰還できない。時間・駅数予算内に収まる場合のみ接続する。
+        """
+        result = _shortest_avoiding(adj, current, end, visited - {end})
+        if result is None:
+            return None
+        seg_stations, seg_lines, seg_dist, seg_time = result
+        if route.total_time + seg_time > max_time:
+            return None
+        if route.station_count + len(seg_stations) - 1 > max_stations:
+            return None
+        for j in range(1, len(seg_stations)):
+            route.stations.append(seg_stations[j])
+            route.lines.append(seg_lines[j])
+            if seg_lines[j]:
+                route.line_counts[seg_lines[j]] = route.line_counts.get(seg_lines[j], 0) + 1
+        route.total_distance += seg_dist
+        route.total_time += seg_time
+        if route.stations[-1] == end and route.station_count >= min_loop:
+            return route
+        return None
     while route.station_count < max_stations and route.total_time < max_time:
         if current == end and route.station_count >= min_loop:
             return route
@@ -496,7 +521,7 @@ def _random_walk_fsa(
             and route.total_time + t <= max_time
         ]
         if not candidates:
-            break
+            return close_home()
 
         last_line = route.lines[-1] if route.lines else ""
         weights = []
@@ -546,7 +571,10 @@ def _random_walk_fsa(
         route.total_time += t
         current = n_id
 
-    return None  # 目的地に到達できなかった
+    # 予算（時間・駅数）切れでループを抜けた場合も帰還を試みる
+    if current == end and route.station_count >= min_loop:
+        return route
+    return close_home()
 
 
 # --------------------------------------------------------------------------- #
@@ -1209,7 +1237,7 @@ def find_omawari_routes(
                     wp_route = find_routes_via_waypoints(
                         adj, start, end, waypoint_ids, fare_table
                     )
-                    if wp_route is not None:
+                    if wp_route is not None and wp_route.total_time <= effective_time:
                         waypoint_results.append(wp_route)
 
         # ゴールデンループ方式によるルート生成
@@ -1288,6 +1316,11 @@ def find_omawari_routes(
         # 乗車時間上限でフィルタリング（0.0は制限なし）
         time_filtered = [r for r in collected if r.total_time <= effective_time]
         final = time_filtered if time_filtered else collected
+        # 同駅発着不可のため、出発駅に戻るループの末尾をトリム
+        final = [
+            _trim_last_station(r, adj) if r.stations and r.stations[-1] == start else r
+            for r in final
+        ]
         fsa_routes = _build_output(final, adj, start, fare_table, num_results)
 
         # ゴールデンループとFSAルートを合成し、パスで重複排除

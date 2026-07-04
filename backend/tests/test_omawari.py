@@ -226,8 +226,8 @@ def test_expand_junction_path() -> None:
     data = load_graph_data(REAL_GRAPH)
     adj = build_adjacency(data.edges)
     
-    # "osak" (大阪) から "tenn" (天王寺) へ大阪環状線 "C" で展開
-    path = _expand_junction_path(adj, "osak", "tenn", "C", set())
+    # "osak" (大阪) から "tenn" (天王寺) へ大阪環状線 "O" で展開
+    path = _expand_junction_path(adj, "osak", "tenn", "O", set())
     assert len(path) > 2
     assert path[0][0] == "osak"
     assert path[-1][0] == "tenn"
@@ -274,6 +274,53 @@ def test_find_omawari_routes_includes_golden() -> None:
     # いずれかのルートにゴールデンループの特徴的な駅（例: 近江塩津 enis）が含まれる
     has_enis = any("enis" in [seg.station_id for seg in r.path] for r in routes)
     assert has_enis
+
+
+# --------------------------------------------------------------------------- #
+# 最大乗車時間の遵守（回帰テスト: 時間制限つきでルートが出ない不具合）
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("max_time", [120.0, 240.0, 480.0])
+def test_free_mode_respects_max_time(max_time: float) -> None:
+    """自由探索モード: 有限の時間制限でもルートが返り、全件が制限内に収まる。"""
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    fare_table = load_fare_table()
+    routes = find_omawari_routes(
+        adj, "osak", fare_table,
+        max_time_min=max_time, num_trials=300, seed=42,
+    )
+    assert len(routes) > 0
+    assert all(r.total_time <= max_time for r in routes)
+    # 同駅発着不可: 出発駅に戻るルートは末尾がトリムされている
+    assert all(r.path[-1].station_id != "osak" for r in routes)
+
+
+@pytest.mark.parametrize("max_time", [120.0, 240.0, 480.0])
+def test_dest_mode_respects_max_time(max_time: float) -> None:
+    """駅間指定モード: 有限の時間制限でもルートが返り、全件が制限内に収まる。"""
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    fare_table = load_fare_table()
+    name_to_id = {s.name: s.id for s in data.stations}
+    routes = find_omawari_routes(
+        adj, "osak", fare_table, end="tenn",
+        max_time_min=max_time, num_trials=300, seed=42,
+        name_to_id=name_to_id,
+    )
+    assert len(routes) > 0
+    assert all(r.total_time <= max_time for r in routes)
+    assert all(r.path[-1].station_id == "tenn" for r in routes)
+
+
+def test_loop_lines_match_graph() -> None:
+    """LOOP_LINES / KOBE_LINES の路線IDが graph.json に実在する。"""
+    from app.omawari import LOOP_LINES, KOBE_LINES, SHORTCUTS
+    data = load_graph_data(REAL_GRAPH)
+    graph_lines = {e.line_id for e in data.edges}
+    assert set(LOOP_LINES) <= graph_lines
+    assert set(KOBE_LINES) <= graph_lines
+    assert {sc["line"] for sc in SHORTCUTS} <= graph_lines
 
 
 # --------------------------------------------------------------------------- #
