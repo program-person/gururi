@@ -237,20 +237,29 @@ def test_expand_junction_path() -> None:
 
 
 def test_golden_loop_cw() -> None:
-    """大阪発・大阪着のゴールデンループ（時計回り）が正しく生成される。"""
+    """大阪発のゴールデンループ（時計回り）が正しく生成される。
+
+    大回りのルールでは同駅発着不可のため、出発駅に戻る最終駅は
+    トリムされる（出発駅の1駅手前で終わる）。
+    """
     from app.omawari import find_golden_loop_routes
     data = load_graph_data(REAL_GRAPH)
     adj = build_adjacency(data.edges)
     fare_table = load_fare_table()
-    
+
     routes = find_golden_loop_routes(adj, "osak", fare_table, "osak", max_time_min=0.0)
     assert len(routes) > 0
     # 先頭が最もスコアが高い
     best_route = routes[0]
     station_ids = [seg.station_id for seg in best_route.path]
-    # 大阪発大阪着
+    # 大阪発・出発駅には戻らない（同駅発着不可）
     assert station_ids[0] == "osak"
-    assert station_ids[-1] == "osak"
+    assert station_ids[-1] != "osak"
+    # 同一駅を2度通らない
+    assert len(station_ids) == len(set(station_ids))
+    # 最終駅は出発駅の隣接駅（ループを一周して1駅手前で終わる）
+    neighbors = {v for v, _, _, _ in adj.get("osak", [])}
+    assert station_ids[-1] in neighbors
 
 
 def test_find_omawari_routes_includes_golden() -> None:

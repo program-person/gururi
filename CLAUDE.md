@@ -25,17 +25,21 @@ train/
 │   │   ├── fare.py        # 運賃計算
 │   │   └── config.py      # pydantic-settings 設定
 │   ├── data/
-│   │   ├── graph.json     # 大阪近郊区間 主要路線データ（192駅・200エッジ）
+│   │   ├── graph.json     # 大阪近郊区間 主要路線データ（350駅・363エッジ・17路線ID）
 │   │   └── fare_table.json # キロ程→IC/きっぷ運賃テーブル
 │   ├── tests/
 │   ├── generate_graph.py  # graph.json を再生成するスクリプト
 │   └── requirements.txt
+├── scripts/
+│   ├── extract_jrw_routes.py   # 国土数値情報N02 → 路線GeoJSON抽出
+│   └── sync_geo_from_n02.py    # N02から駅座標・駅間キロを generate_graph.py に同期
 └── frontend/
     └── src/
         ├── app/page.tsx       # トップページ（検索UI）
         ├── components/
         │   ├── StationSearch.tsx  # 駅名オートコンプリート
-        │   └── RouteCard.tsx      # ルート1件の表示カード
+        │   ├── RouteCard.tsx      # ルート1件の表示カード
+        │   └── RouteMap.tsx       # ルートの地図描画（SVG・路線色/凡例つき）
         └── lib/api.ts             # バックエンドAPIクライアント
 ```
 
@@ -117,9 +121,12 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 
 ## 対象路線
 
-大阪環状線(C)・JR京都線＋琵琶湖線(A)・JR神戸線(JK)・JR宝塚線(G)・JR東西線(T)・学研都市線(H)・大和路線(Q)・おおさか東線(F)・阪和線(R)・奈良線(D)・湖西線(KS)・北陸本線(NR)・草津線(KB)・関西本線非電化(KN)・嵯峨野線(E)・桜井線(U)・和歌山線(W)・羽衣支線(HA)
+路線IDはJR西日本公式の路線記号に準拠。A・Hは複数の愛称路線が同一IDを共有する（`/lines` はIDごとに1エントリ）。
+
+大阪環状線(O)・JR京都線＋琵琶湖線(A)・JR神戸線(A)・北陸本線(A)・JR宝塚線(G)・JR東西線(H)・学研都市線(H)・大和路線(Q)・おおさか東線(F)・阪和線(R)・奈良線(D)・湖西線(B)・草津線(C)・関西本線非電化(V)・嵯峨野線(E)・万葉まほろば線(U)・和歌山線(T)・関西空港線(S)・羽衣支線(HA)・加古川線(I)
+
+駅座標・駅間キロは国土数値情報N02由来（`scripts/sync_geo_from_n02.py` で同期）。フロントの路線色（`RouteMap.tsx` の `LINE_COLORS`）と路線名フォールバック（`page.tsx` の `LINE_MAP_FALLBACK`）もこの路線IDをキーにしているため、路線IDを変更する際は両方更新すること。
 
 ## 未実装（Phase 5）
 
 - 乗換案内（実ダイヤ・時刻表連携）— データソース未定（GTFS-JP 候補）
-- ルート可視化（路線図ベースの SVG/マップ）

@@ -44,7 +44,31 @@
       "PowerShell(taskkill *)",
       "PowerShell(Get-WmiObject *)",
       "Bash(python *)",
-      "Bash(del *)"
+      "Bash(del *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(git stash *)",
+      "Bash(git fetch *)",
+      "Bash(.\\\\venv\\\\Scripts\\\\python.exe generate_graph.py)",
+      "PowerShell(Set-Content *)",
+      "Bash(.\\\\venv\\\\Scripts\\\\python.exe -m pytest tests -v --tb=short)",
+      "Bash(git rm *)",
+      "Bash(git *)",
+      "Bash(.\\\\venv\\\\Scripts\\\\python.exe -c \"import ast, sys; ast.parse\\(open\\('app/omawari.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
+      "WebFetch(domain:gururi-production.up.railway.app)",
+      "WebSearch",
+      "WebFetch(domain:ayaito.net)",
+      "WebFetch(domain:ja.wikipedia.org)",
+      "Bash(export PYTHONIOENCODING=utf-8)",
+      "Read(//c/Users/hirom/Desktop/**)",
+      "Read(//c/Users/hirom/Desktop//**)",
+      "Read(//c/Users/hirom/dev/data/N02-20_GML//**)",
+      "Bash(./backend/venv/Scripts/python.exe -c \"import shapefile\")",
+      "Bash(./backend/venv/Scripts/python.exe -c \"import shapely; print\\('shapely ok'\\)\")",
+      "Bash(python scripts/sync_geo_from_n02.py)",
+      "Read(//c/Users/hirom/AppData/Local/Temp/claude/**)",
+      "Bash(./venv/Scripts/python.exe -m pytest tests -q)",
+      "Bash(echo \"tsc exit: $?\")"
     ]
   }
 }

@@ -34,5 +34,12 @@ Thumbs.db
 # データ生成物（graph.json は generate_graph.py で生成するが管理対象に含める）
 # 除外しない: backend/data/graph.json
 
+# 国土数値情報の生データ（配布物はサイズが大きいためリポジトリに含めない）
+N02-*_GML/
+N03-*_GML/
+# scripts/extract_jrw_routes.py がカレントに出す中間生成物
+# （アプリが使うのは frontend/public/jrw_routes.geojson）
+/jrw_routes.geojson
+
 # Claude Code が一時的に作るワークツリー
 .claude/worktrees/
