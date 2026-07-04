@@ -2,16 +2,23 @@
 """
 kinki_prefectures.geojson（N03由来の府県ポリゴン） → frontend/src/data/prefectures.ts 生成
 
-RouteMap.tsx が使う既存フォーマット（{name, fill, coords:[lat,lng][]}・単一リング）を
-維持したまま、座標だけ N03 由来の正確な輪郭へ差し替える。各府県は最大の外周リング
-（＝主島）のみを採用し、RDP で地図表示向けの点数まで簡略化する。
+入力 geojson は mapshaper のトポロジー保持 simplify 済みであることを前提とし、
+このスクリプトでは追加の簡略化を一切行わない（座標をそのまま転記する）。
+府県ごとに独立した簡略化（RDP など）を挟むと隣接県で残る頂点が食い違い、
+県境に隙間や重なりが生じるため厳禁。点数を減らしたい場合は mapshaper 側で行う:
+
+  npx mapshaper kinki_prefectures.geojson -simplify interval=300 keep-shapes \
+      -o kinki_simplified.geojson
+
+各府県は複数リング（本土＋島）を保持する。面積が --min-area km² 未満の
+小リング（小島・埋立地など）は除外する。
 
 Usage:
   python scripts/geojson_to_prefectures_ts.py [input.geojson] [options]
 
 Options:
   -o, --output FILE    出力 TS（デフォルト: frontend/src/data/prefectures.ts）
-  --epsilon FLOAT      RDP 簡略化の閾値（度, デフォルト: 0.012 ≈ 1.2km）
+  --min-area FLOAT     リング採用の最小面積 km²（デフォルト: 20.0。最大リングは常に採用）
 """
 
 import argparse
@@ -33,11 +40,13 @@ FILL = {
     "兵庫":   "#818cf8",
     "奈良":   "#fde68a",
     "和歌山": "#fdba74",
-    "福井":   "#f9a8d4",  # 新規追加（隣接の滋賀=空色/京都=紫と被らない桃色）
+    "福井":   "#f9a8d4",
 }
 
 # 出力順（現行踏襲＋末尾に福井）
 ORDER = ["三重", "滋賀", "京都", "大阪", "兵庫", "奈良", "和歌山", "福井"]
+
+KM_PER_DEG_LAT = 111.32
 
 
 def short_name(n03_001: str) -> str:
@@ -45,46 +54,37 @@ def short_name(n03_001: str) -> str:
     return n03_001[:-1] if n03_001 and n03_001[-1] in "都道府県" else n03_001
 
 
-def rdp(points, epsilon):
-    """Ramer-Douglas-Peucker 簡略化。"""
-    if len(points) < 3:
-        return points
-    start, end = points[0], points[-1]
-    dx, dy = end[0] - start[0], end[1] - start[1]
-    length = math.hypot(dx, dy)
-    if length == 0:
-        dists = [math.hypot(p[0] - start[0], p[1] - start[1]) for p in points[1:-1]]
-    else:
-        dists = [abs(dx * (start[1] - p[1]) - (start[0] - p[0]) * dy) / length
-                 for p in points[1:-1]]
-    max_dist = max(dists)
-    max_idx = dists.index(max_dist) + 1
-    if max_dist > epsilon:
-        left = rdp(points[:max_idx + 1], epsilon)
-        right = rdp(points[max_idx:], epsilon)
-        return left[:-1] + right
-    return [start, end]
+def ring_area_km2(ring_lnglat) -> float:
+    """外周リング（[lng,lat]）の面積を km² で返す（シューレース＋緯度補正）。"""
+    if len(ring_lnglat) < 4:
+        return 0.0
+    mean_lat = sum(c[1] for c in ring_lnglat) / len(ring_lnglat)
+    kx = KM_PER_DEG_LAT * math.cos(math.radians(mean_lat))  # km / 経度1度
+    ky = KM_PER_DEG_LAT                                     # km / 緯度1度
+    s = 0.0
+    for i in range(len(ring_lnglat) - 1):
+        x1, y1 = ring_lnglat[i][0] * kx, ring_lnglat[i][1] * ky
+        x2, y2 = ring_lnglat[i + 1][0] * kx, ring_lnglat[i + 1][1] * ky
+        s += x1 * y2 - x2 * y1
+    return abs(s) / 2.0
 
 
-def largest_outer_ring(geometry):
-    """Polygon / MultiPolygon から最大の外周リング（[lng,lat]）を取り出す。"""
+def outer_rings(geometry):
+    """Polygon / MultiPolygon から外周リング（[lng,lat]）のリストを取り出す。"""
     t = geometry["type"]
     if t == "Polygon":
-        rings = [geometry["coordinates"][0]]
-    elif t == "MultiPolygon":
-        rings = [poly[0] for poly in geometry["coordinates"]]
-    else:
-        raise ValueError(f"Unsupported geometry: {t}")
-    return max(rings, key=len)
+        return [geometry["coordinates"][0]]
+    if t == "MultiPolygon":
+        return [poly[0] for poly in geometry["coordinates"]]
+    raise ValueError(f"Unsupported geometry: {t}")
 
 
-def simplify_ring(ring_lnglat, epsilon):
-    """[lng,lat] の外周 → RDP 簡略化した (lat,lng) リスト（閉じ重複なし）。"""
-    pts = [(c[1], c[0]) for c in ring_lnglat]  # [lng,lat] → (lat,lng)
-    simplified = rdp(pts, epsilon)
-    if simplified[0] != simplified[-1]:
-        simplified.append(simplified[0])
-    return simplified[:-1]  # TS 配列では閉じ重複を落とす
+def to_latlng(ring_lnglat):
+    """[lng,lat] リング → (lat,lng) リスト（閉じ重複を落とす）。"""
+    pts = [(c[1], c[0]) for c in ring_lnglat]
+    if len(pts) > 1 and pts[0] == pts[-1]:
+        pts = pts[:-1]
+    return pts
 
 
 def generate_ts(prefs_data) -> str:
@@ -92,18 +92,22 @@ def generate_ts(prefs_data) -> str:
         "export interface PrefectureData {",
         "  name: string;",
         "  fill: string;",
-        "  coords: [number, number][]; // [lat, lng]",
+        "  // [lat, lng] のリング配列。rings[0] が本土（最大リング）、以降は島。",
+        "  rings: [number, number][][];",
         "}",
         "",
         "const PREFECTURES: PrefectureData[] = [",
     ]
-    for name, fill, coords in prefs_data:
-        coord_strs = [f"    [{lat:.5f}, {lng:.5f}]" for lat, lng in coords]
+    for name, fill, rings in prefs_data:
         lines.append("  {")
         lines.append(f'    name: "{name}",')
         lines.append(f'    fill: "{fill}",')
-        lines.append("    coords: [")
-        lines.append(",\n".join(coord_strs))
+        lines.append("    rings: [")
+        for ring in rings:
+            coord_strs = [f"      [{lat:.5f}, {lng:.5f}]" for lat, lng in ring]
+            lines.append("      [")
+            lines.append(",\n".join(coord_strs))
+            lines.append("      ],")
         lines.append("    ],")
         lines.append("  },")
     lines.append("];")
@@ -119,8 +123,8 @@ def main():
                         help="入力 geojson（デフォルト: kinki_prefectures.geojson）")
     parser.add_argument("-o", "--output", default="frontend/src/data/prefectures.ts",
                         help="出力 TS パス")
-    parser.add_argument("--epsilon", type=float, default=0.012,
-                        help="RDP 簡略化閾値（度, デフォルト 0.012）")
+    parser.add_argument("--min-area", type=float, default=20.0,
+                        help="リング採用の最小面積 km²（デフォルト 20.0）")
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):
@@ -133,30 +137,36 @@ def main():
     by_name = {}
     for feat in gj["features"]:
         name = short_name((feat.get("properties") or {}).get("N03_001", ""))
-        ring = largest_outer_ring(feat["geometry"])
-        simp = simplify_ring(ring, args.epsilon)
-        by_name[name] = (len(ring), simp)
+        rings = outer_rings(feat["geometry"])
+        scored = sorted(((ring_area_km2(r), r) for r in rings),
+                        key=lambda x: x[0], reverse=True)
+        # 最大リング（本土）は常に採用、残りは面積閾値で選別
+        kept = [scored[0]] + [(a, r) for a, r in scored[1:] if a >= args.min_area]
+        by_name[name] = (
+            sum(len(r) for r in rings),
+            [(a, to_latlng(r)) for a, r in kept],
+        )
 
     prefs_data = []
-    print(f"{'府県':<8}{'元点数':>8}{'簡略後':>8}")
-    print("-" * 26)
+    print(f"{'府県':<8}{'元点数':>8}{'採用リング':>10}{'採用点数':>8}")
+    print("-" * 36)
     for name in ORDER:
         if name not in by_name:
             print(f"[WARN] geojson に {name} がありません（スキップ）", file=sys.stderr)
             continue
-        orig, simp = by_name[name]
-        fill = FILL.get(name, "#cccccc")
-        prefs_data.append((name, fill, simp))
-        print(f"{name:<8}{orig:>8,}{len(simp):>8,}")
+        orig, kept = by_name[name]
+        rings = [r for _, r in kept]
+        prefs_data.append((name, FILL.get(name, "#cccccc"), rings))
+        npts = sum(len(r) for r in rings)
+        print(f"{name:<8}{orig:>8,}{len(rings):>10}{npts:>8,}")
 
     ts = generate_ts(prefs_data)
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     with open(args.output, "w", encoding="utf-8") as f:
         f.write(ts)
 
-    total = sum(len(c) for _, _, c in prefs_data)
-    print("-" * 26)
-    print(f"{'合計':<8}{'':>8}{total:>8,}")
+    total = sum(len(r) for _, _, rings in prefs_data for r in rings)
+    print("-" * 36)
     print(f"[INFO] 出力: {args.output}（{len(prefs_data)} 府県・計 {total:,} 点）")
 
 

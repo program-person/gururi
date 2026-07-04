@@ -159,10 +159,11 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
     }).join(" ");
 
   const prefPolygons = PREFECTURES.map((pref) => {
-    const pts = toSvgPts(pref.coords);
-    const [cLat, cLng] = centroid(pref.coords);
+    const ringPts = pref.rings.map(toSvgPts);
+    // ラベルは本土（最大リング = rings[0]）の重心に置く
+    const [cLat, cLng] = centroid(pref.rings[0]);
     const [cx, cy] = toXY(cLat, cLng);
-    return { ...pref, pts, cx, cy };
+    return { ...pref, ringPts, cx, cy };
   });
 
   const lakePolygons = LAKES.map((lake) => {
@@ -190,16 +191,18 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
 
             {/* 都道府県ポリゴン — fill層 */}
             <g opacity={0.2}>
-              {prefPolygons.map((pref) => (
-                <polygon
-                  key={`fill-${pref.name}`}
-                  points={pref.pts}
-                  fill={pref.fill}
-                  stroke={pref.fill}
-                  strokeWidth={3}
-                  strokeLinejoin="round"
-                />
-              ))}
+              {prefPolygons.map((pref) =>
+                pref.ringPts.map((pts, ri) => (
+                  <polygon
+                    key={`fill-${pref.name}-${ri}`}
+                    points={pts}
+                    fill={pref.fill}
+                    stroke={pref.fill}
+                    strokeWidth={3}
+                    strokeLinejoin="round"
+                  />
+                ))
+              )}
             </g>
 
             {/* 琵琶湖 */}
@@ -216,16 +219,18 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
             ))}
 
             {/* 都道府県ポリゴン — border層 */}
-            {prefPolygons.map((pref) => (
-              <polygon
-                key={`border-${pref.name}`}
-                points={pref.pts}
-                fill="none"
-                stroke={isDark ? "#334155" : "#64748b"}
-                strokeWidth={1.2}
-                strokeLinejoin="round"
-              />
-            ))}
+            {prefPolygons.map((pref) =>
+              pref.ringPts.map((pts, ri) => (
+                <polygon
+                  key={`border-${pref.name}-${ri}`}
+                  points={pts}
+                  fill="none"
+                  stroke={isDark ? "#334155" : "#64748b"}
+                  strokeWidth={1.2}
+                  strokeLinejoin="round"
+                />
+              ))
+            )}
 
             {/* 琵琶湖ラベル */}
             {lakePolygons.map((lake) => (
