@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import { OmawariRoute } from "@/lib/api";
 import PREFECTURES from "@/data/prefectures";
 import LAKES from "@/data/lakes";
@@ -151,6 +157,16 @@ function pointInRing(x: number, y: number, ring: Array<[number, number]>): boole
   return inside;
 }
 
+interface ViewBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+const MAX_ZOOM = 8;
+const ZOOM_STEP = 1.5;
+
 export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Props) {
   const [isDark, setIsDark] = useState(false);
   useEffect(() => {
@@ -160,6 +176,95 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  // --- ズーム・パン ---
+  // view = 表示中の viewBox。null は全体表示。
+  const [view, setView] = useState<ViewBox | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  // SVG全体のサイズはルートごとに変わるので、ハンドラから ref 経由で参照する
+  const dimsRef = useRef({ w: 680, h: 400 });
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+
+  useEffect(() => {
+    setView(null);
+  }, [route]);
+
+  // (px, py) = SVG要素上のピクセル位置を中心に factor 倍ズーム
+  const zoomAt = (factor: number, px: number, py: number) => {
+    setView((prev) => {
+      const { w: W, h: H } = dimsRef.current;
+      const cur = prev ?? { x: 0, y: 0, w: W, h: H };
+      const newW = Math.min(Math.max(cur.w / factor, W / MAX_ZOOM), W);
+      if (newW >= W) return null;
+      const newH = newW * (H / W);
+      const bx = cur.x + (px / W) * cur.w;
+      const by = cur.y + (py / H) * cur.h;
+      const nx = Math.min(Math.max(bx - (px / W) * newW, 0), W - newW);
+      const ny = Math.min(Math.max(by - (py / H) * newH, 0), H - newH);
+      return { x: nx, y: ny, w: newW, h: newH };
+    });
+  };
+
+  const panBy = (dxPx: number, dyPx: number) => {
+    setView((prev) => {
+      if (!prev) return prev;
+      const { w: W, h: H } = dimsRef.current;
+      const scale = prev.w / W;
+      const nx = Math.min(Math.max(prev.x - dxPx * scale, 0), W - prev.w);
+      const ny = Math.min(Math.max(prev.y - dyPx * scale, 0), H - prev.h);
+      return { ...prev, x: nx, y: ny };
+    });
+  };
+
+  const onPointerDown = (e: ReactPointerEvent<SVGSVGElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  };
+
+  const onPointerMove = (e: ReactPointerEvent<SVGSVGElement>) => {
+    const pts = pointersRef.current;
+    const prev = pts.get(e.pointerId);
+    if (!prev) return;
+    const cur = { x: e.clientX, y: e.clientY };
+    if (pts.size === 1) {
+      panBy(cur.x - prev.x, cur.y - prev.y);
+    } else if (pts.size === 2) {
+      // ピンチズーム: 2点間距離の変化率で拡縮、中点を固定
+      const otherEntry = [...pts.entries()].find(([id]) => id !== e.pointerId);
+      if (otherEntry) {
+        const other = otherEntry[1];
+        const prevDist = Math.hypot(prev.x - other.x, prev.y - other.y);
+        const curDist = Math.hypot(cur.x - other.x, cur.y - other.y);
+        if (prevDist > 0 && curDist > 0) {
+          const rect = e.currentTarget.getBoundingClientRect();
+          zoomAt(curDist / prevDist, (cur.x + other.x) / 2 - rect.left, (cur.y + other.y) / 2 - rect.top);
+        }
+      }
+    }
+    pts.set(e.pointerId, cur);
+  };
+
+  const onPointerUp = (e: ReactPointerEvent<SVGSVGElement>) => {
+    pointersRef.current.delete(e.pointerId);
+  };
+
+  const onDoubleClick = (e: ReactMouseEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    zoomAt(2, e.clientX - rect.left, e.clientY - rect.top);
+  };
+
+  // ホイールズーム: ページスクロールを止めるため non-passive で直接リスナ登録する
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      zoomAt(e.deltaY < 0 ? 1.25 : 0.8, e.clientX - rect.left, e.clientY - rect.top);
+    };
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  });
 
   const path = route.path;
   const n = path.length;
@@ -213,6 +318,12 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
   const innerH = Math.round(innerW * bLatSpan / (bLngSpan * cosCenter));
   const svgH = Math.max(innerH + 2 * PAD, 180);
   const actualInnerH = svgH - 2 * PAD;
+
+  dimsRef.current = { w: SVG_W, h: svgH };
+  const v = view ?? { x: 0, y: 0, w: SVG_W, h: svgH };
+  const zoom = SVG_W / v.w;
+  // 線幅・文字サイズ・ドット半径を画面上で一定に保つための係数
+  const k = 1 / zoom;
 
   const toXY = (lat: number, lng: number): [number, number] => {
     const x = PAD + ((lng - bMinLng) / bLngSpan) * innerW;
@@ -269,17 +380,35 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
   }
 
   const STATION_FONT = 11;
-  const placedRects: Rect[] = [];
+  const MID_FONT = 10;
+  // ズームインしたら（2.2倍以上）画面内の中間駅にもラベルを出す
+  const MID_LABEL_ZOOM = 2.2;
+  const VIEW_MARGIN = 30 * k;
+  const inViewPx = (p: [number, number] | null): p is [number, number] =>
+    p != null &&
+    p[0] >= v.x - VIEW_MARGIN && p[0] <= v.x + v.w + VIEW_MARGIN &&
+    p[1] >= v.y - VIEW_MARGIN && p[1] <= v.y + v.h + VIEW_MARGIN;
+  const labeled = stationMeta.map(
+    (m, i) => (m.showLabel || zoom >= MID_LABEL_ZOOM) && inViewPx(stationPx[i]),
+  );
 
-  // 駅ラベル: 隣接駅と反対の方向を優先しつつ、8方向×2距離の候補から最良を選ぶ
-  const stationLabelPos = path.map((seg, i): LabelPos | null => {
+  const placedRects: Rect[] = [];
+  const stationLabelPos: Array<LabelPos | null> = new Array(n).fill(null);
+
+  // 駅ラベル: 隣接駅と反対の方向を優先しつつ、8方向×2距離の候補から最良を選ぶ。
+  // 出発・到着・乗換を先に配置し、中間駅ラベルは残った隙間に置く。
+  const labelOrder = [...Array(n).keys()].filter((i) => labeled[i]);
+  labelOrder.sort((a, b) => Number(stationMeta[b].showLabel) - Number(stationMeta[a].showLabel));
+
+  for (const i of labelOrder) {
     const meta = stationMeta[i];
     const px = stationPx[i];
-    if (!meta.showLabel || !px) return null;
+    if (!px) continue;
     const [cx, cy] = px;
-    const name = stationMap[seg.stationId] ?? seg.stationId;
-    const w = name.length * STATION_FONT;
-    const h = STATION_FONT * 1.25;
+    const name = stationMap[path[i].stationId] ?? path[i].stationId;
+    const fontSize = (meta.showLabel ? STATION_FONT : MID_FONT) * k;
+    const w = name.length * fontSize;
+    const h = fontSize * 1.25;
 
     let pdx = 0, pdy = 0, cnt = 0;
     for (const j of [i - 1, i + 1]) {
@@ -297,7 +426,9 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
     );
 
     let best: { pos: LabelPos; rect: Rect; score: number } | null = null;
-    for (const dist of [meta.r + 10, meta.r + 22]) {
+    const dists = [(meta.r + 10) * k, (meta.r + 22) * k];
+    for (let di = 0; di < dists.length; di++) {
+      const dist = dists[di];
       for (let rank = 0; rank < dirs.length; rank++) {
         const [dx, dy] = dirs[rank];
         const lx = cx + dx * dist;
@@ -306,23 +437,28 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
         const baseline = baselineFor(dy);
         const rect = makeRect(lx, ly, w, h, anchor, baseline);
         // 好ましい方向・近い距離ほど低コスト。衝突は種類ごとに加点
-        let score = rank + (dist > meta.r + 10 ? 4 : 0);
+        let score = rank + di * 4;
         for (const pr of placedRects) {
-          if (rectsOverlap(rect, pr)) score += 100;
+          if (rectsOverlap(rect, pr, 2 * k)) score += 100;
         }
         for (const [x1, y1, x2, y2] of routeSegsPx) {
-          if (segIntersectsRect(x1, y1, x2, y2, rect)) score += 25;
+          if (segIntersectsRect(x1, y1, x2, y2, rect, 2 * k)) score += 25;
         }
-        if (rect.x < 2 || rect.y < 2 || rect.x + rect.w > SVG_W - 2 || rect.y + rect.h > svgH - 2) {
+        if (
+          rect.x < v.x + 2 * k || rect.y < v.y + 2 * k ||
+          rect.x + rect.w > v.x + v.w - 2 * k || rect.y + rect.h > v.y + v.h - 2 * k
+        ) {
           score += 60;
         }
         if (!best || score < best.score) best = { pos: { lx, ly, anchor, baseline }, rect, score };
       }
     }
-    if (!best) return null;
+    if (!best) continue;
+    // 中間駅ラベルは他のラベルと重なるくらいなら出さない
+    if (!meta.showLabel && best.score >= 100) continue;
     placedRects.push(best.rect);
-    return best.pos;
-  });
+    stationLabelPos[i] = best.pos;
+  }
 
   // 県名・湖名: 重心を起点に同心円状の候補から、路線・駅ラベルと重ならない位置へ退避。
   // 逃げ場がない場合は dim（薄く表示）にする。
@@ -334,20 +470,21 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
     ringPx: Array<[number, number]> | null,
   ): { x: number; y: number; dim: boolean } => {
     let best: { x: number; y: number; score: number } | null = null;
-    for (const rad of [0, 30, 60, 90]) {
+    for (const baseRad of [0, 30, 60, 90]) {
+      const rad = baseRad * k;
       const offsets: Array<[number, number]> =
-        rad === 0 ? [[0, 0]] : DIRS.map(([dx, dy]) => [dx * rad, dy * rad]);
+        baseRad === 0 ? [[0, 0]] : DIRS.map(([dx, dy]) => [dx * rad, dy * rad]);
       for (const [ox, oy] of offsets) {
         const x = cx0 + ox;
         const y = cy0 + oy;
         if (ringPx && !pointInRing(x, y, ringPx)) continue;
         const rect: Rect = { x: x - w / 2, y: y - h / 2, w, h };
-        let score = rad * 0.1; // 重心に近いほど優先
+        let score = baseRad * 0.1; // 重心に近いほど優先
         for (const pr of placedRects) {
-          if (rectsOverlap(rect, pr, 4)) score += 100;
+          if (rectsOverlap(rect, pr, 4 * k)) score += 100;
         }
         for (const [x1, y1, x2, y2] of routeSegsPx) {
-          if (segIntersectsRect(x1, y1, x2, y2, rect, 4)) score += 30;
+          if (segIntersectsRect(x1, y1, x2, y2, rect, 4 * k)) score += 30;
         }
         if (!best || score < best.score) best = { x, y, score };
       }
@@ -360,25 +497,38 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
   const PREF_FONT = 12;
   const prefLabels = prefPolygons.map((pref) => {
     // letterSpacing 0.3em ぶん幅を広めに見積もる
-    const w = pref.name.length * PREF_FONT * 1.3;
-    return { name: pref.name, ...placeAreaLabel(pref.cx, pref.cy, w, PREF_FONT * 1.3, pref.mainPx) };
+    const w = pref.name.length * PREF_FONT * 1.3 * k;
+    return { name: pref.name, ...placeAreaLabel(pref.cx, pref.cy, w, PREF_FONT * 1.3 * k, pref.mainPx) };
   });
 
   const LAKE_FONT = 10;
   const lakeLabels = lakePolygons.map((lake) => {
-    const w = lake.name.length * LAKE_FONT;
-    return { name: lake.name, ...placeAreaLabel(lake.cx, lake.cy, w, LAKE_FONT * 1.3, lake.ringPx) };
+    const w = lake.name.length * LAKE_FONT * k;
+    return { name: lake.name, ...placeAreaLabel(lake.cx, lake.cy, w, LAKE_FONT * 1.3 * k, lake.ringPx) };
   });
 
   return (
     <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900 shadow-sm">
       <div className="flex">
         {/* 路線図 SVG */}
-        <div className="flex-1 min-w-0 overflow-x-auto">
+        <div className="relative flex-1 min-w-0">
+          <div className="overflow-x-auto">
           <svg
+            ref={svgRef}
             width={SVG_W}
             height={svgH}
-            style={{ display: "block", overflow: "hidden" }}
+            viewBox={`${v.x} ${v.y} ${v.w} ${v.h}`}
+            style={{
+              display: "block",
+              overflow: "hidden",
+              touchAction: "none",
+              cursor: zoom > 1 ? "grab" : "default",
+            }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            onDoubleClick={onDoubleClick}
           >
             {/* 海（背景） */}
             <rect width={SVG_W} height={svgH} fill={isDark ? "#0f172a" : "#e0f2fe"} />
@@ -391,7 +541,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                   points={pts}
                   fill={isDark ? "#334155" : "#f8fafc"}
                   stroke={isDark ? "#334155" : "#f8fafc"}
-                  strokeWidth={3}
+                  strokeWidth={3 * k}
                   strokeLinejoin="round"
                 />
               ))
@@ -406,7 +556,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                     points={pts}
                     fill={pref.fill}
                     stroke={pref.fill}
-                    strokeWidth={3}
+                    strokeWidth={3 * k}
                     strokeLinejoin="round"
                   />
                 ))
@@ -420,7 +570,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                 points={lake.pts}
                 fill={isDark ? "#1e3a8a" : "#bae6fd"}
                 stroke={isDark ? "#1d4ed8" : "#60a5fa"}
-                strokeWidth={1}
+                strokeWidth={1 * k}
                 strokeLinejoin="round"
                 opacity={isDark ? 0.75 : 1}
               />
@@ -434,7 +584,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                   points={pts}
                   fill="none"
                   stroke={isDark ? "#64748b" : "#64748b"}
-                  strokeWidth={1.2}
+                  strokeWidth={1.2 * k}
                   strokeLinejoin="round"
                 />
               ))
@@ -446,7 +596,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                 key={`lake-label-${lake.name}`}
                 x={lake.x}
                 y={lake.y}
-                fontSize={LAKE_FONT}
+                fontSize={LAKE_FONT * k}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={isDark ? "#93c5fd" : "#1e40af"}
@@ -454,7 +604,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                 fontStyle="italic"
                 opacity={lake.dim ? 0.55 : 1}
                 stroke={isDark ? "#0f172a" : "white"}
-                strokeWidth={2.5}
+                strokeWidth={2.5 * k}
                 paintOrder="stroke"
                 style={{ userSelect: "none", pointerEvents: "none" }}
               >
@@ -468,7 +618,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                 key={`label-${pref.name}`}
                 x={pref.x}
                 y={pref.y}
-                fontSize={PREF_FONT}
+                fontSize={PREF_FONT * k}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={isDark ? "#94a3b8" : "#64748b"}
@@ -476,7 +626,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                 letterSpacing="0.3em"
                 opacity={pref.dim ? 0.55 : 1}
                 stroke={isDark ? "#334155" : "#f8fafc"}
-                strokeWidth={2}
+                strokeWidth={2 * k}
                 paintOrder="stroke"
                 style={{ userSelect: "none", pointerEvents: "none" }}
               >
@@ -496,7 +646,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                   key={`casing-${i}`}
                   x1={x1} y1={y1} x2={x2} y2={y2}
                   stroke={isDark ? "#0f172a" : "#e2e8f0"}
-                  strokeWidth={6}
+                  strokeWidth={6 * k}
                   strokeLinecap="round"
                 />
               );
@@ -518,7 +668,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                   key={`seg-${i}`}
                   x1={x1} y1={y1} x2={x2} y2={y2}
                   stroke={color}
-                  strokeWidth={4}
+                  strokeWidth={4 * k}
                   strokeLinecap="round"
                 />
               );
@@ -552,26 +702,26 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               return (
                 <g key={`st-${i}`}>
                   {/* 全駅ホバー tooltip */}
-                  <circle cx={cx} cy={cy} r={r + 7} fill="transparent">
+                  <circle cx={cx} cy={cy} r={(r + 7) * k} fill="transparent">
                     <title>{tooltip}</title>
                   </circle>
                   {/* リング */}
                   {(isStart || isEnd || isXfer) && (
-                    <circle cx={cx} cy={cy} r={r + 2} fill={isDark ? "#0f172a" : "white"} />
+                    <circle cx={cx} cy={cy} r={(r + 2) * k} fill={isDark ? "#0f172a" : "white"} />
                   )}
                   {/* 駅ドット */}
                   <circle
-                    cx={cx} cy={cy} r={r}
+                    cx={cx} cy={cy} r={r * k}
                     fill={fill === "white" ? (isDark ? "#e2e8f0" : "white") : fill}
                     stroke={strokeColor}
-                    strokeWidth={isStart || isEnd ? 2.5 : isXfer ? 2 : 1.5}
+                    strokeWidth={(isStart || isEnd ? 2.5 : isXfer ? 2 : 1.5) * k}
                   />
-                  {/* ラベル（ハロー付き） */}
-                  {showLabel && labelPos && (
+                  {/* ラベル（ハロー付き）。showLabel=主要駅、それ以外はズーム時の中間駅 */}
+                  {labelPos && (
                     <text
                       x={labelPos.lx}
                       y={labelPos.ly}
-                      fontSize={STATION_FONT}
+                      fontSize={(showLabel ? STATION_FONT : MID_FONT) * k}
                       textAnchor={labelPos.anchor}
                       dominantBaseline={labelPos.baseline}
                       fill={
@@ -579,9 +729,9 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                         isEnd   ? (isDark ? "#f87171" : "#b91c1c") :
                                   (isDark ? "#f1f5f9" : "#1e293b")
                       }
-                      fontWeight="700"
+                      fontWeight={showLabel ? 700 : 600}
                       stroke={isDark ? "#0f172a" : "white"}
-                      strokeWidth={3}
+                      strokeWidth={3 * k}
                       paintOrder="stroke"
                       style={{ userSelect: "none" }}
                     >
@@ -592,6 +742,46 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               );
             })}
           </svg>
+          </div>
+
+          {/* ズームコントロール */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {[
+              { label: "＋", title: "拡大", onClick: () => zoomAt(ZOOM_STEP, dimsRef.current.w / 2, dimsRef.current.h / 2) },
+              { label: "−", title: "縮小", onClick: () => zoomAt(1 / ZOOM_STEP, dimsRef.current.w / 2, dimsRef.current.h / 2) },
+              { label: "⛶", title: "全体表示", onClick: () => setView(null) },
+            ].map(({ label, title, onClick }) => (
+              <button
+                key={title}
+                type="button"
+                title={title}
+                onClick={onClick}
+                className="h-7 w-7 rounded-md border border-slate-200 dark:border-slate-600 bg-white/90 dark:bg-gray-800/90 text-slate-600 dark:text-slate-300 shadow-sm text-sm font-bold leading-none hover:bg-slate-50 dark:hover:bg-gray-700"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* ズームスライダー（対数スケール: 1〜MAX_ZOOM倍） */}
+          <div className="absolute bottom-2 right-2 flex items-center gap-2 rounded-md border border-slate-200 dark:border-slate-600 bg-white/90 dark:bg-gray-800/90 px-2 py-1 shadow-sm">
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={Math.log(zoom) / Math.log(MAX_ZOOM)}
+              onChange={(e) => {
+                const target = Math.pow(MAX_ZOOM, Number(e.target.value));
+                zoomAt(target / zoom, dimsRef.current.w / 2, dimsRef.current.h / 2);
+              }}
+              className="w-28 accent-blue-600"
+              aria-label="ズーム倍率"
+            />
+            <span className="w-9 text-right text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
+              ×{zoom.toFixed(1)}
+            </span>
+          </div>
         </div>
 
         {/* 凡例サイドバー */}
@@ -623,7 +813,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
 
       {/* フッター */}
       <div className="border-t border-slate-100 dark:border-slate-700 px-3 py-1.5 text-xs text-slate-400 dark:text-slate-500 text-right">
-        ホバーで路線名・駅名を表示
+        ドラッグで移動・ホイール/ダブルクリックでズーム・ホバーで路線名・駅名を表示
       </div>
     </div>
   );

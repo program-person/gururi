@@ -124,7 +124,9 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
+    <main className="mx-auto max-w-5xl px-4 py-8">
+      {/* ヘッダー・検索フォームは読みやすい幅に絞り、結果カードは全幅を使う */}
+      <div className="mx-auto max-w-2xl">
       {/* ヘッダー */}
       <div className="mb-6">
         <div className="flex items-baseline gap-2">
@@ -258,6 +260,7 @@ export default function Home() {
           {error}
         </div>
       )}
+      </div>
 
       {/* スケルトンUI（探索中） */}
       {loading && (

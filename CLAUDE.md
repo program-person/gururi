@@ -39,7 +39,7 @@ train/
         ├── components/
         │   ├── StationSearch.tsx  # 駅名オートコンプリート
         │   ├── RouteCard.tsx      # ルート1件の表示カード
-        │   └── RouteMap.tsx       # ルートの地図描画（SVG・路線色/凡例つき）
+        │   └── RouteMap.tsx       # ルートの地図描画（SVG・ズーム/パン・ラベル衝突回避・路線色/凡例つき）
         └── lib/api.ts             # バックエンドAPIクライアント
 ```
 
@@ -118,6 +118,8 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 - `api.ts`: fetch ラッパー。バックエンドの各エンドポイントに対応する関数を提供
 - `StationSearch.tsx`: 駅名インクリメンタルサーチ（クライアントサイドフィルタリング）
 - `RouteCard.tsx`: 1ルートの概要表示 + `<details>` で経路詳細を展開
+- `RouteMap.tsx`: 自前SVGの路線図。viewBox ベースのズーム・パン（ホイール/ドラッグ/ピンチ/ダブルクリック/ボタン/スライダー、最大8倍）。線幅・文字・ドットはズームしても画面上のサイズ一定で、2.2倍以上で画面内の中間駅にもラベルを表示。駅・県名・湖名ラベルは候補位置のスコアリングで衝突回避配置（表示領域基準で毎レンダー再計算）
+- レイアウト: `page.tsx` の `main` は `max-w-5xl`。検索フォームは `max-w-2xl` 中央寄せ、結果カード（地図）は全幅
 
 ## 対象路線
 
