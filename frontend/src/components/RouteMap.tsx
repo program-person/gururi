@@ -49,38 +49,106 @@ function centroid(coords: [number, number][]): [number, number] {
 }
 
 /**
- * ラベル配置: 接続セグメントの平均方向の反対側にラベルを置く。
- * 路線と重なりにくい位置を自動選択する。
+ * ラベル配置: 候補位置を「配置済みラベル・路線セグメント・画面外」との衝突で
+ * スコアリングし、最も衝突の少ない位置を greedy に選ぶ。
  */
 type TextAnchor = "start" | "middle" | "end";
 type DomBaseline = "auto" | "middle" | "hanging";
 
-function smartLabel(
-  cx: number,
-  cy: number,
-  neighborPx: Array<[number, number]>,
-  r: number,
-): { lx: number; ly: number; anchor: TextAnchor; baseline: DomBaseline } {
-  if (neighborPx.length === 0) {
-    return { lx: cx + r + 5, ly: cy, anchor: "start", baseline: "middle" };
+interface LabelPos {
+  lx: number;
+  ly: number;
+  anchor: TextAnchor;
+  baseline: DomBaseline;
+}
+
+interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+// 8方向の単位ベクトル（右・左・上・下・斜め4方向）
+const DIRS: Array<[number, number]> = [
+  [1, 0], [-1, 0], [0, -1], [0, 1],
+  [0.707, -0.707], [-0.707, -0.707], [0.707, 0.707], [-0.707, 0.707],
+];
+
+function anchorFor(ndx: number): TextAnchor {
+  return ndx > 0.35 ? "start" : ndx < -0.35 ? "end" : "middle";
+}
+
+// SVGはy軸下向き: ndy<0=上方向=文字を上に(auto=baseline at ly), ndy>0=下方向=文字を下に(hanging=top at ly)
+function baselineFor(ndy: number): DomBaseline {
+  return ndy < -0.35 ? "auto" : ndy > 0.35 ? "hanging" : "middle";
+}
+
+function makeRect(
+  lx: number,
+  ly: number,
+  w: number,
+  h: number,
+  anchor: TextAnchor,
+  baseline: DomBaseline,
+): Rect {
+  const x = anchor === "start" ? lx : anchor === "end" ? lx - w : lx - w / 2;
+  const y = baseline === "hanging" ? ly : baseline === "auto" ? ly - h : ly - h / 2;
+  return { x, y, w, h };
+}
+
+function rectsOverlap(a: Rect, b: Rect, pad = 2): boolean {
+  return (
+    a.x - pad < b.x + b.w &&
+    a.x + a.w + pad > b.x &&
+    a.y - pad < b.y + b.h &&
+    a.y + a.h + pad > b.y
+  );
+}
+
+function cross(ox: number, oy: number, ax: number, ay: number, bx: number, by: number): number {
+  return (ax - ox) * (by - oy) - (ay - oy) * (bx - ox);
+}
+
+function segsIntersect(
+  x1: number, y1: number, x2: number, y2: number,
+  x3: number, y3: number, x4: number, y4: number,
+): boolean {
+  const d1 = cross(x3, y3, x4, y4, x1, y1);
+  const d2 = cross(x3, y3, x4, y4, x2, y2);
+  const d3 = cross(x1, y1, x2, y2, x3, y3);
+  const d4 = cross(x1, y1, x2, y2, x4, y4);
+  return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+}
+
+function segIntersectsRect(
+  x1: number, y1: number, x2: number, y2: number,
+  r: Rect, pad = 2,
+): boolean {
+  const rx = r.x - pad;
+  const ry = r.y - pad;
+  const rx2 = r.x + r.w + pad;
+  const ry2 = r.y + r.h + pad;
+  const inside = (x: number, y: number) => x >= rx && x <= rx2 && y >= ry && y <= ry2;
+  if (inside(x1, y1) || inside(x2, y2)) return true;
+  return (
+    segsIntersect(x1, y1, x2, y2, rx, ry, rx2, ry) ||
+    segsIntersect(x1, y1, x2, y2, rx2, ry, rx2, ry2) ||
+    segsIntersect(x1, y1, x2, y2, rx2, ry2, rx, ry2) ||
+    segsIntersect(x1, y1, x2, y2, rx, ry2, rx, ry)
+  );
+}
+
+function pointInRing(x: number, y: number, ring: Array<[number, number]>): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
   }
-  let dx = 0, dy = 0;
-  for (const [nx, ny] of neighborPx) {
-    dx += nx - cx;
-    dy += ny - cy;
-  }
-  dx /= neighborPx.length;
-  dy /= neighborPx.length;
-  const len = Math.sqrt(dx * dx + dy * dy) || 1;
-  const ndx = -dx / len;
-  const ndy = -dy / len;
-  const DIST = r + 10;
-  const lx = cx + ndx * DIST;
-  const ly = cy + ndy * DIST;
-  const anchor: TextAnchor = ndx > 0.35 ? "start" : ndx < -0.35 ? "end" : "middle";
-  // SVGはy軸下向き: ndy<0=上方向=文字を上に(auto=baseline at ly), ndy>0=下方向=文字を下に(hanging=top at ly)
-  const baseline: DomBaseline = ndy < -0.35 ? "auto" : ndy > 0.35 ? "hanging" : "middle";
-  return { lx, ly, anchor, baseline };
+  return inside;
 }
 
 export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Props) {
@@ -160,21 +228,147 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
 
   const prefPolygons = PREFECTURES.map((pref) => {
     const ringPts = pref.rings.map(toSvgPts);
-    // ラベルは本土（最大リング = rings[0]）の重心に置く
+    // ラベルは本土（最大リング = rings[0]）の重心を起点に配置する
+    const mainPx = pref.rings[0].map(([lat, lng]) => toXY(lat, lng));
     const [cLat, cLng] = centroid(pref.rings[0]);
     const [cx, cy] = toXY(cLat, cLng);
-    return { ...pref, ringPts, cx, cy };
+    return { ...pref, ringPts, mainPx, cx, cy };
   });
 
   const lakePolygons = LAKES.map((lake) => {
     const pts = toSvgPts(lake.coords);
+    const ringPx = lake.coords.map(([lat, lng]) => toXY(lat, lng));
     const [cLat, cLng] = centroid(lake.coords);
     const [cx, cy] = toXY(cLat, cLng);
-    return { ...lake, pts, cx, cy };
+    return { ...lake, pts, ringPx, cx, cy };
   });
 
   // 各駅のピクセル座標を先に計算しておく（ラベル位置計算に使う）
   const stationPx = rawCoords.map((c) => (c ? toXY(c.lat, c.lng) : null));
+
+  // --- ラベル配置（衝突回避） ---
+
+  const stationMeta = path.map((_, i) => {
+    const isStart = i === 0;
+    const isEnd = i === n - 1;
+    const isXfer = xfers.has(i);
+    return {
+      isStart,
+      isEnd,
+      isXfer,
+      showLabel: isStart || isEnd || isXfer,
+      r: isStart || isEnd ? 8 : isXfer ? 6 : 3.5,
+    };
+  });
+
+  const routeSegsPx: Array<[number, number, number, number]> = [];
+  for (let i = 1; i < n; i++) {
+    const a = stationPx[i - 1];
+    const b = stationPx[i];
+    if (a && b) routeSegsPx.push([a[0], a[1], b[0], b[1]]);
+  }
+
+  const STATION_FONT = 11;
+  const placedRects: Rect[] = [];
+
+  // 駅ラベル: 隣接駅と反対の方向を優先しつつ、8方向×2距離の候補から最良を選ぶ
+  const stationLabelPos = path.map((seg, i): LabelPos | null => {
+    const meta = stationMeta[i];
+    const px = stationPx[i];
+    if (!meta.showLabel || !px) return null;
+    const [cx, cy] = px;
+    const name = stationMap[seg.stationId] ?? seg.stationId;
+    const w = name.length * STATION_FONT;
+    const h = STATION_FONT * 1.25;
+
+    let pdx = 0, pdy = 0, cnt = 0;
+    for (const j of [i - 1, i + 1]) {
+      const p = j >= 0 && j < n ? stationPx[j] : null;
+      if (p) { pdx += p[0] - cx; pdy += p[1] - cy; cnt++; }
+    }
+    let prefX = 1, prefY = 0;
+    if (cnt > 0) {
+      const len = Math.hypot(pdx, pdy) || 1;
+      prefX = -pdx / len;
+      prefY = -pdy / len;
+    }
+    const dirs = [...DIRS].sort(
+      (a, b) => b[0] * prefX + b[1] * prefY - (a[0] * prefX + a[1] * prefY),
+    );
+
+    let best: { pos: LabelPos; rect: Rect; score: number } | null = null;
+    for (const dist of [meta.r + 10, meta.r + 22]) {
+      for (let rank = 0; rank < dirs.length; rank++) {
+        const [dx, dy] = dirs[rank];
+        const lx = cx + dx * dist;
+        const ly = cy + dy * dist;
+        const anchor = anchorFor(dx);
+        const baseline = baselineFor(dy);
+        const rect = makeRect(lx, ly, w, h, anchor, baseline);
+        // 好ましい方向・近い距離ほど低コスト。衝突は種類ごとに加点
+        let score = rank + (dist > meta.r + 10 ? 4 : 0);
+        for (const pr of placedRects) {
+          if (rectsOverlap(rect, pr)) score += 100;
+        }
+        for (const [x1, y1, x2, y2] of routeSegsPx) {
+          if (segIntersectsRect(x1, y1, x2, y2, rect)) score += 25;
+        }
+        if (rect.x < 2 || rect.y < 2 || rect.x + rect.w > SVG_W - 2 || rect.y + rect.h > svgH - 2) {
+          score += 60;
+        }
+        if (!best || score < best.score) best = { pos: { lx, ly, anchor, baseline }, rect, score };
+      }
+    }
+    if (!best) return null;
+    placedRects.push(best.rect);
+    return best.pos;
+  });
+
+  // 県名・湖名: 重心を起点に同心円状の候補から、路線・駅ラベルと重ならない位置へ退避。
+  // 逃げ場がない場合は dim（薄く表示）にする。
+  const placeAreaLabel = (
+    cx0: number,
+    cy0: number,
+    w: number,
+    h: number,
+    ringPx: Array<[number, number]> | null,
+  ): { x: number; y: number; dim: boolean } => {
+    let best: { x: number; y: number; score: number } | null = null;
+    for (const rad of [0, 30, 60, 90]) {
+      const offsets: Array<[number, number]> =
+        rad === 0 ? [[0, 0]] : DIRS.map(([dx, dy]) => [dx * rad, dy * rad]);
+      for (const [ox, oy] of offsets) {
+        const x = cx0 + ox;
+        const y = cy0 + oy;
+        if (ringPx && !pointInRing(x, y, ringPx)) continue;
+        const rect: Rect = { x: x - w / 2, y: y - h / 2, w, h };
+        let score = rad * 0.1; // 重心に近いほど優先
+        for (const pr of placedRects) {
+          if (rectsOverlap(rect, pr, 4)) score += 100;
+        }
+        for (const [x1, y1, x2, y2] of routeSegsPx) {
+          if (segIntersectsRect(x1, y1, x2, y2, rect, 4)) score += 30;
+        }
+        if (!best || score < best.score) best = { x, y, score };
+      }
+    }
+    if (!best) return { x: cx0, y: cy0, dim: true };
+    placedRects.push({ x: best.x - w / 2, y: best.y - h / 2, w, h });
+    return { x: best.x, y: best.y, dim: best.score >= 30 };
+  };
+
+  const PREF_FONT = 12;
+  const prefLabels = prefPolygons.map((pref) => {
+    // letterSpacing 0.3em ぶん幅を広めに見積もる
+    const w = pref.name.length * PREF_FONT * 1.3;
+    return { name: pref.name, ...placeAreaLabel(pref.cx, pref.cy, w, PREF_FONT * 1.3, pref.mainPx) };
+  });
+
+  const LAKE_FONT = 10;
+  const lakeLabels = lakePolygons.map((lake) => {
+    const w = lake.name.length * LAKE_FONT;
+    return { name: lake.name, ...placeAreaLabel(lake.cx, lake.cy, w, LAKE_FONT * 1.3, lake.ringPx) };
+  });
 
   return (
     <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900 shadow-sm">
@@ -187,10 +381,24 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
             style={{ display: "block", overflow: "hidden" }}
           >
             {/* 海（背景） */}
-            <rect width={SVG_W} height={svgH} fill={isDark ? "#0f172a" : "#bfdbfe"} />
+            <rect width={SVG_W} height={svgH} fill={isDark ? "#0f172a" : "#e0f2fe"} />
 
-            {/* 都道府県ポリゴン — fill層 */}
-            <g opacity={0.2}>
+            {/* 都道府県ポリゴン — 不透明ベース層（陸と海の境界を明確にする） */}
+            {prefPolygons.map((pref) =>
+              pref.ringPts.map((pts, ri) => (
+                <polygon
+                  key={`base-${pref.name}-${ri}`}
+                  points={pts}
+                  fill={isDark ? "#334155" : "#f8fafc"}
+                  stroke={isDark ? "#334155" : "#f8fafc"}
+                  strokeWidth={3}
+                  strokeLinejoin="round"
+                />
+              ))
+            )}
+
+            {/* 都道府県ポリゴン — パステルfill層 */}
+            <g opacity={isDark ? 0.3 : 0.4}>
               {prefPolygons.map((pref) =>
                 pref.ringPts.map((pts, ri) => (
                   <polygon
@@ -210,11 +418,11 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               <polygon
                 key={`lake-${lake.name}`}
                 points={lake.pts}
-                fill={isDark ? "#1e3a8a" : "#60a5fa"}
-                stroke={isDark ? "#1d4ed8" : "#2563eb"}
+                fill={isDark ? "#1e3a8a" : "#bae6fd"}
+                stroke={isDark ? "#1d4ed8" : "#60a5fa"}
                 strokeWidth={1}
                 strokeLinejoin="round"
-                opacity={isDark ? 0.75 : 0.9}
+                opacity={isDark ? 0.75 : 1}
               />
             ))}
 
@@ -225,25 +433,26 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                   key={`border-${pref.name}-${ri}`}
                   points={pts}
                   fill="none"
-                  stroke={isDark ? "#334155" : "#64748b"}
+                  stroke={isDark ? "#64748b" : "#64748b"}
                   strokeWidth={1.2}
                   strokeLinejoin="round"
                 />
               ))
             )}
 
-            {/* 琵琶湖ラベル */}
-            {lakePolygons.map((lake) => (
+            {/* 琵琶湖ラベル（青イタリック = 水域名） */}
+            {lakeLabels.map((lake) => (
               <text
                 key={`lake-label-${lake.name}`}
-                x={lake.cx}
-                y={lake.cy}
-                fontSize={10}
+                x={lake.x}
+                y={lake.y}
+                fontSize={LAKE_FONT}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={isDark ? "#93c5fd" : "#1e40af"}
                 fontWeight="600"
                 fontStyle="italic"
+                opacity={lake.dim ? 0.55 : 1}
                 stroke={isDark ? "#0f172a" : "white"}
                 strokeWidth={2.5}
                 paintOrder="stroke"
@@ -253,19 +462,21 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               </text>
             ))}
 
-            {/* 県名ラベル */}
-            {prefPolygons.map((pref) => (
+            {/* 県名ラベル（グレー・字間広め = 行政地名。駅名と区別する） */}
+            {prefLabels.map((pref) => (
               <text
                 key={`label-${pref.name}`}
-                x={pref.cx}
-                y={pref.cy}
-                fontSize={11}
+                x={pref.x}
+                y={pref.y}
+                fontSize={PREF_FONT}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill={isDark ? "#cbd5e1" : "#1e293b"}
-                fontWeight="700"
-                stroke={isDark ? "#0f172a" : "white"}
-                strokeWidth={3}
+                fill={isDark ? "#94a3b8" : "#64748b"}
+                fontWeight="500"
+                letterSpacing="0.3em"
+                opacity={pref.dim ? 0.55 : 1}
+                stroke={isDark ? "#334155" : "#f8fafc"}
+                strokeWidth={2}
                 paintOrder="stroke"
                 style={{ userSelect: "none", pointerEvents: "none" }}
               >
@@ -284,7 +495,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                 <line
                   key={`casing-${i}`}
                   x1={x1} y1={y1} x2={x2} y2={y2}
-                  stroke="#000"
+                  stroke={isDark ? "#0f172a" : "#e2e8f0"}
                   strokeWidth={6}
                   strokeLinecap="round"
                 />
@@ -319,12 +530,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               if (!coord) return null;
               const [cx, cy] = toXY(coord.lat, coord.lng);
               const name = stationMap[seg.stationId] ?? seg.stationId;
-              const isStart = i === 0;
-              const isEnd = i === n - 1;
-              const isXfer = xfers.has(i);
-              const showLabel = isStart || isEnd || isXfer;
-
-              const r = isStart || isEnd ? 8 : isXfer ? 6 : 3.5;
+              const { isStart, isEnd, isXfer, showLabel, r } = stationMeta[i];
               const fill =
                 isStart ? "#22c55e" :
                 isEnd   ? "#ef4444" :
@@ -340,20 +546,8 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               const lineNameForTip = lineIdForTip ? (lineMap[lineIdForTip] ?? lineIdForTip) : null;
               const tooltip = lineNameForTip ? `${lineNameForTip} / ${name}` : name;
 
-              // ラベル配置: 接続駅の方向と反対側
-              let labelPos: { lx: number; ly: number; anchor: TextAnchor; baseline: DomBaseline } = { lx: cx + r + 5, ly: cy, anchor: "start", baseline: "middle" };
-              if (showLabel) {
-                const neighbors: Array<[number, number]> = [];
-                if (i > 0) {
-                  const p = stationPx[i - 1];
-                  if (p) neighbors.push(p);
-                }
-                if (i < n - 1) {
-                  const p = stationPx[i + 1];
-                  if (p) neighbors.push(p);
-                }
-                labelPos = smartLabel(cx, cy, neighbors, r);
-              }
+              // ラベル配置は事前計算済み（衝突回避）
+              const labelPos = stationLabelPos[i];
 
               return (
                 <g key={`st-${i}`}>
@@ -368,16 +562,16 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                   {/* 駅ドット */}
                   <circle
                     cx={cx} cy={cy} r={r}
-                    fill={fill === "white" ? (isDark ? "#374151" : "white") : fill}
+                    fill={fill === "white" ? (isDark ? "#e2e8f0" : "white") : fill}
                     stroke={strokeColor}
                     strokeWidth={isStart || isEnd ? 2.5 : isXfer ? 2 : 1.5}
                   />
                   {/* ラベル（ハロー付き） */}
-                  {showLabel && (
+                  {showLabel && labelPos && (
                     <text
                       x={labelPos.lx}
                       y={labelPos.ly}
-                      fontSize={11}
+                      fontSize={STATION_FONT}
                       textAnchor={labelPos.anchor}
                       dominantBaseline={labelPos.baseline}
                       fill={
