@@ -18,9 +18,12 @@ from app.models import (
     PathSegment,
     RouteResponse,
     Station,
+    TimetableRequest,
+    TimetableResponse,
 )
 from app.omawari import find_omawari_by_fare, find_omawari_routes
 from app.routing import shortest_route
+from app.timetable import TransitMap, build_timetable, load_transit_map
 
 
 @dataclass(frozen=True)
@@ -45,15 +48,16 @@ def _load_state(path: Path) -> RailState:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.rail = _load_state(settings.data_path)
+    app.state.transit_map = load_transit_map(settings.transit_map_path)
     yield
 
 
-app = FastAPI(title="JR West Omawari Route Planner", version="0.3.7", lifespan=lifespan)
+app = FastAPI(title="JR West Omawari Route Planner", version="0.4.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"] if settings.allow_all_origins else settings.allowed_origins,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -153,6 +157,19 @@ def get_omawari(
         num_results=num_results,
         name_to_id=name_to_id,
     )
+
+
+@app.post("/timetable", response_model=TimetableResponse, response_model_by_alias=True)
+def post_timetable(request: Request, body: TimetableRequest) -> TimetableResponse:
+    """大回りルートの区間ごとの発着時刻（実ダイヤ + 未収録区間は推定）"""
+    rail = get_rail(request)
+    if len(body.path) < 2:
+        raise HTTPException(status_code=400, detail="path must contain at least 2 stations")
+    for seg in body.path:
+        _check_station(rail, seg.station_id, "Station")
+
+    transit_map: TransitMap = request.app.state.transit_map
+    return build_timetable(body.path, body.depart_time, rail.adj, transit_map)
 
 
 @app.get("/omawari/by-fare", response_model=list[OmawariRoute], response_model_by_alias=True)

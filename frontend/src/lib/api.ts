@@ -41,8 +41,43 @@ export interface FareResponse {
   fareTicket: number;
 }
 
+export interface TimetableLeg {
+  lineId: string;
+  fromStationId: string;
+  toStationId: string;
+  departure: string;
+  arrival: string;
+  waitMin: number;
+  rideMin: number;
+  /** timetable=実ダイヤ / estimate=運転間隔ベースの目安 */
+  source: "timetable" | "estimate";
+  trainType?: string | null;
+  headsign?: string | null;
+}
+
+export interface TimetableResponse {
+  departTime: string;
+  arrivalTime: string;
+  totalMin: number;
+  hasEstimate: boolean;
+  legs: TimetableLeg[];
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail ?? res.statusText);
+  }
+  return res.json();
+}
+
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { detail?: string }).detail ?? res.statusText);
@@ -76,6 +111,9 @@ export const api = {
     if (opts.numResults) p.set("numResults", String(opts.numResults));
     return get(`/omawari?${p}`);
   },
+
+  timetable: (path: PathSegment[], departTime: string): Promise<TimetableResponse> =>
+    post("/timetable", { path, departTime }),
 
   omawariByFare: (
     startStationId: string,

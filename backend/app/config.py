@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="jr_route_", env_file=".env", extra="ignore")
 
     data_path: Path = Path(__file__).resolve().parent.parent / "data" / "graph.json"
+    transit_map_path: Path = (
+        Path(__file__).resolve().parent.parent / "data" / "transit_station_map.json"
+    )
     allow_all_origins: bool = True
     allowed_origins: list[str] = ["http://localhost:3000"]
 

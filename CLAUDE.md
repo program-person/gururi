@@ -23,16 +23,20 @@ train/
 │   │   ├── routing.py     # Dijkstra 最短経路
 │   │   ├── omawari.py     # 大回りルート探索（ランダム化DFS）
 │   │   ├── fare.py        # 運賃計算
+│   │   ├── timetable.py   # 乗換案内: レッグ分割・実ダイヤ組み立て・推定フォールバック
+│   │   ├── transit.py     # transit.ls8h.com API クライアント（キャッシュつき）
 │   │   └── config.py      # pydantic-settings 設定
 │   ├── data/
 │   │   ├── graph.json     # 大阪近郊区間 主要路線データ（350駅・363エッジ・17路線ID）
-│   │   └── fare_table.json # キロ程→IC/きっぷ運賃テーブル
+│   │   ├── fare_table.json # キロ程→IC/きっぷ運賃テーブル
+│   │   └── transit_station_map.json # 路線ID×駅ID → transit API 駅ID の対応表（生成物）
 │   ├── tests/
 │   ├── generate_graph.py  # graph.json を再生成するスクリプト
 │   └── requirements.txt
 ├── scripts/
 │   ├── extract_jrw_routes.py   # 国土数値情報N02 → 路線GeoJSON抽出
-│   └── sync_geo_from_n02.py    # N02から駅座標・駅間キロを generate_graph.py に同期
+│   ├── sync_geo_from_n02.py    # N02から駅座標・駅間キロを generate_graph.py に同期
+│   └── build_transit_station_map.py # transit API 駅IDマッピングを再生成（手編集しない）
 └── frontend/
     └── src/
         ├── app/page.tsx       # トップページ（検索UI）
@@ -84,12 +88,13 @@ cd frontend && npx tsc --noEmit  # 型チェック
 | 環境変数 | デフォルト | 説明 |
 |---|---|---|
 | `JR_ROUTE_DATA_PATH` | `data/graph.json` | グラフデータファイルパス |
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | バックエンドAPIのURL |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | バックエンドAPIのURL（SSR時） |
+| `API_PROXY_TARGET` | 本番RailwayのURL | フロント `/api` リライトの向き先。ローカル開発では `frontend/.env.local` に `http://localhost:8000` を設定 |
 
 ## バックエンド アーキテクチャ
 
 ### 起動時の処理
-`lifespan` で `graph.json` と `fare_table.json` を読み込み、`RailState`（frozen dataclass）として `app.state.rail` に保持。
+`lifespan` で `graph.json` と `fare_table.json` を読み込み、`RailState`（frozen dataclass）として `app.state.rail` に保持。`transit_station_map.json` は `app.state.transit_map` に保持（無ければ空 dict = 全区間推定）。
 
 ### エンドポイント一覧
 
@@ -100,6 +105,7 @@ cd frontend && npx tsc --noEmit  # 型チェック
 | `GET /fare` | 2駅間の直線運賃 |
 | `GET /omawari` | 大回りルート候補（最長ルート優先） |
 | `GET /omawari/by-fare` | 運賃指定での大回りルート候補 |
+| `POST /timetable` | ルートの区間別発着時刻（実ダイヤ＋推定） |
 | `GET /health` | ヘルスチェック |
 
 ### 大回りアルゴリズム（`omawari.py`）
@@ -113,11 +119,17 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 ### グラフデータ（`generate_graph.py`）
 路線データを Python スクリプトで管理。データを変更したい場合は `generate_graph.py` を編集して実行する（`graph.json` を手編集しない）。
 
+### 乗換案内（`timetable.py` / `transit.py`）
+- ルートの path を同一路線の連続区間（レッグ）に分割し、レッグごとに transit.ls8h.com API（非公式・無償・認証不要）で実ダイヤを照会。乗換0の旅程のみ採用
+- 駅IDの対応表は `transit_station_map.json`（`scripts/build_transit_station_map.py --write` で再生成）
+- **未収録**: 奈良線(D)・関西空港線(S)・JR東西線区間（尼崎〜京橋の東西線経由駅）。ここと API 障害時は `HEADWAY_MIN`（路線別日中運転間隔）による推定（待ち=間隔/2＋乗換歩行3分）にフォールバックし、レスポンスの `source: "estimate"` で区別
+- transit API は個人運営のため、依存は `transit.py` に閉じ込めてある（差し替え・撤去はこの1ファイル＋マッピング生成のみ）
+
 ## フロントエンド アーキテクチャ
 
 - `api.ts`: fetch ラッパー。バックエンドの各エンドポイントに対応する関数を提供
 - `StationSearch.tsx`: 駅名インクリメンタルサーチ（クライアントサイドフィルタリング）
-- `RouteCard.tsx`: 1ルートの概要表示 + `<details>` で経路詳細を展開
+- `RouteCard.tsx`: 1ルートの概要表示 + 駅一覧・ルート図・乗換案内（出発時刻入力→区間別発着時刻表示、推定区間は「目安」バッジ）の展開
 - `RouteMap.tsx`: 自前SVGの路線図。viewBox ベースのズーム・パン（ホイール/ドラッグ/ピンチ/ダブルクリック/ボタン/スライダー、最大8倍）。線幅・文字・ドットはズームしても画面上のサイズ一定で、2.2倍以上で画面内の中間駅にもラベルを表示。駅・県名・湖名ラベルは候補位置のスコアリングで衝突回避配置（表示領域基準で毎レンダー再計算）
 - レイアウト: `page.tsx` の `main` は `max-w-5xl`。検索フォームは `max-w-2xl` 中央寄せ、結果カード（地図）は全幅
 
@@ -129,6 +141,7 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 
 駅座標・駅間キロは国土数値情報N02由来（`scripts/sync_geo_from_n02.py` で同期）。フロントの路線色（`RouteMap.tsx` の `LINE_COLORS`）と路線名フォールバック（`page.tsx` の `LINE_MAP_FALLBACK`）もこの路線IDをキーにしているため、路線IDを変更する際は両方更新すること。
 
-## 未実装（Phase 5）
+## 実装済みフェーズ
 
-- 乗換案内（実ダイヤ・時刻表連携）— データソース未定（GTFS-JP 候補）
+- Phase 1〜4: 探索・運賃・可視化（地図）
+- Phase 5: 乗換案内（transit.ls8h.com の実ダイヤ + 未収録路線は推定フォールバック）

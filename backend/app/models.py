@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -64,6 +65,39 @@ class FareResponse(BaseModel):
     direct_km: float = Field(alias="directKm")
     fare_ic: int = Field(alias="fareIc")
     fare_ticket: int = Field(alias="fareTicket")
+
+    model_config = {"populate_by_name": True}
+
+
+class TimetableLeg(BaseModel):
+    line_id: str = Field(alias="lineId")
+    from_station_id: str = Field(alias="fromStationId")
+    to_station_id: str = Field(alias="toStationId")
+    departure: str
+    arrival: str
+    wait_min: float = Field(alias="waitMin")
+    ride_min: float = Field(alias="rideMin")
+    # timetable=実ダイヤ（transit API）, estimate=運転間隔ベースの推定
+    source: Literal["timetable", "estimate"]
+    train_type: str | None = Field(None, alias="trainType")
+    headsign: str | None = None
+
+    model_config = {"populate_by_name": True}
+
+
+class TimetableRequest(BaseModel):
+    path: list[PathSegment]
+    depart_time: str = Field(alias="departTime", pattern=r"^([01]?\d|2[0-3]):[0-5]\d$")
+
+    model_config = {"populate_by_name": True}
+
+
+class TimetableResponse(BaseModel):
+    depart_time: str = Field(alias="departTime")
+    arrival_time: str = Field(alias="arrivalTime")
+    total_min: float = Field(alias="totalMin")
+    has_estimate: bool = Field(alias="hasEstimate")
+    legs: list[TimetableLeg]
 
     model_config = {"populate_by_name": True}
 
