@@ -54,11 +54,49 @@ class RouteResponse(BaseModel):
     model_config = {"populate_by_name": True}
 
 
-class FareEntry(BaseModel):
-    from_km: float
-    to_km: float
-    fare_ic: int
-    fare_ticket: int
+class FareBand(BaseModel):
+    """キロ程帯の上限(to_km)と、その帯に適用される片道普通運賃。"""
+
+    to_km: float = Field(alias="toKm")
+    fare: int
+
+    model_config = {"populate_by_name": True}
+
+
+class AirportSurcharge(BaseModel):
+    """関西空港線などの加算運賃区間。"""
+
+    from_station_id: str = Field(alias="from")
+    to_station_id: str = Field(alias="to")
+    surcharge: int
+
+    model_config = {"populate_by_name": True}
+
+
+class SpecificFare(BaseModel):
+    """競合私鉄対抗の特定区間運賃（発着駅ペア・双方向に適用）。"""
+
+    stations: tuple[str, str]
+    fare: int
+
+    model_config = {"populate_by_name": True}
+
+
+class FareTable(BaseModel):
+    """2025-04-01改定後の運賃体系データ（backend/data/fare_table.json）。"""
+
+    revision: str
+    trunk: list[FareBand]
+    denshaku: list[FareBand]
+    local_line_ids: list[str] = Field(alias="localLineIds")
+    local_conversion_factor: float = Field(alias="localConversionFactor")
+    denshaku_station_ids: list[str] = Field(alias="denshakuStationIds")
+    airport_surcharges: list[AirportSurcharge] = Field(alias="airportSurcharges")
+    specific_fares: list[SpecificFare] = Field(
+        default_factory=list, alias="specificFares"
+    )
+
+    model_config = {"populate_by_name": True}
 
 
 class FareResponse(BaseModel):

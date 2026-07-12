@@ -64,7 +64,7 @@ KOBE_LOOP_SET: frozenset[str] = frozenset(KOBE_LOOP)
 
 from app.fare import calc_direct_fare
 from app.graph import Adjacency
-from app.models import FareEntry, OmawariRoute, PathSegment
+from app.models import FareTable, OmawariRoute, PathSegment
 
 
 @dataclass
@@ -140,11 +140,17 @@ def _compute_graph_stats(adj: Adjacency) -> tuple[float, float, int]:
     return sum(dists) / len(dists), max(dists), len(lines)
 
 
-def _max_km_for_fare(max_fare: int, table: list[FareEntry]) -> float:
-    for entry in reversed(table):
-        if entry.fare_ic <= max_fare:
-            return float(entry.to_km)
-    return float(table[0].to_km)
+def _max_km_for_fare(max_fare: int, start: str, table: FareTable) -> float:
+    """指定運賃以内で到達できる最大キロ程を概算する。
+
+    出発駅が電車特定区間内であればdenshaku表、そうでなければtrunk表を使う
+    （経路の途中で区間をまたぐケースは近似しない）。
+    """
+    bands = table.denshaku if start in table.denshaku_station_ids else table.trunk
+    for band in reversed(bands):
+        if band.fare <= max_fare:
+            return float(band.to_km)
+    return float(bands[0].to_km)
 
 
 def _shortest_avoiding(
@@ -692,7 +698,7 @@ def _build_output(
     routes: list["_Route"],
     adj: Adjacency,
     start: str,
-    fare_table: list[FareEntry],
+    fare_table: FareTable,
     num_results: int,
 ) -> list[OmawariRoute]:
     seen: set[tuple[str, ...]] = set()
@@ -1046,7 +1052,7 @@ def _build_loop_route_ccw(
 def find_golden_loop_routes(
     adj: Adjacency,
     start: str,
-    fare_table: list[FareEntry],
+    fare_table: FareTable,
     end: str | None = None,
     max_time_min: float = 480.0,
     num_results: int = 5,
@@ -1140,7 +1146,7 @@ def find_routes_via_waypoints(
     start: str,
     end: str,
     waypoints: list[str],
-    fare_table: list[FareEntry],
+    fare_table: FareTable,
 ) -> OmawariRoute | None:
     """start → waypoints[0] → waypoints[1] → ... → end の順にDijkstraで
     各区間をつなぎ、1本のルートを返す。
@@ -1195,7 +1201,7 @@ def find_routes_via_waypoints(
 def find_omawari_routes(
     adj: Adjacency,
     start: str,
-    fare_table: list[FareEntry],
+    fare_table: FareTable,
     end: str | None = None,
     max_stations: int = 120,
     max_time_min: float = 480.0,
@@ -1338,7 +1344,7 @@ def find_omawari_routes(
 def find_omawari_by_fare(
     adj: Adjacency,
     start: str,
-    fare_table: list[FareEntry],
+    fare_table: FareTable,
     max_fare: int,
     max_time_min: float = 480.0,
     num_results: int = 5,
@@ -1353,7 +1359,7 @@ def find_omawari_by_fare(
     """
     rng = random.Random(seed)
     effective_time = float("inf") if max_time_min == 0.0 else max_time_min
-    max_km = _max_km_for_fare(max_fare, fare_table)
+    max_km = _max_km_for_fare(max_fare, start, fare_table)
     eligible_ends = _stations_within_km(adj, start, max_km)
     eligible_ends.discard(start)
 

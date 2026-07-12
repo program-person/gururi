@@ -9,8 +9,8 @@ from app.config import settings
 from app.fare import calc_direct_fare, load_fare_table
 from app.graph import Adjacency, build_adjacency, load_graph_data, station_ids
 from app.models import (
-    FareEntry,
     FareResponse,
+    FareTable,
     GraphData,
     Line,
     OmawariRoute,
@@ -31,7 +31,7 @@ class RailState:
     data: GraphData
     adj: Adjacency
     stations: frozenset[str]
-    fare_table: list[FareEntry]
+    fare_table: FareTable
 
 
 def _load_state(path: Path) -> RailState:
@@ -126,7 +126,10 @@ def get_fare(
     _check_station(rail, from_station_id, "From station")
     _check_station(rail, to_station_id, "To station")
 
-    km, ic, ticket = calc_direct_fare(rail.adj, from_station_id, to_station_id, rail.fare_table)
+    try:
+        km, ic, ticket = calc_direct_fare(rail.adj, from_station_id, to_station_id, rail.fare_table)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return FareResponse(direct_km=km, fare_ic=ic, fare_ticket=ticket)
 
 
