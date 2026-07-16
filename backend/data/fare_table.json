@@ -2,67 +2,2793 @@
   "revision": "2025-04-01",
   "_comment": "trunk=幹線 普通運賃表、denshaku=電車特定区間(京阪神, 2025-04-01改定後)普通運賃表。いずれもtoKm(km, 切り上げ後)昇順。JR西日本はIC運賃=きっぷ運賃（1円単位運賃を導入していない）ため、fareIc/fareTicketは同一値を返す。specificFares=競合私鉄対抗の特定区間運賃(主要5ペアのみ収録。完全版は https://www.jr-odekake.net/oshirase/farerevision/assets/pdf/specific.pdf )。電車特定区間の境界駅: 野洲・堅田・亀岡・城陽・新三田・網干・関西空港・松井山手・奈良・和歌山(阪和線は改定前から和歌山まで電特)。",
   "trunk": [
-    { "toKm": 3, "fare": 150 },
-    { "toKm": 6, "fare": 190 },
-    { "toKm": 10, "fare": 200 },
-    { "toKm": 15, "fare": 240 },
-    { "toKm": 20, "fare": 330 },
-    { "toKm": 25, "fare": 420 },
-    { "toKm": 30, "fare": 510 },
-    { "toKm": 35, "fare": 590 },
-    { "toKm": 40, "fare": 680 },
-    { "toKm": 45, "fare": 770 },
-    { "toKm": 50, "fare": 860 },
-    { "toKm": 60, "fare": 990 },
-    { "toKm": 70, "fare": 1170 },
-    { "toKm": 80, "fare": 1340 },
-    { "toKm": 90, "fare": 1520 },
-    { "toKm": 100, "fare": 1690 },
-    { "toKm": 120, "fare": 1980 },
-    { "toKm": 140, "fare": 2310 },
-    { "toKm": 160, "fare": 2640 },
-    { "toKm": 180, "fare": 3080 },
-    { "toKm": 200, "fare": 3410 }
+    {
+      "toKm": 3,
+      "fare": 150
+    },
+    {
+      "toKm": 6,
+      "fare": 190
+    },
+    {
+      "toKm": 10,
+      "fare": 200
+    },
+    {
+      "toKm": 15,
+      "fare": 240
+    },
+    {
+      "toKm": 20,
+      "fare": 330
+    },
+    {
+      "toKm": 25,
+      "fare": 420
+    },
+    {
+      "toKm": 30,
+      "fare": 510
+    },
+    {
+      "toKm": 35,
+      "fare": 590
+    },
+    {
+      "toKm": 40,
+      "fare": 680
+    },
+    {
+      "toKm": 45,
+      "fare": 770
+    },
+    {
+      "toKm": 50,
+      "fare": 860
+    },
+    {
+      "toKm": 60,
+      "fare": 990
+    },
+    {
+      "toKm": 70,
+      "fare": 1170
+    },
+    {
+      "toKm": 80,
+      "fare": 1340
+    },
+    {
+      "toKm": 90,
+      "fare": 1520
+    },
+    {
+      "toKm": 100,
+      "fare": 1690
+    },
+    {
+      "toKm": 120,
+      "fare": 1980
+    },
+    {
+      "toKm": 140,
+      "fare": 2310
+    },
+    {
+      "toKm": 160,
+      "fare": 2640
+    },
+    {
+      "toKm": 180,
+      "fare": 3080
+    },
+    {
+      "toKm": 200,
+      "fare": 3410
+    }
   ],
   "denshaku": [
-    { "toKm": 3, "fare": 150 },
-    { "toKm": 6, "fare": 180 },
-    { "toKm": 10, "fare": 200 },
-    { "toKm": 15, "fare": 240 },
-    { "toKm": 20, "fare": 320 },
-    { "toKm": 25, "fare": 410 },
-    { "toKm": 30, "fare": 490 },
-    { "toKm": 35, "fare": 580 },
-    { "toKm": 40, "fare": 660 },
-    { "toKm": 45, "fare": 750 },
-    { "toKm": 50, "fare": 840 },
-    { "toKm": 60, "fare": 960 },
-    { "toKm": 70, "fare": 1120 },
-    { "toKm": 80, "fare": 1300 },
-    { "toKm": 90, "fare": 1460 },
-    { "toKm": 100, "fare": 1640 },
-    { "toKm": 120, "fare": 1880 },
-    { "toKm": 140, "fare": 2210 },
-    { "toKm": 160, "fare": 2540 },
-    { "toKm": 180, "fare": 2870 },
-    { "toKm": 200, "fare": 3200 }
+    {
+      "toKm": 3,
+      "fare": 150
+    },
+    {
+      "toKm": 6,
+      "fare": 180
+    },
+    {
+      "toKm": 10,
+      "fare": 200
+    },
+    {
+      "toKm": 15,
+      "fare": 240
+    },
+    {
+      "toKm": 20,
+      "fare": 320
+    },
+    {
+      "toKm": 25,
+      "fare": 410
+    },
+    {
+      "toKm": 30,
+      "fare": 490
+    },
+    {
+      "toKm": 35,
+      "fare": 580
+    },
+    {
+      "toKm": 40,
+      "fare": 660
+    },
+    {
+      "toKm": 45,
+      "fare": 750
+    },
+    {
+      "toKm": 50,
+      "fare": 840
+    },
+    {
+      "toKm": 60,
+      "fare": 960
+    },
+    {
+      "toKm": 70,
+      "fare": 1120
+    },
+    {
+      "toKm": 80,
+      "fare": 1300
+    },
+    {
+      "toKm": 90,
+      "fare": 1460
+    },
+    {
+      "toKm": 100,
+      "fare": 1640
+    },
+    {
+      "toKm": 120,
+      "fare": 1880
+    },
+    {
+      "toKm": 140,
+      "fare": 2210
+    },
+    {
+      "toKm": 160,
+      "fare": 2540
+    },
+    {
+      "toKm": 180,
+      "fare": 2870
+    },
+    {
+      "toKm": 200,
+      "fare": 3200
+    }
   ],
-  "localLineIds": ["I"],
+  "localLineIds": [
+    "I"
+  ],
   "localConversionFactor": 1.1,
   "denshakuStationIds": [
-    "abkm", "aksh", "amaz", "asag", "asak", "ashi", "ashy", "bent", "dojo", "ebig", "ehim", "ekak", "fujs", "fuku", "hanaz", "hant", "heiz", "hgtsuka", "higf", "higk", "hime", "hine", "hiranq", "hjyod", "hmbs", "horj", "hosd", "hosh", "hozuk", "hsano", "hyog", "ibrk", "imam", "inan", "inar", "ishi", "itam", "izfc", "izuha", "jlwj", "jobj", "jrfj", "jrkwna", "jrnb", "jrne", "jrng", "jrogura", "jrsjj", "jrss", "kaim", "kameo", "kami", "karas", "kasm", "kasw", "kata", "katg", "kisb", "kish", "kita", "kitj", "kixap", "kjhk", "kkok", "kktg", "kobe", "kobj", "komy", "konike", "kory", "kosg", "kshk", "kubd", "kumeta", "kumt", "kusa", "kwig", "kyob", "kyot", "mabor", "maik", "maya", "miko", "miku", "mobs", "momo", "momy", "mori", "morm", "moto", "mshe", "msut", "mtsm", "mukt", "nada", "nage", "nagk", "nago", "naks", "nara", "nase", "neyako", "nfuk", "niim", "nijo", "nkam", "nkuj", "nkym", "noda", "nori", "nozk", "nsmg", "nsmy", "nsnd", "nttad", "ogot", "ojii", "ojkk", "ojko", "okts", "okub", "omij", "oogb", "ootu", "osak", "osng", "otky", "otma", "otori", "rinkuu", "rito", "rokj", "rokk", "sagaa", "sakm", "saku", "sand", "sang", "seta", "sgmt", "shgy", "shik", "shio", "shit", "shmodz", "sima", "sjnw", "skuy", "smtn", "sngg", "snmy", "sone", "srik", "ssin", "stbn", "stom", "suit", "suma", "sumd", "sumo", "sums", "tacd", "tach", "tais", "taka", "takdq", "takt", "tama", "tamba", "tarumi", "tema", "tenn", "teri", "tkdh", "tkdo", "tobm", "tokuan", "tomiki", "tskm", "tsny", "tsrg", "tsuc", "tsud", "tsuk", "tsur", "uji", "umek", "unsh", "uozu", "uzum", "yama", "yams", "yaox", "yasu", "ymkj", "zeze",
-    "nagtk", "arakw", "izsk", "iztot", "ymkdv", "kii", "muts", "kinsh", "waka", "hgmo"
+    "abkm",
+    "aksh",
+    "amaz",
+    "asag",
+    "asak",
+    "ashi",
+    "ashy",
+    "bent",
+    "dojo",
+    "ebig",
+    "ehim",
+    "ekak",
+    "fujs",
+    "fuku",
+    "hanaz",
+    "hant",
+    "heiz",
+    "hgtsuka",
+    "higf",
+    "higk",
+    "hime",
+    "hine",
+    "hiranq",
+    "hjyod",
+    "hmbs",
+    "horj",
+    "hosd",
+    "hosh",
+    "hozuk",
+    "hsano",
+    "hyog",
+    "ibrk",
+    "imam",
+    "inan",
+    "inar",
+    "ishi",
+    "itam",
+    "izfc",
+    "izuha",
+    "jlwj",
+    "jobj",
+    "jrfj",
+    "jrkwna",
+    "jrnb",
+    "jrne",
+    "jrng",
+    "jrogura",
+    "jrsjj",
+    "jrss",
+    "kaim",
+    "kameo",
+    "kami",
+    "karas",
+    "kasm",
+    "kasw",
+    "kata",
+    "katg",
+    "kisb",
+    "kish",
+    "kita",
+    "kitj",
+    "kixap",
+    "kjhk",
+    "kkok",
+    "kktg",
+    "kobe",
+    "kobj",
+    "komy",
+    "konike",
+    "kory",
+    "kosg",
+    "kshk",
+    "kubd",
+    "kumeta",
+    "kumt",
+    "kusa",
+    "kwig",
+    "kyob",
+    "kyot",
+    "mabor",
+    "maik",
+    "maya",
+    "miko",
+    "miku",
+    "mobs",
+    "momo",
+    "momy",
+    "mori",
+    "morm",
+    "moto",
+    "mshe",
+    "msut",
+    "mtsm",
+    "mukt",
+    "nada",
+    "nage",
+    "nagk",
+    "nago",
+    "naks",
+    "nara",
+    "nase",
+    "neyako",
+    "nfuk",
+    "niim",
+    "nijo",
+    "nkam",
+    "nkuj",
+    "nkym",
+    "noda",
+    "nori",
+    "nozk",
+    "nsmg",
+    "nsmy",
+    "nsnd",
+    "nttad",
+    "ogot",
+    "ojii",
+    "ojkk",
+    "ojko",
+    "okts",
+    "okub",
+    "omij",
+    "oogb",
+    "ootu",
+    "osak",
+    "osng",
+    "otky",
+    "otma",
+    "otori",
+    "rinkuu",
+    "rito",
+    "rokj",
+    "rokk",
+    "sagaa",
+    "sakm",
+    "saku",
+    "sand",
+    "sang",
+    "seta",
+    "sgmt",
+    "shgy",
+    "shik",
+    "shio",
+    "shit",
+    "shmodz",
+    "sima",
+    "sjnw",
+    "skuy",
+    "smtn",
+    "sngg",
+    "snmy",
+    "sone",
+    "srik",
+    "ssin",
+    "stbn",
+    "stom",
+    "suit",
+    "suma",
+    "sumd",
+    "sumo",
+    "sums",
+    "tacd",
+    "tach",
+    "tais",
+    "taka",
+    "takdq",
+    "takt",
+    "tama",
+    "tamba",
+    "tarumi",
+    "tema",
+    "tenn",
+    "teri",
+    "tkdh",
+    "tkdo",
+    "tobm",
+    "tokuan",
+    "tomiki",
+    "tskm",
+    "tsny",
+    "tsrg",
+    "tsuc",
+    "tsud",
+    "tsuk",
+    "tsur",
+    "uji",
+    "umek",
+    "unsh",
+    "uozu",
+    "uzum",
+    "yama",
+    "yams",
+    "yaox",
+    "yasu",
+    "ymkj",
+    "zeze",
+    "nagtk",
+    "arakw",
+    "izsk",
+    "iztot",
+    "ymkdv",
+    "kii",
+    "muts",
+    "kinsh",
+    "waka",
+    "hgmo"
   ],
   "specificFares": [
-    { "stations": ["osak", "snmy"], "fare": 420 },
-    { "stations": ["osak", "kyot"], "fare": 580 },
-    { "stations": ["kyot", "snmy"], "fare": 1110 },
-    { "stations": ["jrnb", "nara"], "fare": 580 },
-    { "stations": ["tenn", "waka"], "fare": 900 }
+    {
+      "stations": [
+        "abkm",
+        "kinsh"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "abkm",
+        "muts"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "abkm",
+        "waka"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "amaz",
+        "kobe"
+      ],
+      "fare": 430
+    },
+    {
+      "stations": [
+        "amaz",
+        "maya"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "amaz",
+        "moto"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "amaz",
+        "nada"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "amaz",
+        "rokk"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "amaz",
+        "snmy"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "amaz",
+        "sums"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "amaz",
+        "tacd"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "asak",
+        "kinsh"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "asak",
+        "waka"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "ashy",
+        "ebig"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ashy",
+        "kitj"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ashy",
+        "kyot"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "ashy",
+        "nfuk"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ashy",
+        "omij"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ashy",
+        "osak"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ashy",
+        "tskm"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ebig",
+        "kobe"
+      ],
+      "fare": 450
+    },
+    {
+      "stations": [
+        "ebig",
+        "komy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ebig",
+        "kwig"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ebig",
+        "maya"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "ebig",
+        "moto"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "ebig",
+        "nada"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "ebig",
+        "nkym"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "ebig",
+        "rokk"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "ebig",
+        "skuy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ebig",
+        "smtn"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "ebig",
+        "snmy"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "ebig",
+        "sums"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "ebig",
+        "tacd"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "higf",
+        "jobj"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "higf",
+        "jrogura"
+      ],
+      "fare": 310
+    },
+    {
+      "stations": [
+        "higf",
+        "nara"
+      ],
+      "fare": 720
+    },
+    {
+      "stations": [
+        "higf",
+        "nttad"
+      ],
+      "fare": 310
+    },
+    {
+      "stations": [
+        "hiranq",
+        "horj"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "hiranq",
+        "kory"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "hiranq",
+        "nara"
+      ],
+      "fare": 510
+    },
+    {
+      "stations": [
+        "hiranq",
+        "ojii"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "hiranq",
+        "sang"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "hiranq",
+        "ymkj"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "hjyod",
+        "katg"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "hjyod",
+        "kyot"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "hjyod",
+        "mukt"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "hjyod",
+        "nagk"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "hjyod",
+        "nori"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "hjyod",
+        "sima"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "hjyod",
+        "takt"
+      ],
+      "fare": 280
+    },
+    {
+      "stations": [
+        "hjyod",
+        "yama"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "horj",
+        "imam"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "horj",
+        "jrnb"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "horj",
+        "kami"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "horj",
+        "kubd"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "horj",
+        "niim"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "horj",
+        "tenn"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "horj",
+        "tobm"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "horj",
+        "yaox"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ibrk",
+        "katg"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "ibrk",
+        "kobe"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "ibrk",
+        "kyot"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "ibrk",
+        "maya"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "ibrk",
+        "moto"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "ibrk",
+        "mukt"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "ibrk",
+        "nada"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "ibrk",
+        "nori"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "ibrk",
+        "rokk"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "ibrk",
+        "snmy"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "imam",
+        "kory"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "imam",
+        "nara"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "imam",
+        "ojii"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "imam",
+        "sang"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "imam",
+        "ymkj"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "inar",
+        "jobj"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "inar",
+        "nttad"
+      ],
+      "fare": 310
+    },
+    {
+      "stations": [
+        "jobj",
+        "jrfj"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "jobj",
+        "kyot"
+      ],
+      "fare": 380
+    },
+    {
+      "stations": [
+        "jrnb",
+        "kktg"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "jrnb",
+        "kory"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "jrnb",
+        "nara"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "jrnb",
+        "ojii"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "jrnb",
+        "sang"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "jrnb",
+        "ymkj"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "jrogura",
+        "kyot"
+      ],
+      "fare": 310
+    },
+    {
+      "stations": [
+        "jrsjj",
+        "katg"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "jrsjj",
+        "kobe"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "jrsjj",
+        "kyot"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "jrsjj",
+        "moto"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "jrsjj",
+        "nori"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "jrsjj",
+        "osak"
+      ],
+      "fare": 280
+    },
+    {
+      "stations": [
+        "jrsjj",
+        "snmy"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "kami",
+        "kory"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "kami",
+        "nara"
+      ],
+      "fare": 510
+    },
+    {
+      "stations": [
+        "kami",
+        "ojii"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kami",
+        "ymkj"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kasm",
+        "kobe"
+      ],
+      "fare": 450
+    },
+    {
+      "stations": [
+        "kasm",
+        "komy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kasm",
+        "maya"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kasm",
+        "moto"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "kasm",
+        "nada"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kasm",
+        "nkym"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kasm",
+        "rokk"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kasm",
+        "smtn"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kasm",
+        "snmy"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "kasm",
+        "sums"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kasm",
+        "tacd"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kasw",
+        "kory"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kasw",
+        "nara"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kasw",
+        "ymkj"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "katg",
+        "kisb"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "katg",
+        "kobe"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "katg",
+        "maya"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "katg",
+        "moto"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "katg",
+        "nada"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "katg",
+        "osak"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "katg",
+        "rokk"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "katg",
+        "snmy"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "katg",
+        "srik"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "katg",
+        "ssin"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "katg",
+        "suit"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "katg",
+        "sums"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kii",
+        "mshe"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "kii",
+        "stbn"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "kii",
+        "tenn"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "kinsh",
+        "mshe"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "kinsh",
+        "nage"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "kinsh",
+        "sakm"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "kinsh",
+        "sgmt"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "kinsh",
+        "stbn"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "kinsh",
+        "tenn"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "kinsh",
+        "tsrg"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "kisb",
+        "kobe"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "kisb",
+        "kyot"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "kisb",
+        "moto"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "kisb",
+        "mukt"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "kisb",
+        "nagk"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kisb",
+        "nori"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "kisb",
+        "snmy"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "kita",
+        "kitj"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kita",
+        "nfuk"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kita",
+        "osak"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kitj",
+        "kobe"
+      ],
+      "fare": 460
+    },
+    {
+      "stations": [
+        "kitj",
+        "komy"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kitj",
+        "kwig"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kitj",
+        "maya"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "kitj",
+        "moto"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "kitj",
+        "nada"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "kitj",
+        "nkym"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "kitj",
+        "nsmy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kitj",
+        "rokk"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "kitj",
+        "skuy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kitj",
+        "smtn"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kitj",
+        "snmy"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "kitj",
+        "sums"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kitj",
+        "tacd"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "kktg",
+        "nara"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kktg",
+        "tenn"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kobe",
+        "kosg"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kobe",
+        "kyot"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kobe",
+        "mukt"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kobe",
+        "nagk"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kobe",
+        "nfuk"
+      ],
+      "fare": 460
+    },
+    {
+      "stations": [
+        "kobe",
+        "nori"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kobe",
+        "nsmy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kobe",
+        "omij"
+      ],
+      "fare": 450
+    },
+    {
+      "stations": [
+        "kobe",
+        "osak"
+      ],
+      "fare": 460
+    },
+    {
+      "stations": [
+        "kobe",
+        "skuy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kobe",
+        "srik"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "kobe",
+        "stom"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "kobe",
+        "suit"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "kobe",
+        "tach"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kobe",
+        "takt"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "kobe",
+        "tskm"
+      ],
+      "fare": 460
+    },
+    {
+      "stations": [
+        "kobe",
+        "yama"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "komy",
+        "kyot"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "komy",
+        "nfuk"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "komy",
+        "nori"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "komy",
+        "omij"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "komy",
+        "osak"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "komy",
+        "tskm"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kory",
+        "kubd"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "kory",
+        "niim"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "kory",
+        "shik"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kory",
+        "takdq"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kory",
+        "tenn"
+      ],
+      "fare": 510
+    },
+    {
+      "stations": [
+        "kory",
+        "tobm"
+      ],
+      "fare": 510
+    },
+    {
+      "stations": [
+        "kory",
+        "yaox"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kosg",
+        "moto"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kosg",
+        "nada"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kosg",
+        "snmy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kubd",
+        "nara"
+      ],
+      "fare": 510
+    },
+    {
+      "stations": [
+        "kubd",
+        "ymkj"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kwig",
+        "nfuk"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kwig",
+        "osak"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kwig",
+        "tskm"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "kyot",
+        "maya"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kyot",
+        "moto"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kyot",
+        "nada"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kyot",
+        "nara"
+      ],
+      "fare": 720
+    },
+    {
+      "stations": [
+        "kyot",
+        "nttad"
+      ],
+      "fare": 310
+    },
+    {
+      "stations": [
+        "kyot",
+        "osak"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "kyot",
+        "rokk"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kyot",
+        "smtn"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kyot",
+        "snmy"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kyot",
+        "srik"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "kyot",
+        "ssin"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "kyot",
+        "stom"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "kyot",
+        "suit"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "kyot",
+        "sums"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "kyot",
+        "takt"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "maya",
+        "mukt"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "maya",
+        "nfuk"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "maya",
+        "nori"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "maya",
+        "omij"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "maya",
+        "osak"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "maya",
+        "stom"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "maya",
+        "tach"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "maya",
+        "takt"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "maya",
+        "tskm"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "miko",
+        "waka"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "mobs",
+        "waka"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "moto",
+        "mukt"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "moto",
+        "nagk"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "moto",
+        "nfuk"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "moto",
+        "nori"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "moto",
+        "nsmy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "moto",
+        "omij"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "moto",
+        "osak"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "moto",
+        "srik"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "moto",
+        "stom"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "moto",
+        "tach"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "moto",
+        "takt"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "moto",
+        "tskm"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "moto",
+        "yama"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "mshe",
+        "muts"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "mshe",
+        "waka"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "mukt",
+        "nada"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "mukt",
+        "osak"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "mukt",
+        "rokk"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "mukt",
+        "snmy"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "mukt",
+        "srik"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "mukt",
+        "ssin"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "mukt",
+        "suit"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "mukt",
+        "sums"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "muts",
+        "nage"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "muts",
+        "sgmt"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "muts",
+        "stbn"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "muts",
+        "tenn"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "muts",
+        "tsrg"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "nada",
+        "nagk"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "nada",
+        "nfuk"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "nada",
+        "nori"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "nada",
+        "omij"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "nada",
+        "osak"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "nada",
+        "stom"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "nada",
+        "tach"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "nada",
+        "takt"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "nada",
+        "tskm"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "nage",
+        "waka"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "nagk",
+        "osak"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "nagk",
+        "snmy"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "nagk",
+        "srik"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "nagk",
+        "ssin"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "nagk",
+        "suit"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "nara",
+        "niim"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "nara",
+        "sang"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "nara",
+        "shik"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "nara",
+        "takdq"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "nara",
+        "tenn"
+      ],
+      "fare": 510
+    },
+    {
+      "stations": [
+        "nara",
+        "tobm"
+      ],
+      "fare": 510
+    },
+    {
+      "stations": [
+        "nara",
+        "yaox"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "nfuk",
+        "nkym"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "nfuk",
+        "nsmy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "nfuk",
+        "rokk"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "nfuk",
+        "skuy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "nfuk",
+        "smtn"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "nfuk",
+        "snmy"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "nfuk",
+        "sums"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "nfuk",
+        "tacd"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "niim",
+        "ojii"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "niim",
+        "sang"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "niim",
+        "ymkj"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "nkym",
+        "omij"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "nkym",
+        "osak"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "nkym",
+        "tskm"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "nori",
+        "osak"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "nori",
+        "rokk"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "nori",
+        "smtn"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "nori",
+        "snmy"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "nori",
+        "srik"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "nori",
+        "ssin"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "nori",
+        "stom"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "nori",
+        "suit"
+      ],
+      "fare": 580
+    },
+    {
+      "stations": [
+        "nori",
+        "sums"
+      ],
+      "fare": 1110
+    },
+    {
+      "stations": [
+        "nsmy",
+        "osak"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "nsmy",
+        "snmy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "ojii",
+        "tenn"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "ojii",
+        "tobm"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "omij",
+        "rokk"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "omij",
+        "smtn"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "omij",
+        "snmy"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "omij",
+        "sums"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "omij",
+        "tacd"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "osak",
+        "rokk"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "osak",
+        "sima"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "osak",
+        "skuy"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "osak",
+        "smtn"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "osak",
+        "snmy"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "osak",
+        "stom"
+      ],
+      "fare": 290
+    },
+    {
+      "stations": [
+        "osak",
+        "sums"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "osak",
+        "tacd"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "osak",
+        "takt"
+      ],
+      "fare": 290
+    },
+    {
+      "stations": [
+        "osak",
+        "yama"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "rokk",
+        "tach"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "rokk",
+        "takt"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "rokk",
+        "tskm"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "sakm",
+        "waka"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "sang",
+        "tenn"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "sang",
+        "tobm"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "sgmt",
+        "waka"
+      ],
+      "fare": 880
+    },
+    {
+      "stations": [
+        "shik",
+        "ymkj"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "sima",
+        "ssin"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "smtn",
+        "tskm"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "snmy",
+        "srik"
+      ],
+      "fare": 730
+    },
+    {
+      "stations": [
+        "snmy",
+        "stom"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "snmy",
+        "tach"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "snmy",
+        "takt"
+      ],
+      "fare": 830
+    },
+    {
+      "stations": [
+        "snmy",
+        "tskm"
+      ],
+      "fare": 420
+    },
+    {
+      "stations": [
+        "ssin",
+        "takt"
+      ],
+      "fare": 280
+    },
+    {
+      "stations": [
+        "ssin",
+        "yama"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "stbn",
+        "waka"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "suit",
+        "yama"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "sums",
+        "tskm"
+      ],
+      "fare": 410
+    },
+    {
+      "stations": [
+        "tacd",
+        "tskm"
+      ],
+      "fare": 340
+    },
+    {
+      "stations": [
+        "tacd",
+        "tsuk"
+      ],
+      "fare": 320
+    },
+    {
+      "stations": [
+        "tenn",
+        "waka"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "tenn",
+        "ymkj"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "tobm",
+        "ymkj"
+      ],
+      "fare": 490
+    },
+    {
+      "stations": [
+        "tsrg",
+        "waka"
+      ],
+      "fare": 900
+    },
+    {
+      "stations": [
+        "yaox",
+        "ymkj"
+      ],
+      "fare": 410
+    }
   ],
   "airportSurcharges": [
-    { "from": "hine", "to": "kixap", "surcharge": 220 },
-    { "from": "hine", "to": "rinkuu", "surcharge": 160 },
-    { "from": "rinkuu", "to": "kixap", "surcharge": 170 }
+    {
+      "from": "hine",
+      "to": "kixap",
+      "surcharge": 220
+    },
+    {
+      "from": "hine",
+      "to": "rinkuu",
+      "surcharge": 160
+    },
+    {
+      "from": "rinkuu",
+      "to": "kixap",
+      "surcharge": 170
+    }
   ]
 }

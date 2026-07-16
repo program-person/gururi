@@ -95,6 +95,43 @@ def test_specific_fare_is_bidirectional(adj, table):
     assert ic_fwd == ic_rev == 900
 
 
+def test_specific_fare_full_table_loaded(table):
+    # 2025-04プレスリリース別紙4から転記した全ペア（グラフ収録駅間のみ）
+    assert len(table.specific_fares) == 341
+
+
+def test_specific_fare_osaka_takatsuki(adj, table):
+    # 大阪 → 高槻: 表引きなら denshaku 21-25km帯(410円)だが特定運賃290円
+    # （営業キロは公式21.6km、グラフはN02由来で21.0km）
+    km, ic, _ = calc_direct_fare(adj, "osak", "takt", table)
+    assert 20.0 < km < 23.0
+    assert ic == 290
+
+
+def test_specific_fare_amagasaki_kobe(adj, table):
+    # 尼崎 → 神戸: 別紙4より430円
+    _, ic, _ = calc_direct_fare(adj, "amaz", "kobe", table)
+    assert ic == 430
+
+
+def test_specific_fare_tennoji_nara(adj, table):
+    # 天王寺 → 奈良: 別紙4より510円
+    _, ic, _ = calc_direct_fare(adj, "tenn", "nara", table)
+    assert ic == 510
+
+
+def test_specific_fare_kitashinchi_kobe(adj, table):
+    # JR東西線側の発駅にも特定運賃が設定されている（北新地 → 神戸 460円）
+    _, ic, _ = calc_direct_fare(adj, "kitj", "kobe", table)
+    assert ic == 460
+
+
+def test_specific_fare_kyoto_joyo(adj, table):
+    # 奈良線: 京都 → 城陽 380円
+    _, ic, _ = calc_direct_fare(adj, "kyot", "jobj", table)
+    assert ic == 380
+
+
 # ------------------------------------------------------------------
 # 地方交通線（加古川線, line I）を含む経路で換算キロ(×1.1)が効くこと
 # ------------------------------------------------------------------
