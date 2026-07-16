@@ -30,6 +30,7 @@ export const LINE_MAP_FALLBACK: Record<string, string> = {
   S:  "関西空港線",
   HA: "羽衣支線",
   I:  "加古川線",
+  P:  "JRゆめ咲線",
 };
 
 // JR西日本 2025-04改定後の電車特定区間 普通運賃（fare_table.json の denshaku 帯と一致）。

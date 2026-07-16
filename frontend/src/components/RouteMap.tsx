@@ -30,6 +30,7 @@ export const LINE_COLORS: Record<string, string> = {
   S:  "#ff8e1f", // 関西空港線: ※阪和線(R)と同系統
   HA: "#ff8e1f", // 羽衣支線: ※阪和線(R)と同系統
   I:  "#009944", // 加古川線: 緑系 ※公式未定義
+  P:  "#e80000", // JRゆめ咲線: 赤（大阪環状線と同色が公式）
 };
 
 const DEFAULT_COLOR = "#6b7280";

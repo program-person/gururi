@@ -25,6 +25,12 @@
       "lng": 135.15595
     },
     {
+      "id": "ajik",
+      "name": "安治川口",
+      "lat": 34.67338,
+      "lng": 135.44387
+    },
+    {
       "id": "aksh",
       "name": "明石",
       "lat": 34.64903,
@@ -1579,6 +1585,12 @@
       "lng": 135.63925
     },
     {
+      "id": "skjm",
+      "name": "桜島",
+      "lat": 34.66214,
+      "lng": 135.43238
+    },
+    {
       "id": "skuy",
       "name": "さくら夙川",
       "lat": 34.73904,
@@ -1963,6 +1975,12 @@
       "lng": 135.47773
     },
     {
+      "id": "unvc",
+      "name": "ユニバーサルシティ",
+      "lat": 34.66784,
+      "lng": 135.43856
+    },
+    {
       "id": "uozu",
       "name": "魚住",
       "lat": 34.69644,
@@ -2165,6 +2183,10 @@
     {
       "id": "HA",
       "name": "羽衣支線"
+    },
+    {
+      "id": "P",
+      "name": "JRゆめ咲線"
     },
     {
       "id": "I",
@@ -4572,6 +4594,27 @@
       "lineId": "HA",
       "distance": 1.5,
       "travelTime": 4
+    },
+    {
+      "fromStationId": "nkuj",
+      "toStationId": "ajik",
+      "lineId": "P",
+      "distance": 2.5,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "ajik",
+      "toStationId": "unvc",
+      "lineId": "P",
+      "distance": 0.8,
+      "travelTime": 2
+    },
+    {
+      "fromStationId": "unvc",
+      "toStationId": "skjm",
+      "lineId": "P",
+      "distance": 0.8,
+      "travelTime": 2
     },
     {
       "fromStationId": "kkok",

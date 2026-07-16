@@ -47,6 +47,7 @@ LINE_FEEDS: dict[str, list[str]] = {
     "S": [],
     "HA": ["jrwest-hanwa-hagoromo"],
     "I": ["jrwest-kakogawa"],
+    "P": ["jrwest-sakurajima"],
 }
 
 # 同名駅の誤マッチ防止: グラフ座標との距離上限（km）

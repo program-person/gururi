@@ -179,6 +179,7 @@
   "localConversionFactor": 1.1,
   "denshakuStationIds": [
     "abkm",
+    "ajik",
     "aksh",
     "amaz",
     "asag",
@@ -325,6 +326,7 @@
     "shmodz",
     "sima",
     "sjnw",
+    "skjm",
     "skuy",
     "smtn",
     "sngg",
@@ -366,6 +368,7 @@
     "uji",
     "umek",
     "unsh",
+    "unvc",
     "uozu",
     "uzum",
     "yama",

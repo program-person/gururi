@@ -258,6 +258,12 @@
    "teri": "jrwest-osaka-loop:jrwest-osaka-loop.station.JR西日本-大阪環状線-寺田町",
    "tsur": "jrwest-osaka-loop:jrwest-osaka-loop.station.JR西日本-大阪環状線-鶴橋"
   },
+  "P": {
+   "ajik": "jrwest-sakurajima:jrwest-sakurajima.station.JR西日本-桜島線-安治川口",
+   "nkuj": "jrwest-sakurajima:jrwest-sakurajima.station.JR西日本-桜島線-西九条",
+   "skjm": "jrwest-sakurajima:jrwest-sakurajima.station.JR西日本-桜島線-桜島",
+   "unvc": "jrwest-sakurajima:jrwest-sakurajima.station.JR西日本-桜島線-ユニバーサルシティ"
+  },
   "Q": {
    "hiranq": "jrwest-yamatoji:jrwest-yamatoji.station.JR西日本-関西線-平野",
    "horj": "jrwest-yamatoji:jrwest-yamatoji.station.JR西日本-関西線-法隆寺",
