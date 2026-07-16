@@ -32,7 +32,9 @@ export const LINE_MAP_FALLBACK: Record<string, string> = {
   I:  "加古川線",
 };
 
-const FARE_OPTIONS = [133, 143, 165, 198, 220, 253, 286, 330, 363, 396, 429, 462, 506, 550, 616];
+// JR西日本 2025-04改定後の電車特定区間 普通運賃（fare_table.json の denshaku 帯と一致）。
+// 大回りの出発駅はグラフ上ほぼ全て電車特定区間内のため denshaku 表の額を採用
+const FARE_OPTIONS = [150, 180, 200, 240, 320, 410, 490, 580, 660];
 // 大回り乗車は当日完結が前提のため「無制限」は設けず終日(18時間)を上限とする
 const TIME_OPTIONS = [60, 120, 180, 240, 360, 480, 600, 1080];
 const RESULTS_OPTIONS = [3, 5, 10, 20];
@@ -58,7 +60,7 @@ export default function Home() {
   const [startStation, setStartStation] = useState<Station | null>(null);
   const [endStation, setEndStation] = useState<Station | null>(null);
   const [mode, setMode] = useState<Mode>("free");
-  const [maxFare, setMaxFare] = useState(165);
+  const [maxFare, setMaxFare] = useState(180);
   const [maxTimeMin, setMaxTimeMin] = useState(240);
   const [numResults, setNumResults] = useState(5);
 
