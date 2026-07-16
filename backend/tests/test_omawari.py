@@ -247,7 +247,8 @@ def test_golden_loop_cw() -> None:
     adj = build_adjacency(data.edges)
     fare_table = load_fare_table()
 
-    routes = find_golden_loop_routes(adj, "osak", fare_table, "osak", max_time_min=0.0)
+    # 時間制限で結果が変わらないよう十分大きい値（旧仕様の 0=無制限 は廃止）
+    routes = find_golden_loop_routes(adj, "osak", fare_table, "osak", max_time_min=10000.0)
     assert len(routes) > 0
     # 先頭が最もスコアが高い
     best_route = routes[0]
@@ -269,7 +270,7 @@ def test_find_omawari_routes_includes_golden() -> None:
     fare_table = load_fare_table()
     
     # 大阪→天王寺
-    routes = find_omawari_routes(adj, "osak", fare_table, "tenn", max_time_min=0.0, num_results=5)
+    routes = find_omawari_routes(adj, "osak", fare_table, "tenn", max_time_min=10000.0, num_results=5)
     assert len(routes) > 0
     # いずれかのルートにゴールデンループの特徴的な駅（例: 近江塩津 enis）が含まれる
     has_enis = any("enis" in [seg.station_id for seg in r.path] for r in routes)

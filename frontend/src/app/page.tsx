@@ -33,7 +33,8 @@ export const LINE_MAP_FALLBACK: Record<string, string> = {
 };
 
 const FARE_OPTIONS = [133, 143, 165, 198, 220, 253, 286, 330, 363, 396, 429, 462, 506, 550, 616];
-const TIME_OPTIONS = [0, 60, 120, 180, 240, 360, 480, 600];
+// 大回り乗車は当日完結が前提のため「無制限」は設けず終日(18時間)を上限とする
+const TIME_OPTIONS = [60, 120, 180, 240, 360, 480, 600, 1080];
 const RESULTS_OPTIONS = [3, 5, 10, 20];
 
 const MODE_LABELS: Record<Mode, string> = {
@@ -216,8 +217,8 @@ export default function Home() {
             >
               {TIME_OPTIONS.map((t) => (
                 <option key={t} value={t}>
-                  {t === 0
-                    ? "制限なし"
+                  {t === 1080
+                    ? "終日（〜18時間）"
                     : `${Math.floor(t / 60) > 0 ? `${Math.floor(t / 60)}時間` : ""}${t % 60 > 0 ? `${t % 60}分` : ""}`
                   }
                 </option>

@@ -1057,7 +1057,7 @@ def find_golden_loop_routes(
     max_time_min: float = 480.0,
     num_results: int = 5,
 ) -> list[OmawariRoute]:
-    effective_time = float("inf") if max_time_min == 0.0 else max_time_min
+    effective_time = max_time_min
     # 自由探索モード（同駅発着）は末尾の出発駅を除去する
     trim_last = end is None or end == start
     if end is None:
@@ -1218,7 +1218,7 @@ def find_omawari_routes(
     """
     rng = random.Random(seed)
     avg_dist, _max_dist, total_lines = _compute_graph_stats(adj)
-    effective_time = float("inf") if max_time_min == 0.0 else max_time_min
+    effective_time = max_time_min
 
     if end is not None:
         # WAYPOINT_ROUTES から該当する経由地リストを取得して決定論的ルートを構築
@@ -1358,7 +1358,7 @@ def find_omawari_by_fare(
     1回のウォークで複数の有効ルートを収集できる。
     """
     rng = random.Random(seed)
-    effective_time = float("inf") if max_time_min == 0.0 else max_time_min
+    effective_time = max_time_min
     max_km = _max_km_for_fare(max_fare, start, fare_table)
     eligible_ends = _stations_within_km(adj, start, max_km)
     eligible_ends.discard(start)

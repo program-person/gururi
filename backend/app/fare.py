@@ -1,4 +1,5 @@
 import json
+import logging
 import math
 from pathlib import Path
 
@@ -14,6 +15,8 @@ _DEFAULT_TABLE_PATH = Path(__file__).resolve().parent.parent / "data" / "fare_ta
 # 幹線表への近似フォールバックとしている。大回りルートは通常10kmを大きく
 # 超えるため、実務上この分岐に入るのは稀。）
 _SHORT_MIXED_KM_THRESHOLD = 10.0
+
+logger = logging.getLogger(__name__)
 
 
 def load_fare_table(path: Path = _DEFAULT_TABLE_PATH) -> FareTable:
@@ -49,16 +52,24 @@ def _edge_details(
         u = path[i - 1][0]
         v, line_id = path[i]
         distance = 0.0
+        found = False
         for n_id, lid, dist, _time in adj.get(u, []):
             if n_id == v and lid == line_id:
                 distance = dist
+                found = True
                 break
         else:
             # 完全一致が見つからない場合は駅ペアのみで代替（理論上発生しない想定）
             for n_id, lid, dist, _time in adj.get(u, []):
                 if n_id == v:
                     distance = dist
+                    found = True
                     break
+        if not found:
+            # 距離を黙って0加算すると運賃が過小になるため痕跡を残す
+            logger.warning(
+                "edge not found: %s -> %s (line %s); distance treated as 0", u, v, line_id
+            )
         edges.append((u, v, line_id, distance))
     return edges
 

@@ -88,6 +88,11 @@ cd frontend && npx tsc --noEmit  # 型チェック
 | 環境変数 | デフォルト | 説明 |
 |---|---|---|
 | `JR_ROUTE_DATA_PATH` | `data/graph.json` | グラフデータファイルパス |
+| `JR_ROUTE_ALLOW_ALL_ORIGINS` | `false` | CORS 全開放。本番はフロントの `/api` プロキシ経由（サーバー間）のため通常不要 |
+| `JR_ROUTE_ALLOWED_ORIGINS` | `["http://localhost:3000"]` | CORS 許可オリジン（JSON配列） |
+| `JR_ROUTE_RATE_LIMIT_ENABLED` | `true` | `/omawari`・`/omawari/by-fare`・`/timetable` の IP 単位レート制限 |
+| `JR_ROUTE_RATE_LIMIT_MAX_REQUESTS` | `30` | ウィンドウあたりの許可リクエスト数 |
+| `JR_ROUTE_RATE_LIMIT_WINDOW_SECS` | `60.0` | レート制限ウィンドウ秒数 |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | バックエンドAPIのURL（SSR時） |
 | `API_PROXY_TARGET` | 本番RailwayのURL | フロント `/api` リライトの向き先。ローカル開発では `frontend/.env.local` に `http://localhost:8000` を設定 |
 

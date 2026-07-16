@@ -8,6 +8,7 @@ transit.ls8h.com API（transit.py）で実ダイヤを照会する。
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -63,13 +64,22 @@ def split_legs(path: list[PathSegment]) -> list[Leg]:
     return legs
 
 
+logger = logging.getLogger(__name__)
+
+
 def _edge_minutes(adj: Adjacency, u: str, v: str, line_id: str) -> float:
-    fallback = 0.0
+    fallback: float | None = None
     for nb, lid, _dist, t in adj.get(u, []):
         if nb == v:
             if lid == line_id:
                 return t
             fallback = t
+    if fallback is None:
+        # 所要時間を黙って0扱いすると推定結果が不自然に短くなるため痕跡を残す
+        logger.warning(
+            "edge not found: %s -> %s (line %s); ride time treated as 0", u, v, line_id
+        )
+        return 0.0
     return fallback
 
 
