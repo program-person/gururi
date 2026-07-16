@@ -5,6 +5,9 @@
  },
  "map": {
   "A": {
+   "aboshi": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-網干",
+   "agaho": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-英賀保",
+   "aioi": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-相生",
    "aksh": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-明石",
    "amaz": "jrwest-tokaido:jrwest-tokaido.station.JR西日本-東海道線-尼崎",
    "asag": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-朝霧",
@@ -13,6 +16,7 @@
    "ehim": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-東姫路",
    "ekak": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-東加古川",
    "enis": "jrwest-hokuriku-main:jrwest-hokuriku-main.station.JR西日本-北陸線-近江塩津",
+   "harkt": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-はりま勝原",
    "hiko": "jrwest-tokaido:jrwest-tokaido.station.JR西日本-東海道線-彦根",
    "hime": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-姫路",
    "hjyod": "jrwest-tokaido:jrwest-tokaido.station.JR西日本-東海道線-東淀川",
@@ -79,6 +83,7 @@
    "takt": "jrwest-tokaido:jrwest-tokaido.station.JR西日本-東海道線-高槻",
    "tamrb": "jrwest-hokuriku-main:jrwest-hokuriku-main.station.JR西日本-北陸線-田村",
    "tarumi": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-垂水",
+   "tatsuno": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-竜野",
    "tonhm": "jrwest-hokuriku-main:jrwest-hokuriku-main.station.JR西日本-北陸線-虎姫",
    "tskm": "jrwest-tokaido:jrwest-tokaido.station.JR西日本-東海道線-塚本",
    "tsuc": "jrwest-sanyo-east:jrwest-sanyo-east.station.JR西日本-山陽線-土山",

@@ -7,10 +7,22 @@
       "lng": 135.50704
     },
     {
+      "id": "aboshi",
+      "name": "網干",
+      "lat": 34.81424,
+      "lng": 134.58476
+    },
+    {
       "id": "abuhi",
       "name": "油日",
       "lat": 34.8897,
       "lng": 136.22959
+    },
+    {
+      "id": "agaho",
+      "name": "英賀保",
+      "lat": 34.81337,
+      "lng": 134.64477
     },
     {
       "id": "aibm",
@@ -23,6 +35,12 @@
       "name": "相野",
       "lat": 34.94763,
       "lng": 135.15595
+    },
+    {
+      "id": "aioi",
+      "name": "相生",
+      "lat": 34.81799,
+      "lng": 134.47347
     },
     {
       "id": "ajik",
@@ -203,6 +221,12 @@
       "name": "放出",
       "lat": 34.688,
       "lng": 135.56329
+    },
+    {
+      "id": "harkt",
+      "name": "はりま勝原",
+      "lat": 34.81016,
+      "lng": 134.61428
     },
     {
       "id": "hashim",
@@ -1811,6 +1835,12 @@
       "name": "垂水",
       "lat": 34.62909,
       "lng": 135.05385
+    },
+    {
+      "id": "tatsuno",
+      "name": "竜野",
+      "lat": 34.82546,
+      "lng": 134.52196
     },
     {
       "id": "tema",
@@ -4594,6 +4624,41 @@
       "lineId": "HA",
       "distance": 1.5,
       "travelTime": 4
+    },
+    {
+      "fromStationId": "hime",
+      "toStationId": "agaho",
+      "lineId": "A",
+      "distance": 4.5,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "agaho",
+      "toStationId": "harkt",
+      "lineId": "A",
+      "distance": 2.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "harkt",
+      "toStationId": "aboshi",
+      "lineId": "A",
+      "distance": 2.7,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "aboshi",
+      "toStationId": "tatsuno",
+      "lineId": "A",
+      "distance": 6.0,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "tatsuno",
+      "toStationId": "aioi",
+      "lineId": "A",
+      "distance": 4.5,
+      "travelTime": 5
     },
     {
       "fromStationId": "nkuj",

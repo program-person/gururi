@@ -179,6 +179,8 @@
   "localConversionFactor": 1.1,
   "denshakuStationIds": [
     "abkm",
+    "aboshi",
+    "agaho",
     "ajik",
     "aksh",
     "amaz",
@@ -195,6 +197,7 @@
     "fuku",
     "hanaz",
     "hant",
+    "harkt",
     "heiz",
     "hgtsuka",
     "higf",
