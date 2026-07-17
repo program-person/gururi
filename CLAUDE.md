@@ -27,7 +27,7 @@ train/
 │   │   ├── transit.py     # transit.ls8h.com API クライアント（キャッシュつき）
 │   │   └── config.py      # pydantic-settings 設定
 │   ├── data/
-│   │   ├── graph.json     # 大阪近郊区間 主要路線データ（361駅・374エッジ・18路線ID）
+│   │   ├── graph.json     # 大阪近郊区間 主要路線データ（374駅・387エッジ・20路線ID）
 │   │   ├── fare_table.json # キロ程→IC/きっぷ運賃テーブル
 │   │   └── transit_station_map.json # 路線ID×駅ID → transit API 駅ID の対応表（生成物）
 │   ├── tests/
@@ -127,7 +127,7 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 ### 乗換案内（`timetable.py` / `transit.py`）
 - ルートの path を同一路線の連続区間（レッグ）に分割し、レッグごとに transit.ls8h.com API（非公式・無償・認証不要）で実ダイヤを照会。乗換0の旅程のみ採用
 - 駅IDの対応表は `transit_station_map.json`（`scripts/build_transit_station_map.py --write` で再生成）
-- **未収録**: 奈良線(D)・関西空港線(S)・JR東西線区間（尼崎〜京橋の東西線経由駅）・赤穂線区間（西相生〜播州赤穂）。ここと API 障害時は `HEADWAY_MIN`（路線別日中運転間隔）による推定（待ち=間隔/2＋乗換歩行3分）にフォールバックし、レスポンスの `source: "estimate"` で区別
+- **未収録**: 奈良線(D)・関西空港線(S)・JR東西線区間（尼崎〜京橋の東西線経由駅）・赤穂線区間（西相生〜播州赤穂）。紀勢本線 和歌山〜和歌山市(W)は駅マッピング済みだが API が徒歩経路しか返さないため実質推定。ここと API 障害時は `HEADWAY_MIN`（路線別日中運転間隔）による推定（待ち=間隔/2＋乗換歩行3分）にフォールバックし、レスポンスの `source: "estimate"` で区別
 - transit API は個人運営のため、依存は `transit.py` に閉じ込めてある（差し替え・撤去はこの1ファイル＋マッピング生成のみ）
 
 ## フロントエンド アーキテクチャ
@@ -142,7 +142,7 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 
 路線IDはJR西日本公式の路線記号に準拠。A・Hは複数の愛称路線が同一IDを共有する（`/lines` はIDごとに1エントリ）。
 
-大阪環状線(O)・JR京都線＋琵琶湖線(A)・JR神戸線(A)・北陸本線(A)・JR宝塚線(G)・JR東西線(H)・学研都市線(H)・大和路線(Q)・おおさか東線(F)・阪和線(R)・奈良線(D)・湖西線(B)・草津線(C)・関西本線非電化(V)・嵯峨野線(E)・万葉まほろば線(U)・和歌山線(T)・関西空港線(S)・羽衣支線(HA)・加古川線(I)・JRゆめ咲線(P)・山陽本線 姫路〜相生(A)・赤穂線 相生〜播州赤穂(A)
+大阪環状線(O)・JR京都線＋琵琶湖線(A)・JR神戸線(A)・北陸本線(A)・JR宝塚線(G)・JR東西線(H)・学研都市線(H)・大和路線(Q)・おおさか東線(F)・阪和線(R)・奈良線(D)・湖西線(B)・草津線(C)・関西本線非電化(V)・嵯峨野線(E)・万葉まほろば線(U)・和歌山線(T)・関西空港線(S)・羽衣支線(HA)・加古川線(I)・JRゆめ咲線(P)・山陽本線 姫路〜相生(A)・赤穂線 相生〜播州赤穂(A)・播但線 姫路〜寺前(J)・紀勢本線 和歌山〜和歌山市(W)
 
 駅座標・駅間キロは国土数値情報N02由来（`scripts/sync_geo_from_n02.py` で同期）。フロントの路線色（`RouteMap.tsx` の `LINE_COLORS`）と路線名フォールバック（`page.tsx` の `LINE_MAP_FALLBACK`）もこの路線IDをキーにしているため、路線IDを変更する際は両方更新すること。
 

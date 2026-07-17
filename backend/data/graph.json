@@ -55,6 +55,12 @@
       "lng": 134.99318
     },
     {
+      "id": "amaji",
+      "name": "甘地",
+      "lat": 34.98815,
+      "lng": 134.75856
+    },
+    {
       "id": "amaz",
       "name": "尼崎",
       "lat": 34.73185,
@@ -181,6 +187,12 @@
       "lng": 135.48658
     },
     {
+      "id": "fukusaki",
+      "name": "福崎",
+      "lat": 34.96104,
+      "lng": 134.75104
+    },
+    {
       "id": "funa",
       "name": "船町口",
       "lat": 35.06289,
@@ -291,8 +303,8 @@
     {
       "id": "hime",
       "name": "姫路",
-      "lat": 34.82674,
-      "lng": 134.69075
+      "lat": 34.82715,
+      "lng": 134.69057
     },
     {
       "id": "hine",
@@ -745,6 +757,12 @@
       "lng": 135.4971
     },
     {
+      "id": "kiwa",
+      "name": "紀和",
+      "lat": 34.24195,
+      "lng": 135.18137
+    },
+    {
       "id": "kixap",
       "name": "関西空港",
       "lat": 34.4359,
@@ -821,6 +839,12 @@
       "name": "鴻池新田",
       "lat": 34.69886,
       "lng": 135.59764
+    },
+    {
+      "id": "koro",
+      "name": "香呂",
+      "lat": 34.91136,
+      "lng": 134.73591
     },
     {
       "id": "kory",
@@ -907,6 +931,12 @@
       "lng": 135.53407
     },
     {
+      "id": "kyoguchi",
+      "name": "京口",
+      "lat": 34.83477,
+      "lng": 134.70544
+    },
+    {
       "id": "kyot",
       "name": "京都",
       "lat": 34.9855,
@@ -983,6 +1013,12 @@
       "name": "三輪",
       "lat": 34.52725,
       "lng": 135.8484
+    },
+    {
+      "id": "mizoguchi",
+      "name": "溝口",
+      "lat": 34.92792,
+      "lng": 134.74239
     },
     {
       "id": "mkumo",
@@ -1171,10 +1207,22 @@
       "lng": 136.26499
     },
     {
+      "id": "nibuno",
+      "name": "仁豊野",
+      "lat": 34.88505,
+      "lng": 134.72807
+    },
+    {
       "id": "niim",
       "name": "新今宮",
       "lat": 34.64991,
       "lng": 135.50179
+    },
+    {
+      "id": "niino",
+      "name": "新野",
+      "lat": 35.05023,
+      "lng": 134.75258
     },
     {
       "id": "nijo",
@@ -1241,6 +1289,12 @@
       "name": "能登川",
       "lat": 35.17995,
       "lng": 136.16601
+    },
+    {
+      "id": "nozato",
+      "name": "野里",
+      "lat": 34.85619,
+      "lng": 134.71133
     },
     {
       "id": "nozk",
@@ -1885,6 +1939,12 @@
       "lng": 136.18585
     },
     {
+      "id": "teramae",
+      "name": "寺前",
+      "lat": 35.0653,
+      "lng": 134.7432
+    },
+    {
       "id": "teri",
       "name": "寺田町",
       "lat": 34.64794,
@@ -1913,6 +1973,12 @@
       "name": "東部市場前",
       "lat": 34.63809,
       "lng": 135.53768
+    },
+    {
+      "id": "tohori",
+      "name": "砥堀",
+      "lat": 34.86642,
+      "lng": 134.72487
     },
     {
       "id": "tokuan",
@@ -1993,6 +2059,12 @@
       "lng": 135.53028
     },
     {
+      "id": "tsurui",
+      "name": "鶴居",
+      "lat": 35.0237,
+      "lng": 134.75476
+    },
+    {
       "id": "uchida",
       "name": "打田",
       "lat": 34.26515,
@@ -2045,6 +2117,12 @@
       "name": "和歌山",
       "lat": 34.23248,
       "lng": 135.19139
+    },
+    {
+      "id": "wakashi",
+      "name": "和歌山市",
+      "lat": 34.2366,
+      "lng": 135.16691
     },
     {
       "id": "wakigam",
@@ -2231,6 +2309,14 @@
     {
       "id": "HA",
       "name": "羽衣支線"
+    },
+    {
+      "id": "J",
+      "name": "播但線"
+    },
+    {
+      "id": "W",
+      "name": "紀勢本線"
     },
     {
       "id": "P",
@@ -2883,7 +2969,7 @@
       "fromStationId": "ehim",
       "toStationId": "hime",
       "lineId": "A",
-      "distance": 1.9,
+      "distance": 2.0,
       "travelTime": 3
     },
     {
@@ -4698,6 +4784,97 @@
       "lineId": "A",
       "distance": 2.7,
       "travelTime": 4
+    },
+    {
+      "fromStationId": "hime",
+      "toStationId": "kyoguchi",
+      "lineId": "J",
+      "distance": 1.8,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "kyoguchi",
+      "toStationId": "nozato",
+      "lineId": "J",
+      "distance": 2.5,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "nozato",
+      "toStationId": "tohori",
+      "lineId": "J",
+      "distance": 1.7,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "tohori",
+      "toStationId": "nibuno",
+      "lineId": "J",
+      "distance": 2.2,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "nibuno",
+      "toStationId": "koro",
+      "lineId": "J",
+      "distance": 3.0,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "koro",
+      "toStationId": "mizoguchi",
+      "lineId": "J",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "mizoguchi",
+      "toStationId": "fukusaki",
+      "lineId": "J",
+      "distance": 4.0,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "fukusaki",
+      "toStationId": "amaji",
+      "lineId": "J",
+      "distance": 3.4,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "amaji",
+      "toStationId": "tsurui",
+      "lineId": "J",
+      "distance": 4.0,
+      "travelTime": 5
+    },
+    {
+      "fromStationId": "tsurui",
+      "toStationId": "niino",
+      "lineId": "J",
+      "distance": 3.1,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "niino",
+      "toStationId": "teramae",
+      "lineId": "J",
+      "distance": 1.9,
+      "travelTime": 3
+    },
+    {
+      "fromStationId": "waka",
+      "toStationId": "kiwa",
+      "lineId": "W",
+      "distance": 1.7,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "kiwa",
+      "toStationId": "wakashi",
+      "lineId": "W",
+      "distance": 1.5,
+      "travelTime": 3
     },
     {
       "fromStationId": "nkuj",

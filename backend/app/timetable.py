@@ -21,7 +21,7 @@ from app.models import PathSegment, TimetableLeg, TimetableResponse
 HEADWAY_MIN: dict[str, float] = {
     "O": 4, "A": 8, "G": 8, "H": 8, "Q": 10, "F": 15, "R": 8,
     "D": 15, "B": 15, "C": 30, "V": 60, "E": 10, "U": 30, "T": 30,
-    "S": 15, "HA": 15, "I": 30, "P": 10,
+    "S": 15, "HA": 15, "I": 30, "P": 10, "J": 30, "W": 60,
 }
 DEFAULT_HEADWAY_MIN = 20.0
 TRANSFER_WALK_MIN = 3.0

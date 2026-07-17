@@ -242,6 +242,20 @@
    "yakj": "jrwest-kakogawa:jrwest-kakogawa.station.JR西日本-加古川線-厄神",
    "yash": "jrwest-kakogawa:jrwest-kakogawa.station.JR西日本-加古川線-社町"
   },
+  "J": {
+   "amaji": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-甘地",
+   "fukusaki": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-福崎",
+   "hime": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-姫路",
+   "koro": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-香呂",
+   "kyoguchi": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-京口",
+   "mizoguchi": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-溝口",
+   "nibuno": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-仁豊野",
+   "niino": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-新野",
+   "nozato": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-野里",
+   "teramae": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-寺前",
+   "tohori": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-砥堀",
+   "tsurui": "jrwest-bantan:jrwest-bantan.station.JR西日本-播但線-鶴居"
+  },
   "O": {
    "ashi": "jrwest-osaka-loop:jrwest-osaka-loop.station.JR西日本-大阪環状線-芦原橋",
    "bent": "jrwest-osaka-loop:jrwest-osaka-loop.station.JR西日本-大阪環状線-弁天町",
@@ -393,6 +407,11 @@
    "shindov": "jrwest-kansai-kamo-kameyama:jrwest-kansai-kamo-kameyama.station.JR西日本-関西線-新堂",
    "tsuge": "jrwest-kansai-kamo-kameyama:jrwest-kansai-kamo-kameyama.station.JR西日本-関西線-柘植",
    "tsukig": "jrwest-kansai-kamo-kameyama:jrwest-kansai-kamo-kameyama.station.JR西日本-関西線-月ヶ瀬口"
+  },
+  "W": {
+   "kiwa": "jrwest-kisei:jrwest-kisei.station.JR西日本-紀勢線-紀和",
+   "waka": "jrwest-kisei:jrwest-kisei.station.JR西日本-紀勢線-和歌山",
+   "wakashi": "jrwest-kisei:jrwest-kisei.station.JR西日本-紀勢線-和歌山市"
   }
  }
 }
