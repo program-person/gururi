@@ -121,6 +121,12 @@
       "lng": 135.46195
     },
     {
+      "id": "bshako",
+      "name": "播州赤穂",
+      "lat": 34.75663,
+      "lng": 134.39305
+    },
+    {
       "id": "chiyg",
       "name": "千代川",
       "lat": 35.04844,
@@ -1243,6 +1249,12 @@
       "lng": 135.63702
     },
     {
+      "id": "nsaioi",
+      "name": "西相生",
+      "lat": 34.80141,
+      "lng": 134.45072
+    },
+    {
       "id": "nsmg",
       "name": "西宮名塩",
       "lat": 34.82723,
@@ -1451,6 +1463,12 @@
       "name": "堺市",
       "lat": 34.57762,
       "lng": 135.49867
+    },
+    {
+      "id": "sakoshi",
+      "name": "坂越",
+      "lat": 34.76872,
+      "lng": 134.41736
     },
     {
       "id": "sakta",
@@ -4659,6 +4677,27 @@
       "lineId": "A",
       "distance": 4.5,
       "travelTime": 5
+    },
+    {
+      "fromStationId": "aioi",
+      "toStationId": "nsaioi",
+      "lineId": "A",
+      "distance": 2.9,
+      "travelTime": 4
+    },
+    {
+      "fromStationId": "nsaioi",
+      "toStationId": "sakoshi",
+      "lineId": "A",
+      "distance": 4.8,
+      "travelTime": 6
+    },
+    {
+      "fromStationId": "sakoshi",
+      "toStationId": "bshako",
+      "lineId": "A",
+      "distance": 2.7,
+      "travelTime": 4
     },
     {
       "fromStationId": "nkuj",
