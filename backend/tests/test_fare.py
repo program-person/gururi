@@ -133,25 +133,63 @@ def test_specific_fare_kyoto_joyo(adj, table):
 
 
 # ------------------------------------------------------------------
-# 地方交通線（加古川線, line I）を含む経路で換算キロ(×1.1)が効くこと
+# 地方交通線（加古川線 I・播但線 J）: 全区間地交線はB表、幹線と混在する
+# 場合は10km以下がB表・10km超が換算キロ(×1.1)での幹線表
 # ------------------------------------------------------------------
 
-def test_local_line_conversion_applied_for_long_local_only_trip(adj, table):
-    # 加古川 → 西脇市: 加古川線のみ、営業キロ30.8km。
-    # 換算キロ = 30.8 * 1.1 = 33.88 -> 切り上げ34km -> 幹線表31-35km帯(590円)。
+def test_local_only_trip_uses_local_table(adj, table):
+    # 加古川 → 西脇市: 加古川線のみ、営業キロ30.8km -> B表29-32km帯(590円)。
     km, ic, ticket = calc_direct_fare(adj, "kkok", "nisi", table)
     assert km == pytest.approx(30.8, abs=0.1)
     assert ic == 590
     assert ticket == ic
 
 
-def test_local_line_short_trip_uses_raw_km_fallback(adj, table):
-    # 加古川 → 厄神: 加古川線のみ、営業キロ7.3km。
-    # 幹線+地方交通線合計が10km以内のため、専用の地方交通線表(B表)が
-    # 未確認である旨を踏まえ、営業キロそのままで幹線表を引く近似実装。
+def test_local_only_short_trip_uses_local_table(adj, table):
+    # 加古川 → 厄神: 加古川線のみ、営業キロ7.3km -> B表7-10km帯(210円)。
+    # 幹線表(200円)より10円高いのがB表の特徴。
     km, ic, ticket = calc_direct_fare(adj, "kkok", "yakj", table)
     assert km == pytest.approx(7.3, abs=0.1)
-    assert ic == 200  # 幹線 7-10km帯
+    assert ic == 210
+    assert ticket == ic
+
+
+def test_bantan_line_is_treated_as_local(adj, table):
+    # 姫路 → 寺前: 播但線のみ、営業キロ29.6km -> B表29-32km帯(590円)。
+    # 播但線が localLineIds 未登録で幹線表26-30km帯(510円)になっていた回帰。
+    km, ic, ticket = calc_direct_fare(adj, "hime", "teramae", table)
+    assert km == pytest.approx(29.6, abs=0.5)
+    assert ic == 590
+    assert ticket == ic
+
+
+def test_local_table_band_boundary_is_irregular():
+    # B表の帯境界は幹線表とずれる（24-28km:510 / 29-32km:590）。
+    # 幹線表の 26-30km:510 をそのまま使うと 29km で誤る。
+    from app.fare import load_fare_table
+
+    bands = load_fare_table().local
+    assert _lookup_fare(28.0, bands) == 510
+    assert _lookup_fare(28.01, bands) == 590
+    assert _lookup_fare(32.0, bands) == 590
+    assert _lookup_fare(32.01, bands) == 680
+
+
+def test_mixed_trunk_and_local_short_uses_local_table(adj, table):
+    # 東加古川(幹線) → 神野(加古川線): 3.6km + 4.7km = 8.3km。
+    # 合計営業キロ10km以下のため、換算キロを使わず営業キロ合計でB表(7-10km:210円)。
+    km, ic, ticket = calc_direct_fare(adj, "ekak", "kann", table)
+    assert km == pytest.approx(8.3, abs=0.1)
+    assert ic == 210
+    assert ticket == ic
+
+
+def test_mixed_trunk_and_local_long_uses_converted_km(adj, table):
+    # 東加古川(幹線) → 厄神(加古川線): 3.6km + 7.3km = 10.9km（10km超）。
+    # 運賃計算キロ = 3.6 + 7.3*1.1 = 11.63 -> 切り上げ12km -> 幹線表11-15km帯(240円)。
+    km, ic, ticket = calc_direct_fare(adj, "ekak", "yakj", table)
+    assert km == pytest.approx(10.9, abs=0.1)
+    assert ic == 240
     assert ticket == ic
 
 

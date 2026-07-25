@@ -88,6 +88,7 @@ class FareTable(BaseModel):
     revision: str
     trunk: list[FareBand]
     denshaku: list[FareBand]
+    local: list[FareBand]
     local_line_ids: list[str] = Field(alias="localLineIds")
     local_conversion_factor: float = Field(alias="localConversionFactor")
     denshaku_station_ids: list[str] = Field(alias="denshakuStationIds")

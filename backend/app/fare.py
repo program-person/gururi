@@ -9,11 +9,9 @@ from app.routing import shortest_route
 
 _DEFAULT_TABLE_PATH = Path(__file__).resolve().parent.parent / "data" / "fare_table.json"
 
-# 幹線+地方交通線の合計営業キロがこれ以下の場合、地方交通線の換算キロ(×1.1)を
-# 適用せず営業キロそのままで幹線表を引く（要検証: 正式には専用の「地方交通線
-# 普通運賃表(B表)」を使うべきだが、信頼できる出典が確認できなかったため、
-# 幹線表への近似フォールバックとしている。大回りルートは通常10kmを大きく
-# 超えるため、実務上この分岐に入るのは稀。）
+# 幹線と地方交通線にまたがる場合、合計営業キロがこれ以下なら換算キロを使わず
+# 営業キロ合計で地方交通線表(B表)を引く（JRの運賃計算規則）。これを超える場合は
+# 運賃計算キロ（幹線の営業キロ + 地方交通線の換算キロ）で幹線表を引く。
 _SHORT_MIXED_KM_THRESHOLD = 10.0
 
 logger = logging.getLogger(__name__)
@@ -136,14 +134,18 @@ def compute_fare(
     if local_km <= 0:
         return _lookup_fare(total_km, table.trunk) + surcharge
 
-    converted_local_km = local_km * table.local_conversion_factor
-    combined_km = trunk_km + converted_local_km
+    if trunk_km <= 0:
+        # 全区間が地方交通線: 営業キロで地方交通線表(B表)を引く
+        return _lookup_fare(total_km, table.local) + surcharge
 
-    if combined_km <= _SHORT_MIXED_KM_THRESHOLD:
-        # 地方交通線表(B表)が未確認のため、営業キロ合計で幹線表を近似的に適用
-        fare = _lookup_fare(trunk_km + local_km, table.trunk)
+    if total_km <= _SHORT_MIXED_KM_THRESHOLD:
+        # 幹線と地方交通線にまたがり合計10km以下: 営業キロ合計でB表
+        fare = _lookup_fare(total_km, table.local)
     else:
-        fare = _lookup_fare(combined_km, table.trunk)
+        # 運賃計算キロ（幹線の営業キロ + 地方交通線の換算キロ）で幹線表
+        fare = _lookup_fare(
+            trunk_km + local_km * table.local_conversion_factor, table.trunk
+        )
 
     return fare + surcharge
 
