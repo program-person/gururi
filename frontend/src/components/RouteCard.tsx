@@ -71,19 +71,26 @@ export default function RouteCard({ route, rank, stationMap, lineMap, stationGeo
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+    <div className="relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+      {/* 経由する路線の色を上から順に並べた帯（どの路線を乗り継ぐか一目で分かる） */}
+      <div className="absolute inset-y-0 left-0 flex w-1.5 flex-col" aria-hidden="true">
+        {lineSeq.map((lid, i) => (
+          <span key={i} className="flex-1" style={{ backgroundColor: LINE_COLORS[lid] ?? DEFAULT_COLOR }} />
+        ))}
+      </div>
+
       {/* ヘッダー */}
-      <div className="px-3 sm:px-4 pt-4 pb-3">
+      <div className="pl-4 sm:pl-5 pr-3 sm:pr-4 pt-4 pb-3">
         {/* 順位・起終点 */}
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2.5">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-600 text-xs font-bold tabular-nums text-white">
             {rank}
           </span>
-          <span className="font-semibold text-gray-900 dark:text-white">
+          <span className="text-[15px] font-bold tracking-tight text-gray-900 dark:text-white">
             {start}
           </span>
           <span className="text-gray-400 dark:text-gray-500 text-sm">→</span>
-          <span className="font-semibold text-gray-900 dark:text-white">
+          <span className="text-[15px] font-bold tracking-tight text-gray-900 dark:text-white">
             {end}
           </span>
           {transferCount > 0 && (
@@ -93,15 +100,20 @@ export default function RouteCard({ route, rank, stationMap, lineMap, stationGeo
           )}
         </div>
 
-        {/* 路線バッジ列 */}
-        <div className="flex flex-wrap items-center gap-1 mb-3">
+        {/* 路線バッジ列: JRの案内サインに倣い、路線記号を色付きの丸で先頭に置く */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
           {lineSeq.map((lid, i) => (
-            <span key={i} className="flex items-center gap-1">
-              <span
-                className="rounded-full px-2 py-0.5 text-xs font-semibold text-white whitespace-nowrap"
-                style={{ backgroundColor: LINE_COLORS[lid] ?? DEFAULT_COLOR }}
-              >
-                {lineMap[lid] ?? lid}
+            <span key={i} className="flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 dark:border-gray-600 py-0.5 pl-0.5 pr-2">
+                <span
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                  style={{ backgroundColor: LINE_COLORS[lid] ?? DEFAULT_COLOR }}
+                >
+                  {lid}
+                </span>
+                <span className="text-xs font-medium whitespace-nowrap text-gray-700 dark:text-gray-200">
+                  {lineMap[lid] ?? lid}
+                </span>
               </span>
               {i < lineSeq.length - 1 && (
                 <span className="text-gray-300 dark:text-gray-600 text-xs">›</span>
@@ -110,26 +122,26 @@ export default function RouteCard({ route, rank, stationMap, lineMap, stationGeo
           ))}
         </div>
 
-        {/* 数値サマリー */}
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 py-2">
+        {/* 数値サマリー: 駅の案内表示のように罫線で等分した情報帯 */}
+        <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-700 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 text-center">
+          <div className="py-2">
             <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">駅数</p>
-            <p className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">{route.stationCount}</p>
+            <p className="text-base sm:text-lg font-bold tabular-nums text-blue-600 dark:text-blue-400">{route.stationCount}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 py-2">
+          <div className="py-2">
             <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">距離</p>
-            <p className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
+            <p className="text-base sm:text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100">
               {route.totalDistance}<span className="text-[10px] sm:text-xs font-normal">km</span>
             </p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 py-2">
+          <div className="py-2">
             <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">所要時間</p>
             {/* 「3時間52分」が折り返して他のタイルと高さがずれるため、狭い画面では一段小さく */}
-            <p className="text-[13px] sm:text-base font-bold whitespace-nowrap text-gray-900 dark:text-gray-100">{timeStr}</p>
+            <p className="text-[13px] sm:text-base font-bold tabular-nums whitespace-nowrap text-gray-900 dark:text-gray-100">{timeStr}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 py-2">
+          <div className="py-2">
             <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">運賃(IC)</p>
-            <p className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">
+            <p className="text-base sm:text-lg font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
               {route.fareIc}<span className="text-[10px] sm:text-xs font-normal">円</span>
             </p>
           </div>
@@ -137,7 +149,7 @@ export default function RouteCard({ route, rank, stationMap, lineMap, stationGeo
       </div>
 
       {/* アクション */}
-      <div className="flex flex-wrap gap-2 border-t border-gray-100 dark:border-gray-700 px-3 sm:px-4 py-2">
+      <div className="flex flex-wrap gap-2 border-t border-gray-100 dark:border-gray-700 pl-4 sm:pl-5 pr-3 sm:pr-4 py-2">
         <button
           onClick={() => setShowMap((v) => !v)}
           className={`min-h-10 whitespace-nowrap rounded-md px-3 py-1.5 text-[13px] sm:text-xs font-medium transition-colors ${
@@ -174,7 +186,7 @@ export default function RouteCard({ route, rank, stationMap, lineMap, stationGeo
 
       {/* 乗換案内 */}
       {showTimetable && (
-        <div className="border-t border-gray-100 dark:border-gray-700 px-3 sm:px-4 py-3">
+        <div className="border-t border-gray-100 dark:border-gray-700 pl-4 sm:pl-5 pr-3 sm:pr-4 py-3">
           {/* 出発時刻入力 */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <label className="text-xs text-gray-500 dark:text-gray-400">出発時刻</label>
@@ -265,14 +277,14 @@ export default function RouteCard({ route, rank, stationMap, lineMap, stationGeo
 
       {/* ルート図 */}
       {showMap && (
-        <div className="border-t border-gray-100 dark:border-gray-700">
+        <div className="border-t border-gray-100 dark:border-gray-700 pl-1.5">
           <RouteMap route={route} stationMap={stationMap} lineMap={lineMap} stationGeo={stationGeo} />
         </div>
       )}
 
       {/* 駅一覧 */}
       {showStations && (
-        <div className="border-t border-gray-100 dark:border-gray-700 px-3 sm:px-4 py-3">
+        <div className="border-t border-gray-100 dark:border-gray-700 pl-4 sm:pl-5 pr-3 sm:pr-4 py-3">
           <div className="flex flex-col gap-0.5 text-xs">
             {route.path.map((seg, i) => {
               const sname = stationMap[seg.stationId] ?? seg.stationId;

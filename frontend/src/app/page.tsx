@@ -5,6 +5,7 @@ import { api, OmawariRoute, Station } from "@/lib/api";
 import type { Line } from "@/lib/api";
 import StationSearch from "@/components/StationSearch";
 import RouteCard from "@/components/RouteCard";
+import { LINE_COLORS } from "@/components/RouteMap";
 
 const APP_VERSION = "0.4.0";
 
@@ -41,6 +42,9 @@ const FARE_OPTIONS = [150, 180, 200, 240, 320, 410, 490, 580, 660];
 // 大回り乗車は当日完結が前提のため「無制限」は設けず終日(18時間)を上限とする
 const TIME_OPTIONS = [60, 120, 180, 240, 360, 480, 600, 1080];
 const RESULTS_OPTIONS = [3, 5, 10, 20];
+
+// サインバーに並べる路線記号（環状線から順に、色が隣り合って濁らない並び）
+const SIGN_BAR_LINE_IDS = ["O", "A", "G", "H", "Q", "F", "R", "D", "B", "C", "E", "U", "T", "S", "I", "P", "J", "W"];
 
 const MODE_LABELS: Record<Mode, string> = {
   free: "最長ルート",
@@ -140,8 +144,16 @@ export default function Home() {
       <div className="mx-auto max-w-2xl lg:mx-0 lg:w-88 lg:shrink-0 lg:sticky lg:top-6">
       {/* ヘッダー */}
       <div className="mb-6">
+        {/* 路線記号カラーを並べたサインバー（JRの案内サインのライン帯を意識した装飾） */}
+        <div className="mb-3 flex h-1.5 overflow-hidden rounded-full" aria-hidden="true">
+          {SIGN_BAR_LINE_IDS.map((id) => (
+            <span key={id} className="flex-1" style={{ backgroundColor: LINE_COLORS[id] }} />
+          ))}
+        </div>
         <div className="flex items-baseline gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">大回り乗車 ルート検索</h1>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+            大回り乗車 <span className="text-blue-600 dark:text-blue-400">ルート検索</span>
+          </h1>
           <span className="text-xs text-gray-400 dark:text-gray-500">v{APP_VERSION}</span>
         </div>
         <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400">

@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  /* カード（白）とページ地の差でサインボードのように面が立つよう、地はわずかに灰色 */
+  --background: #f5f7fa;
   --foreground: #171717;
   color-scheme: light;
 }
@@ -22,7 +23,7 @@ html {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0b1120;
     --foreground: #ededed;
     color-scheme: dark;
   }
