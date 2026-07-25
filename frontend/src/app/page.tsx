@@ -145,51 +145,58 @@ export default function Home() {
       {/* ヘッダー */}
       <div className="mb-6">
         {/* 路線記号カラーを並べたサインバー（JRの案内サインのライン帯を意識した装飾） */}
-        <div className="mb-3 flex h-1.5 overflow-hidden rounded-full" aria-hidden="true">
+        <div className="mb-4 flex h-1 overflow-hidden rounded-full" aria-hidden="true">
           {SIGN_BAR_LINE_IDS.map((id) => (
             <span key={id} className="flex-1" style={{ backgroundColor: LINE_COLORS[id] }} />
           ))}
         </div>
         <div className="flex items-baseline gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            大回り乗車 <span className="text-blue-600 dark:text-blue-400">ルート検索</span>
+          <h1 className="text-[22px] sm:text-[28px] font-bold leading-tight tracking-[-0.02em] text-slate-900 dark:text-white">
+            大回り乗車 <span className="text-blue-700 dark:text-blue-400">ルート検索</span>
           </h1>
-          <span className="text-xs text-gray-400 dark:text-gray-500">v{APP_VERSION}</span>
+          <span className="font-mono text-[10px] text-slate-400 dark:text-slate-600">v{APP_VERSION}</span>
         </div>
-        <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+          <span className="rounded-full bg-slate-900/5 px-2 py-0.5 font-medium text-slate-600 dark:bg-white/10 dark:text-slate-300">
+            JR西日本 大阪近郊区間
+          </span>
           {/* 路線数・駅数はグラフデータの実測値（ハードコードすると路線追加のたびに古くなる） */}
-          JR西日本 大阪近郊区間
-          {stations.length > 0 && ` — ${lineCount}路線 / ${stations.length}駅`}
+          {stations.length > 0 && (
+            <span className="font-mono tabular-nums tracking-tight">
+              {lineCount} lines / {stations.length} stations
+            </span>
+          )}
         </p>
       </div>
 
       {/* 検索フォーム */}
-      <div className="mb-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm space-y-4">
+      <div className="mb-6 space-y-5 rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.15)] backdrop-blur-sm sm:p-6 dark:border-slate-700/80 dark:bg-slate-800/90">
 
-        {/* モード選択 */}
+        {/* モード選択: 枠付きボタンの並びより、切り替えであることが伝わるセグメンテッドコントロール */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">探索モード</label>
-          <div className="flex gap-2">
+          <label className="mb-2 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">探索モード</label>
+          <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-900/60">
             {(["free", "fare", "dest"] as Mode[]).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
-                className={`min-h-11 flex-1 rounded-md px-2 sm:px-3 text-[13px] sm:text-sm font-medium transition-colors ${
+                aria-pressed={mode === m}
+                className={`min-h-10 flex-1 rounded-lg px-2 text-[13px] sm:text-sm font-medium transition-all duration-150 ${
                   mode === m
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    ? "bg-white text-blue-700 shadow-sm ring-1 ring-black/5 dark:bg-slate-700 dark:text-blue-300 dark:ring-white/10"
+                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
                 {MODE_LABELS[m]}
               </button>
             ))}
           </div>
-          <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{MODE_DESCRIPTIONS[mode]}</p>
+          <p className="mt-2 text-xs leading-relaxed text-slate-400 dark:text-slate-500">{MODE_DESCRIPTIONS[mode]}</p>
         </div>
 
         {/* 出発駅 */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">出発駅</label>
+          <label className="mb-1.5 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">出発駅</label>
           <StationSearch
             stations={stations}
             value={startStation}
@@ -201,7 +208,7 @@ export default function Home() {
         {/* 到着駅（駅間指定モードのみ） */}
         {mode === "dest" && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">到着駅</label>
+            <label className="mb-1.5 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">到着駅</label>
             <StationSearch
               stations={stations.filter((s) => s.id !== startStation?.id)}
               value={endStation}
@@ -214,14 +221,14 @@ export default function Home() {
         {/* 運賃選択（運賃指定モードのみ） */}
         {mode === "fare" && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="mb-1.5 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">
               最大運賃（IC）
               <span className="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">— 実際に乗車する区間の直通運賃</span>
             </label>
             <select
               value={maxFare}
               onChange={(e) => setMaxFare(Number(e.target.value))}
-              className="min-h-11 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-base sm:text-sm text-gray-900 dark:text-gray-100"
+              className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors hover:border-slate-400 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:hover:border-slate-500"
             >
               {FARE_OPTIONS.map((f) => (
                 <option key={f} value={f}>{f}円</option>
@@ -233,11 +240,11 @@ export default function Home() {
         {/* 時間・件数 */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">最大乗車時間</label>
+            <label className="mb-1.5 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">最大乗車時間</label>
             <select
               value={maxTimeMin}
               onChange={(e) => setMaxTimeMin(Number(e.target.value))}
-              className="min-h-11 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-base sm:text-sm text-gray-900 dark:text-gray-100"
+              className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors hover:border-slate-400 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:hover:border-slate-500"
             >
               {TIME_OPTIONS.map((t) => (
                 <option key={t} value={t}>
@@ -250,11 +257,11 @@ export default function Home() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">表示件数</label>
+            <label className="mb-1.5 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">表示件数</label>
             <select
               value={numResults}
               onChange={(e) => setNumResults(Number(e.target.value))}
-              className="min-h-11 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-base sm:text-sm text-gray-900 dark:text-gray-100"
+              className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors hover:border-slate-400 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:hover:border-slate-500"
             >
               {RESULTS_OPTIONS.map((n) => (
                 <option key={n} value={n}>{n}件</option>
@@ -267,7 +274,7 @@ export default function Home() {
         <button
           onClick={search}
           disabled={!canSearch}
-          className="min-h-12 w-full rounded-md bg-blue-600 py-2.5 text-base font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 flex items-center justify-center gap-2"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-700 py-2.5 text-base font-semibold text-white shadow-sm transition-all duration-150 hover:bg-blue-800 hover:shadow-md active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
         >
           {loading && (
             <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -281,7 +288,7 @@ export default function Home() {
 
       {/* エラー */}
       {error && (
-        <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-300">
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-900/30 dark:text-red-300">
           {error}
         </div>
       )}
@@ -337,8 +344,10 @@ export default function Home() {
       {/* 結果 */}
       {!loading && routes.length > 0 && (
         <div>
-          <h2 className="mb-3 text-base font-semibold text-gray-700 dark:text-gray-300">
-            探索結果 {routes.length}件
+          <h2 className="mb-3 flex items-baseline gap-2 text-sm font-semibold tracking-wide text-slate-500 dark:text-slate-400">
+            探索結果
+            <span className="font-mono text-base tabular-nums text-slate-900 dark:text-white">{routes.length}</span>
+            <span className="text-xs font-normal text-slate-400">件</span>
           </h2>
           <div className="flex flex-col gap-3">
             {routes.map((r, i) => (
