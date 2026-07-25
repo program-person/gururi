@@ -59,6 +59,8 @@ export default function Home() {
   const [stationMap, setStationMap] = useState<Record<string, string>>({});
   const [stationGeo, setStationGeo] = useState<Record<string, { lat: number; lng: number }>>({});
   const [lineMap, setLineMap] = useState<Record<string, string>>(LINE_MAP_FALLBACK);
+  // 表示用の路線数。/lines が取れるまではフォールバック表の件数を使う
+  const [lineCount, setLineCount] = useState(Object.keys(LINE_MAP_FALLBACK).length);
 
   const [startStation, setStartStation] = useState<Station | null>(null);
   const [endStation, setEndStation] = useState<Station | null>(null);
@@ -87,6 +89,7 @@ export default function Home() {
       const lm: Record<string, string> = {};
       data.forEach((l) => { lm[l.id] = l.name; });
       setLineMap((prev) => ({ ...prev, ...lm }));
+      if (data.length > 0) setLineCount(data.length);
     }).catch(() => { /* フォールバックを使う */ });
   }, []);
 
@@ -130,17 +133,21 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
-      {/* ヘッダー・検索フォームは読みやすい幅に絞り、結果カードは全幅を使う */}
-      <div className="mx-auto max-w-2xl">
+    <main className="mx-auto max-w-5xl px-3 py-5 sm:px-4 sm:py-8 xl:max-w-6xl">
+      {/* 狭い画面は縦積み（フォーム→結果）、lg以上はフォームを左に固定して結果を横に並べる */}
+      <div className="lg:flex lg:items-start lg:gap-6">
+      {/* ヘッダー・検索フォームは読みやすい幅に絞り、結果カードは残り全幅を使う */}
+      <div className="mx-auto max-w-2xl lg:mx-0 lg:w-88 lg:shrink-0 lg:sticky lg:top-6">
       {/* ヘッダー */}
       <div className="mb-6">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">大回り乗車 ルート検索</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">大回り乗車 ルート検索</h1>
           <span className="text-xs text-gray-400 dark:text-gray-500">v{APP_VERSION}</span>
         </div>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          JR西日本 大阪近郊区間 — 19路線 / 276駅
+        <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+          {/* 路線数・駅数はグラフデータの実測値（ハードコードすると路線追加のたびに古くなる） */}
+          JR西日本 大阪近郊区間
+          {stations.length > 0 && ` — ${lineCount}路線 / ${stations.length}駅`}
         </p>
       </div>
 
@@ -155,7 +162,7 @@ export default function Home() {
               <button
                 key={m}
                 onClick={() => setMode(m)}
-                className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
+                className={`min-h-11 flex-1 rounded-md px-2 sm:px-3 text-[13px] sm:text-sm font-medium transition-colors ${
                   mode === m
                     ? "bg-blue-600 text-white shadow-sm"
                     : "border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -202,7 +209,7 @@ export default function Home() {
             <select
               value={maxFare}
               onChange={(e) => setMaxFare(Number(e.target.value))}
-              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+              className="min-h-11 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-base sm:text-sm text-gray-900 dark:text-gray-100"
             >
               {FARE_OPTIONS.map((f) => (
                 <option key={f} value={f}>{f}円</option>
@@ -218,7 +225,7 @@ export default function Home() {
             <select
               value={maxTimeMin}
               onChange={(e) => setMaxTimeMin(Number(e.target.value))}
-              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+              className="min-h-11 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-base sm:text-sm text-gray-900 dark:text-gray-100"
             >
               {TIME_OPTIONS.map((t) => (
                 <option key={t} value={t}>
@@ -235,7 +242,7 @@ export default function Home() {
             <select
               value={numResults}
               onChange={(e) => setNumResults(Number(e.target.value))}
-              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+              className="min-h-11 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-base sm:text-sm text-gray-900 dark:text-gray-100"
             >
               {RESULTS_OPTIONS.map((n) => (
                 <option key={n} value={n}>{n}件</option>
@@ -248,7 +255,7 @@ export default function Home() {
         <button
           onClick={search}
           disabled={!canSearch}
-          className="w-full rounded-md bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 flex items-center justify-center gap-2"
+          className="min-h-12 w-full rounded-md bg-blue-600 py-2.5 text-base font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 flex items-center justify-center gap-2"
         >
           {loading && (
             <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -268,6 +275,8 @@ export default function Home() {
       )}
       </div>
 
+      {/* 結果カラム */}
+      <div className="min-w-0 lg:flex-1">
       {/* スケルトンUI（探索中） */}
       {loading && (
         <div>
@@ -333,6 +342,8 @@ export default function Home() {
           </div>
         </div>
       )}
+      </div>
+      </div>
     </main>
   );
 }

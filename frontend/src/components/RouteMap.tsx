@@ -184,26 +184,39 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
   // view = 表示中の viewBox。null は全体表示。
   const [view, setView] = useState<ViewBox | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
-  // SVG全体のサイズはルートごとに変わるので、ハンドラから ref 経由で参照する
-  const dimsRef = useRef({ w: 680, h: 400 });
+  // SVGは幅100%で表示されるため、viewBox座標系のサイズ(w/h)と画面上の実サイズ(dw/dh)は
+  // 一致しない。ポインタ座標(CSS px)を viewBox に変換するハンドラは dw/dh を使う。
+  const dimsRef = useRef({ w: 680, h: 400, dw: 680, dh: 400 });
   const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+
+  // 画面上の実表示幅。線幅・文字サイズを画面基準で一定に保つために使う
+  const [displayW, setDisplayW] = useState(0);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      setDisplayW(entries[0].contentRect.width);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     setView(null);
   }, [route]);
 
-  // (px, py) = SVG要素上のピクセル位置を中心に factor 倍ズーム
+  // (px, py) = SVG要素上のピクセル位置(CSS px)を中心に factor 倍ズーム
   const zoomAt = (factor: number, px: number, py: number) => {
     setView((prev) => {
-      const { w: W, h: H } = dimsRef.current;
+      const { w: W, h: H, dw, dh } = dimsRef.current;
       const cur = prev ?? { x: 0, y: 0, w: W, h: H };
       const newW = Math.min(Math.max(cur.w / factor, W / MAX_ZOOM), W);
       if (newW >= W) return null;
       const newH = newW * (H / W);
-      const bx = cur.x + (px / W) * cur.w;
-      const by = cur.y + (py / H) * cur.h;
-      const nx = Math.min(Math.max(bx - (px / W) * newW, 0), W - newW);
-      const ny = Math.min(Math.max(by - (py / H) * newH, 0), H - newH);
+      const bx = cur.x + (px / dw) * cur.w;
+      const by = cur.y + (py / dh) * cur.h;
+      const nx = Math.min(Math.max(bx - (px / dw) * newW, 0), W - newW);
+      const ny = Math.min(Math.max(by - (py / dh) * newH, 0), H - newH);
       return { x: nx, y: ny, w: newW, h: newH };
     });
   };
@@ -211,10 +224,9 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
   const panBy = (dxPx: number, dyPx: number) => {
     setView((prev) => {
       if (!prev) return prev;
-      const { w: W, h: H } = dimsRef.current;
-      const scale = prev.w / W;
-      const nx = Math.min(Math.max(prev.x - dxPx * scale, 0), W - prev.w);
-      const ny = Math.min(Math.max(prev.y - dyPx * scale, 0), H - prev.h);
+      const { w: W, h: H, dw, dh } = dimsRef.current;
+      const nx = Math.min(Math.max(prev.x - dxPx * (prev.w / dw), 0), W - prev.w);
+      const ny = Math.min(Math.max(prev.y - dyPx * (prev.h / dh), 0), H - prev.h);
       return { ...prev, x: nx, y: ny };
     });
   };
@@ -322,11 +334,21 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
   const svgH = Math.max(innerH + 2 * PAD, 180);
   const actualInnerH = svgH - 2 * PAD;
 
-  dimsRef.current = { w: SVG_W, h: svgH };
+  // SVGは幅100%表示なので、画面が狭いほど viewBox が縮小描画される。
+  // その縮小率(displayScale)を打ち消して、線幅・文字を画面上で一定サイズに保つ。
+  const displayScale = displayW > 0 ? SVG_W / displayW : 1;
+  dimsRef.current = {
+    w: SVG_W,
+    h: svgH,
+    dw: displayW || SVG_W,
+    dh: (displayW || SVG_W) * (svgH / SVG_W),
+  };
   const v = view ?? { x: 0, y: 0, w: SVG_W, h: svgH };
   const zoom = SVG_W / v.w;
+  // 画面上で見えている実質の倍率（縮小描画されている分を割り引く）
+  const effectiveZoom = zoom / displayScale;
   // 線幅・文字サイズ・ドット半径を画面上で一定に保つための係数
-  const k = 1 / zoom;
+  const k = displayScale / zoom;
 
   const toXY = (lat: number, lng: number): [number, number] => {
     const x = PAD + ((lng - bMinLng) / bLngSpan) * innerW;
@@ -392,7 +414,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
     p[0] >= v.x - VIEW_MARGIN && p[0] <= v.x + v.w + VIEW_MARGIN &&
     p[1] >= v.y - VIEW_MARGIN && p[1] <= v.y + v.h + VIEW_MARGIN;
   const labeled = stationMeta.map(
-    (m, i) => (m.showLabel || zoom >= MID_LABEL_ZOOM) && inViewPx(stationPx[i]),
+    (m, i) => (m.showLabel || effectiveZoom >= MID_LABEL_ZOOM) && inViewPx(stationPx[i]),
   );
 
   const placedRects: Rect[] = [];
@@ -512,19 +534,18 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
 
   return (
     <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900 shadow-sm">
-      <div className="flex">
+      <div className="flex flex-col sm:flex-row">
         {/* 路線図 SVG */}
         <div className="relative flex-1 min-w-0">
-          <div className="overflow-x-auto">
           <svg
             ref={svgRef}
-            width={SVG_W}
-            height={svgH}
+            className="block w-full h-auto"
             viewBox={`${v.x} ${v.y} ${v.w} ${v.h}`}
             style={{
-              display: "block",
               overflow: "hidden",
-              touchAction: "none",
+              // 全体表示中は縦スクロールをページに渡す（スマホでスクロールが詰まらないように）。
+              // ズーム中のみ地図側がドラッグ・ピンチを受け取る。
+              touchAction: zoom > 1 ? "none" : "pan-y",
               cursor: zoom > 1 ? "grab" : "default",
             }}
             onPointerDown={onPointerDown}
@@ -745,13 +766,12 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               );
             })}
           </svg>
-          </div>
 
           {/* ズームコントロール */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {[
-              { label: "＋", title: "拡大", onClick: () => zoomAt(ZOOM_STEP, dimsRef.current.w / 2, dimsRef.current.h / 2) },
-              { label: "−", title: "縮小", onClick: () => zoomAt(1 / ZOOM_STEP, dimsRef.current.w / 2, dimsRef.current.h / 2) },
+              { label: "＋", title: "拡大", onClick: () => zoomAt(ZOOM_STEP, dimsRef.current.dw / 2, dimsRef.current.dh / 2) },
+              { label: "−", title: "縮小", onClick: () => zoomAt(1 / ZOOM_STEP, dimsRef.current.dw / 2, dimsRef.current.dh / 2) },
               { label: "⛶", title: "全体表示", onClick: () => setView(null) },
             ].map(({ label, title, onClick }) => (
               <button
@@ -759,7 +779,7 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
                 type="button"
                 title={title}
                 onClick={onClick}
-                className="h-7 w-7 rounded-md border border-slate-200 dark:border-slate-600 bg-white/90 dark:bg-gray-800/90 text-slate-600 dark:text-slate-300 shadow-sm text-sm font-bold leading-none hover:bg-slate-50 dark:hover:bg-gray-700"
+                className="h-9 w-9 sm:h-8 sm:w-8 rounded-md border border-slate-200 dark:border-slate-600 bg-white/90 dark:bg-gray-800/90 text-slate-600 dark:text-slate-300 shadow-sm text-sm font-bold leading-none hover:bg-slate-50 dark:hover:bg-gray-700"
               >
                 {label}
               </button>
@@ -776,9 +796,9 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
               value={Math.log(zoom) / Math.log(MAX_ZOOM)}
               onChange={(e) => {
                 const target = Math.pow(MAX_ZOOM, Number(e.target.value));
-                zoomAt(target / zoom, dimsRef.current.w / 2, dimsRef.current.h / 2);
+                zoomAt(target / zoom, dimsRef.current.dw / 2, dimsRef.current.dh / 2);
               }}
-              className="w-28 accent-blue-600"
+              className="w-20 sm:w-28 accent-blue-600"
               aria-label="ズーム倍率"
             />
             <span className="w-9 text-right text-[10px] tabular-nums text-slate-500 dark:text-slate-400">
@@ -787,19 +807,19 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
           </div>
         </div>
 
-        {/* 凡例サイドバー */}
-        <div className="shrink-0 w-28 border-l border-slate-100 dark:border-slate-700 px-2 py-3 flex flex-col gap-1.5 overflow-y-auto" style={{ maxHeight: svgH }}>
-          <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">路線</p>
+        {/* 凡例: 広い画面では右サイドバー、狭い画面では地図の下に折り返して並べる */}
+        <div className="shrink-0 w-full sm:w-28 border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-700 px-3 py-2 sm:px-2 sm:py-3 flex flex-row flex-wrap items-center sm:items-stretch gap-x-3 gap-y-1.5 sm:flex-col sm:flex-nowrap sm:overflow-y-auto sm:max-h-[420px]">
+          <p className="hidden sm:block text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">路線</p>
           {usedLines.map((lid) => (
             <span key={lid} className="flex items-center gap-1.5 text-[10px] text-slate-600 dark:text-slate-300 leading-tight">
               <span
                 className="shrink-0 inline-block h-2 w-4 rounded-full"
                 style={{ backgroundColor: LINE_COLORS[lid] ?? DEFAULT_COLOR }}
               />
-              <span className="break-all">{lineMap[lid] ?? lid}</span>
+              <span className="sm:break-all">{lineMap[lid] ?? lid}</span>
             </span>
           ))}
-          <div className="mt-1 border-t border-slate-100 dark:border-slate-700 pt-1.5 flex flex-col gap-1">
+          <div className="flex flex-row gap-x-3 gap-y-1 sm:mt-1 sm:flex-col sm:border-t sm:border-slate-100 sm:dark:border-slate-700 sm:pt-1.5">
             {[
               { color: "#22c55e", label: "出発" },
               { color: "#ef4444", label: "到着" },
@@ -815,8 +835,10 @@ export default function RouteMap({ route, stationMap, lineMap, stationGeo }: Pro
       </div>
 
       {/* フッター */}
-      <div className="border-t border-slate-100 dark:border-slate-700 px-3 py-1.5 text-xs text-slate-400 dark:text-slate-500 text-right">
-        ドラッグで移動・ホイール/ダブルクリックでズーム・ホバーで路線名・駅名を表示
+      <div className="border-t border-slate-100 dark:border-slate-700 px-3 py-1.5 text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 sm:text-right">
+        <span className="hidden sm:inline">ドラッグで移動・ホイール/ダブルクリックでズーム・ホバーで路線名・駅名を表示</span>
+        {/* スマホでは全体表示中のスワイプはページスクロールに使うため、拡大は＋ボタンから */}
+        <span className="sm:hidden">＋ボタンで拡大 → ドラッグで移動・2本指でピンチ</span>
       </div>
     </div>
   );

@@ -9,8 +9,15 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* Geist は日本語グリフを持たないため、日本語は OS 標準のゴシックへフォールバックさせる */
+  --font-sans: var(--font-geist-sans), "Hiragino Kaku Gothic ProN", "Hiragino Sans",
+    "Yu Gothic UI", "Yu Gothic", Meiryo, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
+}
+
+html {
+  /* iOS で横向きにしたときに文字だけ勝手に拡大されるのを防ぐ */
+  -webkit-text-size-adjust: 100%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,5 +31,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
