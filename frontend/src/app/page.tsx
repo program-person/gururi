@@ -39,8 +39,10 @@ export const LINE_MAP_FALLBACK: Record<string, string> = {
 // JR西日本 2025-04改定後の電車特定区間 普通運賃（fare_table.json の denshaku 帯と一致）。
 // 大回りの出発駅はグラフ上ほぼ全て電車特定区間内のため denshaku 表の額を採用
 const FARE_OPTIONS = [150, 180, 200, 240, 320, 410, 490, 580, 660];
-// 大回り乗車は当日完結が前提のため「無制限」は設けず終日(18時間)を上限とする
-const TIME_OPTIONS = [60, 120, 180, 240, 360, 480, 600, 1080];
+// 「制限なし」はバックエンドの maxTimeMin 上限値（le=10000）を送って表現する。
+// 0 を無制限センチネルにする旧仕様は廃止済み（バックエンドが ge=1 で拒否する）
+const UNLIMITED_TIME_MIN = 10000;
+const TIME_OPTIONS = [60, 120, 180, 240, 360, 480, 600, 1080, UNLIMITED_TIME_MIN];
 const RESULTS_OPTIONS = [3, 5, 10, 20];
 
 // サインバーに並べる路線記号（環状線から順に、色が隣り合って濁らない並び）
@@ -248,9 +250,11 @@ export default function Home() {
             >
               {TIME_OPTIONS.map((t) => (
                 <option key={t} value={t}>
-                  {t === 1080
-                    ? "終日（〜18時間）"
-                    : `${Math.floor(t / 60) > 0 ? `${Math.floor(t / 60)}時間` : ""}${t % 60 > 0 ? `${t % 60}分` : ""}`
+                  {t === UNLIMITED_TIME_MIN
+                    ? "制限なし"
+                    : t === 1080
+                      ? "終日（〜18時間）"
+                      : `${Math.floor(t / 60) > 0 ? `${Math.floor(t / 60)}時間` : ""}${t % 60 > 0 ? `${t % 60}分` : ""}`
                   }
                 </option>
               ))}
