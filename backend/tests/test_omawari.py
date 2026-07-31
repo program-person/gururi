@@ -196,28 +196,83 @@ def test_find_omawari_routes_free_mode_smoke() -> None:
 REAL_GRAPH = Path(__file__).resolve().parent.parent / "data" / "graph.json"
 
 
-def test_find_loop_entry_junction_station() -> None:
-    """ジャンクション駅自身から最寄りジャンクションを探すと、距離0で自身を返す。"""
-    from app.omawari import _find_loop_entry, GOLDEN_LOOP_SET
+def test_nearest_in_set_returns_self() -> None:
+    """候補集合に含まれる駅自身を渡すと、その駅をそのまま返す。"""
+    from app.omawari import _nearest_in_set
     data = load_graph_data(REAL_GRAPH)
     adj = build_adjacency(data.edges)
-    
-    # "osak" は大阪駅で、GOLDEN_LOOP_SET に含まれる
-    jst, line, dist = _find_loop_entry(adj, "osak", GOLDEN_LOOP_SET)
-    assert jst == "osak"
-    assert dist == 0.0
+
+    assert _nearest_in_set(adj, "osak", {"osak", "kyot"}) == "osak"
 
 
-def test_find_loop_entry_non_junction() -> None:
-    """非ジャンクション駅（例: 吹田 suit）から最寄りジャンクションを探すと、正しい駅を返す。"""
-    from app.omawari import _find_loop_entry, GOLDEN_LOOP_SET
+def test_nearest_in_set_picks_closest() -> None:
+    """候補集合外の駅からは、最も近い候補駅を返す。"""
+    from app.omawari import _nearest_in_set
     data = load_graph_data(REAL_GRAPH)
     adj = build_adjacency(data.edges)
-    
-    # "suit" は吹田駅で、最寄りは "ssin"（新大阪）のはず
-    jst, line, dist = _find_loop_entry(adj, "suit", GOLDEN_LOOP_SET)
-    assert jst == "ssin"
-    assert dist > 0.0
+
+    # 吹田(suit)からは新大阪(ssin)のほうが京都(kyot)より近い
+    assert _nearest_in_set(adj, "suit", {"ssin", "kyot"}) == "ssin"
+
+
+def test_expand_full_cycle_is_a_valid_cycle() -> None:
+    """展開した閉路は駅が重複せず、隣接駅どうしが指定路線の辺でつながる。"""
+    from app.omawari import GOLDEN_LOOP, LOOP_LINES, _expand_full_cycle
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+
+    for reverse in (False, True):
+        cycle = _expand_full_cycle(adj, GOLDEN_LOOP, LOOP_LINES, reverse)
+        assert cycle is not None
+        stations, edge_lines = cycle
+        assert len(stations) == len(set(stations))
+        assert len(stations) == len(edge_lines)
+        for i, from_station in enumerate(stations):
+            to_station = stations[(i + 1) % len(stations)]
+            assert any(
+                v == to_station and lid == edge_lines[i]
+                for v, lid, _, _ in adj.get(from_station, [])
+            ), f"{from_station} -> {to_station} ({edge_lines[i]}) が存在しない"
+
+
+def test_golden_loop_from_intermediate_station() -> None:
+    """ループ上の中間駅（ジャンクション以外）発でも同じループが生成される。
+
+    回帰テスト: 以前はジャンクション（新大阪）までのアプローチ区間が
+    ループ自身と重複して探索が破綻し、茨木発では1本も返らなかった。
+    """
+    from app.omawari import find_golden_loop_routes
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    fare_table = load_fare_table()
+
+    osaka_routes = find_golden_loop_routes(adj, "osak", fare_table, max_time_min=10000.0)
+    ibaraki_routes = find_golden_loop_routes(adj, "ibrk", fare_table, max_time_min=10000.0)
+
+    assert osaka_routes and ibaraki_routes
+    # 茨木は大阪発の最大ループに含まれるので、同じ規模のループが返るはず
+    assert ibaraki_routes[0].station_count == osaka_routes[0].station_count
+    ibaraki_ids = [seg.station_id for seg in ibaraki_routes[0].path]
+    assert ibaraki_ids[0] == "ibrk"
+    assert "osak" in ibaraki_ids
+    assert len(ibaraki_ids) == len(set(ibaraki_ids))
+
+
+def test_results_are_not_only_the_biggest_loop() -> None:
+    """結果が定型のゴールデンループだけで埋まらない。"""
+    from app.omawari import find_omawari_routes
+    data = load_graph_data(REAL_GRAPH)
+    adj = build_adjacency(data.edges)
+    fare_table = load_fare_table()
+
+    routes = find_omawari_routes(
+        adj, "ibrk", fare_table,
+        max_time_min=10000.0, num_results=5, num_trials=120, seed=1,
+    )
+    assert len(routes) >= 3
+    # 最大ループと同規模のルートが結果を占有していない
+    biggest = routes[0].station_count
+    assert sum(1 for r in routes if r.station_count == biggest) <= 2
 
 
 def test_expand_junction_path() -> None:

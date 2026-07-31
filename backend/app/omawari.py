@@ -22,7 +22,7 @@ class Phase(Enum):
 GOLDEN_LOOP: list[str] = [
     "waka", "takat", "nara", "kubd", "hant", "kizu",
     "kamo", "tsuge", "kusa", "maib", "enis", "kyot",
-    "ssin", "shgy", "kyob", "amaz", "osak", "tenn",
+    "ssin", "shgy", "kyob", "amaz", "osak", "nkuj", "tenn",
 ]
 
 LOOP_LINES: list[str] = [
@@ -42,7 +42,10 @@ LOOP_LINES: list[str] = [
     "H",  # 鴫野 → 京橋（学研都市線）
     "H",  # 京橋 → 尼崎（JR東西線）
     "A",  # 尼崎 → 大阪（JR神戸線）
-    "O",  # 大阪 → 天王寺（大阪環状線）
+    # 大阪環状線は大阪〜天王寺が東西2ルートに分かれる。京橋（東回り）は
+    # 学研都市線側で使うため、西九条を明示的な経由地に置いて西回りに固定する。
+    "O",  # 大阪 → 西九条（大阪環状線・西回り）
+    "O",  # 西九条 → 天王寺（大阪環状線・西回り）
     "R",  # 天王寺 → 和歌山（阪和線）
 ]
 
@@ -58,8 +61,13 @@ SHORTCUTS: list[dict] = [
     },
 ]
 
-GOLDEN_LOOP_SET: frozenset[str] = frozenset(GOLDEN_LOOP)
-KOBE_LOOP_SET: frozenset[str] = frozenset(KOBE_LOOP)
+# 終着駅指定時、直通距離のこの倍数を下回るゴールデンループ候補は
+# 「ループを回らず素通りした縮退ルート」とみなして捨てる
+MIN_DETOUR_RATIO: float = 3.0
+
+# 結果に占めるゴールデンループの上限割合。定型ループだけで埋まらないよう、
+# 残り枠は探索（FSA）由来のルートに割り当てる
+GOLDEN_RESULT_RATIO: float = 1 / 3
 
 
 from app.fare import calc_direct_fare
@@ -772,27 +780,225 @@ def _trim_last_station(r: "_Route", adj: Adjacency) -> "_Route":
     )
 
 
-def _find_loop_entry(adj: Adjacency, station: str, loop_set: frozenset[str]) -> tuple[str, str, float]:
-    """任意の出発駅から、指定ループ上の最寄りジャンクション駅をDijkstraで探す。
-    戻り値: (ジャンクション駅ID, 進出路線ID, 距離)
+def _nearest_in_set(adj: Adjacency, station: str, candidates: set[str]) -> str | None:
+    """station から最も近い candidates の駅をDijkstラで探す。
+
+    ジャンクション駅ではなく「展開後のループ上の全駅」を候補にするため、
+    ループの途中駅から出発した場合はその駅自身が選ばれる。
     """
-    if station in loop_set:
-        return (station, "", 0.0)
-    
+    if station in candidates:
+        return station
+
     dist_map = _nearest_km(adj, station)
-    junction_dists = [
-        (jst, d) for jst, d in dist_map.items()
-        if jst in loop_set
-    ]
-    if not junction_dists:
-        raise ValueError(f"No reachable junction from {station}")
-    
-    best_jst, best_dist = min(junction_dists, key=lambda x: x[1])
-    
-    result = _shortest_avoiding(adj, station, best_jst, set())
-    line = result[1][1] if result and len(result[1]) > 1 else ""
-    
-    return (best_jst, line, best_dist)
+    reachable = [(sid, d) for sid, d in dist_map.items() if sid in candidates]
+    if not reachable:
+        return None
+    return min(reachable, key=lambda x: x[1])[0]
+
+
+def _apply_shortcut(
+    loop_junctions: list[str], loop_lines: list[str], shortcut: dict
+) -> tuple[list[str], list[str]] | None:
+    """短絡路線を使うようジャンクション列を縮約する。
+
+    shortcut["skips"] のジャンクションを列から取り除き、残った
+    from ↔ to の隣接辺を短絡路線に差し替える。
+    """
+    skips = set(shortcut["skips"])
+    junctions: list[str] = []
+    lines: list[str] = []
+    for junction, line in zip(loop_junctions, loop_lines):
+        if junction in skips:
+            continue
+        junctions.append(junction)
+        lines.append(line)
+
+    endpoints = {shortcut["from"], shortcut["to"]}
+    num = len(junctions)
+    for i in range(num):
+        if {junctions[i], junctions[(i + 1) % num]} == endpoints:
+            lines[i] = shortcut["line"]
+            return junctions, lines
+    return None
+
+
+def _expand_full_cycle(
+    adj: Adjacency,
+    loop_junctions: list[str],
+    loop_lines: list[str],
+    reverse: bool,
+    shortcut: dict | None = None,
+) -> tuple[list[str], list[str]] | None:
+    """ジャンクション列を駅レベルに展開した「閉路」を返す。
+
+    戻り値: (cycle_stations, edge_lines)
+      cycle_stations は N 駅（先頭駅の重複は含まない）
+      edge_lines[i] は cycle_stations[i] → cycle_stations[(i + 1) % N] の路線ID
+
+    出発駅に依存しないため、呼び出し側は結果を回転させるだけで
+    任意の駅始発のループを得られる。展開に失敗（駅の重複・辺の欠落）した
+    場合は None。
+    """
+    if shortcut is not None:
+        reduced = _apply_shortcut(loop_junctions, loop_lines, shortcut)
+        if reduced is None:
+            return None
+        loop_junctions, loop_lines = reduced
+
+    stations: list[str] = [loop_junctions[0]]
+    edge_lines: list[str] = []
+    visited: set[str] = {loop_junctions[0]}
+
+    num_junctions = len(loop_junctions)
+    start_idx = 0
+    cur_idx = start_idx
+
+    while True:
+        from_st = loop_junctions[cur_idx]
+
+        if reverse:
+            next_idx = (cur_idx - 1) % num_junctions
+            line = loop_lines[next_idx]
+        else:
+            next_idx = (cur_idx + 1) % num_junctions
+            line = loop_lines[cur_idx]
+        to_st = loop_junctions[next_idx]
+        cur_idx = next_idx
+
+        # 閉路の最後の1区間は先頭駅に戻るため、先頭駅だけはブロックを外す
+        closing = to_st == stations[0]
+        blocked = visited - {to_st} if closing else visited
+
+        segment = _expand_junction_path(adj, from_st, to_st, line, blocked)
+        for st, lid in segment[1:]:
+            if st in visited and not (closing and st == stations[0]):
+                return None
+            if closing and st == stations[0]:
+                edge_lines.append(lid)
+                break
+            stations.append(st)
+            edge_lines.append(lid)
+            visited.add(st)
+
+        if cur_idx == start_idx:
+            break
+
+    if len(edge_lines) != len(stations):
+        return None
+    return stations, edge_lines
+
+
+def _materialize_route(
+    adj: Adjacency, stations: list[str], lines: list[str]
+) -> _Route | None:
+    """駅列＋路線列から距離・時間を実グラフで積算して _Route を作る。
+
+    指定された路線の辺が存在しない箇所が1つでもあれば None（＝不正な経路）。
+    """
+    total_distance = 0.0
+    total_time = 0.0
+    line_counts: dict[str, int] = {}
+
+    for i in range(1, len(stations)):
+        line_id = lines[i]
+        for v, lid, edge_dist, edge_time in adj.get(stations[i - 1], []):
+            if v == stations[i] and lid == line_id:
+                total_distance += edge_dist
+                total_time += edge_time
+                break
+        else:
+            return None
+        if line_id:
+            line_counts[line_id] = line_counts.get(line_id, 0) + 1
+
+    return _Route(
+        stations=stations,
+        lines=lines,
+        line_counts=line_counts,
+        total_distance=total_distance,
+        total_time=total_time,
+    )
+
+
+def _build_loop_route(
+    adj: Adjacency,
+    start: str,
+    end: str,
+    cycle_stations: list[str],
+    edge_lines: list[str],
+) -> _Route | None:
+    """展開済み閉路を start 始発になるよう回転させ、end で打ち切ってルート化する。
+
+    start がループ上の駅（ジャンクションに限らない中間駅を含む）なら
+    そのまま回転するだけでよい。ループ外の駅なら最寄りのループ駅まで
+    アプローチ区間を敷いてから回転させる。
+    """
+    cycle_set = set(cycle_stations)
+    entry = _nearest_in_set(adj, start, cycle_set)
+    if entry is None:
+        return None
+
+    stations: list[str] = []
+    lines: list[str] = []
+
+    if entry != start:
+        # アプローチはループ上の他の駅を踏まない経路でなければ重複訪問になる
+        approach = _shortest_avoiding(adj, start, entry, cycle_set - {entry})
+        if approach is None:
+            return None
+        stations = list(approach[0])
+        lines = list(approach[1])
+    else:
+        stations = [start]
+        lines = [""]
+
+    num_stations = len(cycle_stations)
+    entry_idx = cycle_stations.index(entry)
+    for i in range(num_stations):
+        idx = (entry_idx + i) % num_stations
+        stations.append(cycle_stations[(idx + 1) % num_stations])
+        lines.append(edge_lines[idx])
+
+    # 打ち切り位置: end がループ上ならその駅、そうでなければ end に最も近いループ駅
+    exit_station = end if end in cycle_set else _nearest_in_set(adj, end, cycle_set)
+    if exit_station is None:
+        return None
+    approach_len = len(stations) - num_stations
+    try:
+        cut = stations.index(exit_station, approach_len)
+    except ValueError:
+        return None
+    stations = stations[: cut + 1]
+    lines = lines[: cut + 1]
+
+    # 同一駅の再訪は禁止。ただし「出発駅に戻って閉じる」末尾だけは許す
+    # （呼び出し元が _trim_last_station で1駅手前に切り詰めるため）
+    body = stations[:-1]
+    if len(body) != len(set(body)):
+        return None
+    if stations[-1] != stations[0] and stations[-1] in body:
+        return None
+
+    route = _materialize_route(adj, stations, lines)
+    if route is None:
+        return None
+
+    if exit_station != end:
+        escape = _shortest_avoiding(adj, exit_station, end, set(stations) - {end})
+        if escape is None:
+            return None
+        esc_stations, esc_lines, esc_dist, esc_time = escape
+        for j in range(1, len(esc_stations)):
+            if esc_stations[j] in route.stations:
+                return None
+            route.stations.append(esc_stations[j])
+            route.lines.append(esc_lines[j])
+            if esc_lines[j]:
+                route.line_counts[esc_lines[j]] = route.line_counts.get(esc_lines[j], 0) + 1
+        route.total_distance += esc_dist
+        route.total_time += esc_time
+
+    return route
 
 
 def _expand_junction_path(
@@ -843,212 +1049,6 @@ def _expand_junction_path(
     return path
 
 
-def _build_loop_route_cw(
-    adj: Adjacency,
-    start: str,
-    end: str,
-    loop_junctions: list[str],
-    loop_lines: list[str],
-    start_junction: str,
-    end_junction: str,
-    shortcut: dict | None = None,
-) -> _Route | None:
-    approach = _shortest_avoiding(adj, start, start_junction, set())
-    if approach is None:
-        return None
-    app_stations, app_lines, app_dist, app_time = approach
-    
-    stations = list(app_stations)
-    lines = list(app_lines)
-    visited = set(stations)
-    total_distance = app_dist
-    total_time = app_time
-    
-    try:
-        start_idx = loop_junctions.index(start_junction)
-    except ValueError:
-        return None
-        
-    cur_idx = start_idx
-    while True:
-        from_st = loop_junctions[cur_idx]
-        
-        use_shortcut = False
-        if shortcut and from_st == shortcut["from"]:
-            try:
-                to_idx = loop_junctions.index(shortcut["to"])
-                to_st = shortcut["to"]
-                line = shortcut["line"]
-                cur_idx = to_idx
-                use_shortcut = True
-            except ValueError:
-                pass
-                
-        if not use_shortcut:
-            next_idx = (cur_idx + 1) % len(loop_junctions)
-            to_st = loop_junctions[next_idx]
-            line = loop_lines[cur_idx]
-            cur_idx = next_idx
-            
-        segment = _expand_junction_path(adj, from_st, to_st, line, visited)
-        for st, lid in segment[1:]:
-            if st in visited:
-                if st == end and st == end_junction:
-                    pass
-                else:
-                    return None
-            stations.append(st)
-            lines.append(lid)
-            visited.add(st)
-            
-            edge_found = False
-            for v, elid, edist, etime in adj.get(stations[-2], []):
-                if v == st and elid == lid:
-                    total_distance += edist
-                    total_time += etime
-                    edge_found = True
-                    break
-            if not edge_found:
-                pass
-                
-        if to_st == end_junction:
-            break
-        if cur_idx == start_idx:
-            break
-
-    if end_junction != end:
-        blocked = visited - {end}
-        escape = _shortest_avoiding(adj, end_junction, end, blocked)
-        if escape is None:
-            return None
-        esc_stations, esc_lines, esc_dist, esc_time = escape
-        for j in range(1, len(esc_stations)):
-            st = esc_stations[j]
-            if st in visited and st != end:
-                return None
-            stations.append(st)
-            lines.append(esc_lines[j])
-            visited.add(st)
-        total_distance += esc_dist
-        total_time += esc_time
-
-    line_counts = {}
-    for lid in lines:
-        if lid:
-            line_counts[lid] = line_counts.get(lid, 0) + 1
-            
-    return _Route(
-        stations=stations,
-        lines=lines,
-        line_counts=line_counts,
-        total_distance=total_distance,
-        total_time=total_time,
-    )
-
-
-def _build_loop_route_ccw(
-    adj: Adjacency,
-    start: str,
-    end: str,
-    loop_junctions: list[str],
-    loop_lines: list[str],
-    start_junction: str,
-    end_junction: str,
-    shortcut: dict | None = None,
-) -> _Route | None:
-    approach = _shortest_avoiding(adj, start, start_junction, set())
-    if approach is None:
-        return None
-    app_stations, app_lines, app_dist, app_time = approach
-    
-    stations = list(app_stations)
-    lines = list(app_lines)
-    visited = set(stations)
-    total_distance = app_dist
-    total_time = app_time
-    
-    try:
-        start_idx = loop_junctions.index(start_junction)
-    except ValueError:
-        return None
-        
-    cur_idx = start_idx
-    while True:
-        from_st = loop_junctions[cur_idx]
-        
-        use_shortcut = False
-        if shortcut and from_st == shortcut["to"]:
-            try:
-                to_idx = loop_junctions.index(shortcut["from"])
-                to_st = shortcut["from"]
-                line = shortcut["line"]
-                cur_idx = to_idx
-                use_shortcut = True
-            except ValueError:
-                pass
-                
-        if not use_shortcut:
-            next_idx = (cur_idx - 1) % len(loop_junctions)
-            to_st = loop_junctions[next_idx]
-            line = loop_lines[next_idx]
-            cur_idx = next_idx
-            
-        segment = _expand_junction_path(adj, from_st, to_st, line, visited)
-        for st, lid in segment[1:]:
-            if st in visited:
-                if st == end and st == end_junction:
-                    pass
-                else:
-                    return None
-            stations.append(st)
-            lines.append(lid)
-            visited.add(st)
-            
-            edge_found = False
-            for v, elid, edist, etime in adj.get(stations[-2], []):
-                if v == st and elid == lid:
-                    total_distance += edist
-                    total_time += etime
-                    edge_found = True
-                    break
-            if not edge_found:
-                pass
-                
-        if to_st == end_junction:
-            break
-        if cur_idx == start_idx:
-            break
-
-    if end_junction != end:
-        blocked = visited - {end}
-        escape = _shortest_avoiding(adj, end_junction, end, blocked)
-        if escape is None:
-            return None
-        esc_stations, esc_lines, esc_dist, esc_time = escape
-        for j in range(1, len(esc_stations)):
-            st = esc_stations[j]
-            if st in visited and st != end:
-                return None
-            stations.append(st)
-            lines.append(esc_lines[j])
-            visited.add(st)
-        total_distance += esc_dist
-        total_time += esc_time
-
-    line_counts = {}
-    for lid in lines:
-        if lid:
-            line_counts[lid] = line_counts.get(lid, 0) + 1
-            
-    return _Route(
-        stations=stations,
-        lines=lines,
-        line_counts=line_counts,
-        total_distance=total_distance,
-        total_time=total_time,
-    )
-
-
 def find_golden_loop_routes(
     adj: Adjacency,
     start: str,
@@ -1063,56 +1063,43 @@ def find_golden_loop_routes(
     if end is None:
         end = start
 
+    # ループを回らずに end へ抜けてしまう縮退ルートを弾くための下限距離
+    direct_km, _, _ = calc_direct_fare(adj, start, end, fare_table)
+    min_detour_km = direct_km * MIN_DETOUR_RATIO
+
     routes: list[_Route] = []
 
     loops = [
         {
             "junctions": GOLDEN_LOOP,
             "lines": LOOP_LINES,
-            "set": GOLDEN_LOOP_SET,
-            "shortcuts": SHORTCUTS
+            "shortcuts": SHORTCUTS,
         },
         {
             "junctions": KOBE_LOOP,
             "lines": KOBE_LINES,
-            "set": KOBE_LOOP_SET,
-            "shortcuts": []
-        }
+            "shortcuts": [],
+        },
     ]
 
     for loop_info in loops:
         loop_junctions = loop_info["junctions"]
         loop_lines = loop_info["lines"]
-        loop_set = loop_info["set"]
         loop_shortcuts = loop_info["shortcuts"]
 
-        try:
-            start_junction, _, _ = _find_loop_entry(adj, start, loop_set)
-            end_junction, _, _ = _find_loop_entry(adj, end, loop_set)
-        except ValueError:
-            continue
-
-        r_cw = _build_loop_route_cw(adj, start, end, loop_junctions, loop_lines, start_junction, end_junction)
-        if r_cw and r_cw.total_time <= effective_time:
-            routes.append(r_cw)
-
-        for sc in loop_shortcuts:
-            r_cw_sc = _build_loop_route_cw(
-                adj, start, end, loop_junctions, loop_lines, start_junction, end_junction, shortcut=sc
-            )
-            if r_cw_sc and r_cw_sc.total_time <= effective_time:
-                routes.append(r_cw_sc)
-
-        r_ccw = _build_loop_route_ccw(adj, start, end, loop_junctions, loop_lines, start_junction, end_junction)
-        if r_ccw and r_ccw.total_time <= effective_time:
-            routes.append(r_ccw)
-
-        for sc in loop_shortcuts:
-            r_ccw_sc = _build_loop_route_ccw(
-                adj, start, end, loop_junctions, loop_lines, start_junction, end_junction, shortcut=sc
-            )
-            if r_ccw_sc and r_ccw_sc.total_time <= effective_time:
-                routes.append(r_ccw_sc)
+        for reverse in (False, True):
+            for shortcut in [None, *loop_shortcuts]:
+                cycle = _expand_full_cycle(
+                    adj, loop_junctions, loop_lines, reverse, shortcut
+                )
+                if cycle is None:
+                    continue
+                route = _build_loop_route(adj, start, end, cycle[0], cycle[1])
+                if route is None or route.total_time > effective_time:
+                    continue
+                if route.total_distance < min_detour_km:
+                    continue
+                routes.append(route)
 
     # 自由探索モードでは末尾の出発駅（ループの閉じ駅）を除去する
     if trim_last:
@@ -1198,6 +1185,41 @@ def find_routes_via_waypoints(
 # 公開API
 # --------------------------------------------------------------------------- #
 
+def _merge_result_layers(
+    waypoint_routes: list[OmawariRoute],
+    golden_routes: list[OmawariRoute],
+    fsa_routes: list[OmawariRoute],
+    num_results: int,
+) -> list[OmawariRoute]:
+    """レイヤー別の候補を合成し、パス（駅ID列）で重複排除して返す。
+
+    ゴールデンループは駅によらずほぼ同じ定型ルートになるため、そのまま
+    先頭に積むと結果が「一番大きいループ」とその変種だけで埋まってしまう。
+    枠を GOLDEN_RESULT_RATIO までに制限し、残りは探索由来のルートに回す。
+    枠が余った場合（探索側が不足）に限り、あふれたループで埋め直す。
+    """
+    golden_quota = max(1, int(num_results * GOLDEN_RESULT_RATIO))
+
+    seen: set[tuple[str, ...]] = set()
+    deduped: list[OmawariRoute] = []
+
+    def add(routes: list[OmawariRoute]) -> None:
+        for route in routes:
+            if len(deduped) >= num_results:
+                return
+            sig = tuple(seg.station_id for seg in route.path)
+            if sig in seen:
+                continue
+            seen.add(sig)
+            deduped.append(route)
+
+    add(waypoint_routes)
+    add(golden_routes[:golden_quota])
+    add(fsa_routes)
+    add(golden_routes[golden_quota:])
+    return deduped
+
+
 def find_omawari_routes(
     adj: Adjacency,
     start: str,
@@ -1279,16 +1301,9 @@ def find_omawari_routes(
         final = time_filtered if time_filtered else collected
         fsa_routes = _build_output(final, adj, start, fare_table, num_results)
 
-        # 各レイヤーの結果を合成し、パス（駅名リスト）で重複排除
-        all_routes = waypoint_results + golden_routes + fsa_routes
-        seen = set()
-        deduped = []
-        for r in all_routes:
-            sig = tuple(seg.station_id for seg in r.path)
-            if sig not in seen:
-                seen.add(sig)
-                deduped.append(r)
-        return deduped[:num_results]
+        return _merge_result_layers(
+            waypoint_results, golden_routes, fsa_routes, num_results
+        )
 
     # 自由探索モード → 出発駅に戻るループとして FSA を使う
     else:
@@ -1329,16 +1344,7 @@ def find_omawari_routes(
         ]
         fsa_routes = _build_output(final, adj, start, fare_table, num_results)
 
-        # ゴールデンループとFSAルートを合成し、パスで重複排除
-        all_routes = golden_routes + fsa_routes
-        seen = set()
-        deduped = []
-        for r in all_routes:
-            sig = tuple(seg.station_id for seg in r.path)
-            if sig not in seen:
-                seen.add(sig)
-                deduped.append(r)
-        return deduped[:num_results]
+        return _merge_result_layers([], golden_routes, fsa_routes, num_results)
 
 
 def find_omawari_by_fare(
