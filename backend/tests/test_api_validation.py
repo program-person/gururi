@@ -46,13 +46,24 @@ def test_timetable_rejects_unknown_station(client: TestClient) -> None:
 
 
 def test_timetable_rejects_too_long_path(client: TestClient) -> None:
-    # 201要素（A-B を往復し続ける形式的な path）。長さ上限で先に弾かれる
+    # 401要素（A-B を往復し続ける形式的な path）。長さ上限で先に弾かれる
     pairs: list[tuple[str, str]] = [("A", "")]
-    for i in range(200):
+    for i in range(400):
         pairs.append(("B" if i % 2 == 0 else "A", "L1"))
     r = client.post("/timetable", json=_timetable_body(pairs))
     assert r.status_code == 400
     assert "too long" in r.json()["detail"]
+
+
+def test_timetable_rejects_too_many_legs(client: TestClient) -> None:
+    """駅数が上限内でも、レッグ数（=外部API呼び出し回数）が多すぎれば弾く。"""
+    # A -L2- C -L1- B -L1- A を繰り返すと、1周あたり2レッグ増える
+    pairs: list[tuple[str, str]] = [("A", "")]
+    for _ in range(21):
+        pairs += [("C", "L2"), ("B", "L1"), ("A", "L1")]
+    r = client.post("/timetable", json=_timetable_body(pairs))
+    assert r.status_code == 400
+    assert "too many legs" in r.json()["detail"]
 
 
 def test_timetable_rejects_short_path(client: TestClient) -> None:

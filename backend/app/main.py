@@ -25,10 +25,14 @@ from app.models import (
 from app.omawari import find_omawari_by_fare, find_omawari_routes
 from app.ratelimit import SlidingWindowRateLimiter
 from app.routing import shortest_route
-from app.timetable import TransitMap, build_timetable, load_transit_map
+from app.timetable import TransitMap, build_timetable, load_transit_map, split_legs
 
-# /timetable の path 上限。/omawari の maxStations 上限(200)に合わせる
-MAX_TIMETABLE_PATH_SEGMENTS = 200
+# /timetable の path 上限。ゴールデンループは maxStations を超える長さになるため、
+# グラフの総駅数を上限とする（同一駅は再訪しないので、これ以上長い経路は存在しない）
+MAX_TIMETABLE_PATH_SEGMENTS = 400
+# 外部 transit API への負荷はレッグ数（＝API呼び出し回数）で決まる。
+# 実測では最長のゴールデンループでも17レッグ
+MAX_TIMETABLE_LEGS = 40
 
 
 @dataclass(frozen=True)
@@ -226,6 +230,13 @@ def _validate_timetable_path(rail: RailState, path: list[PathSegment]) -> None:
                     f"{prev.station_id} -> {seg.station_id} on line {seg.line_id}"
                 ),
             )
+
+    num_legs = len(split_legs(path))
+    if num_legs > MAX_TIMETABLE_LEGS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"too many legs (max {MAX_TIMETABLE_LEGS})",
+        )
 
 
 @app.post("/timetable", response_model=TimetableResponse, response_model_by_alias=True)
