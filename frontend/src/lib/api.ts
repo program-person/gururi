@@ -102,13 +102,21 @@ export const api = {
 
   omawari: (
     startStationId: string,
-    opts: { endStationId?: string; maxTimeMin?: number; maxStations?: number; numResults?: number } = {}
+    opts: {
+      endStationId?: string;
+      maxTimeMin?: number;
+      maxStations?: number;
+      numResults?: number;
+      /** 同じシードなら同じルート集合が返る（探索結果の再現用） */
+      seed?: number;
+    } = {}
   ): Promise<OmawariRoute[]> => {
     const p = new URLSearchParams({ startStationId });
     if (opts.endStationId) p.set("endStationId", opts.endStationId);
     if (opts.maxTimeMin !== undefined) p.set("maxTimeMin", String(opts.maxTimeMin));
     if (opts.maxStations) p.set("maxStations", String(opts.maxStations));
     if (opts.numResults) p.set("numResults", String(opts.numResults));
+    if (opts.seed !== undefined) p.set("seed", String(opts.seed));
     return get(`/omawari?${p}`);
   },
 
@@ -118,11 +126,12 @@ export const api = {
   omawariByFare: (
     startStationId: string,
     maxFare: number,
-    opts: { maxTimeMin?: number; numResults?: number } = {}
+    opts: { maxTimeMin?: number; numResults?: number; seed?: number } = {}
   ): Promise<OmawariRoute[]> => {
     const p = new URLSearchParams({ startStationId, maxFare: String(maxFare) });
     if (opts.maxTimeMin !== undefined) p.set("maxTimeMin", String(opts.maxTimeMin));
     if (opts.numResults) p.set("numResults", String(opts.numResults));
+    if (opts.seed !== undefined) p.set("seed", String(opts.seed));
     return get(`/omawari/by-fare?${p}`);
   },
 };

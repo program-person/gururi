@@ -33,6 +33,9 @@ MAX_TIMETABLE_PATH_SEGMENTS = 400
 # 外部 transit API への負荷はレッグ数（＝API呼び出し回数）で決まる。
 # 実測では最長のゴールデンループでも17レッグ
 MAX_TIMETABLE_LEGS = 40
+# 探索シードの上限。同じシードなら同じルート集合が返るので、フロントは
+# 検索結果ページと乗換案内ページの間でこの値を持ち回って結果を再現する
+MAX_SEED = 2**31 - 1
 
 
 @dataclass(frozen=True)
@@ -180,6 +183,7 @@ def get_omawari(
     max_time_min: float = Query(480.0, alias="maxTimeMin", ge=1, le=10000),
     max_stations: int = Query(120, alias="maxStations", ge=5, le=200),
     num_results: int = Query(5, alias="numResults", ge=1, le=20),
+    seed: int | None = Query(None, ge=0, le=MAX_SEED),
 ) -> list[OmawariRoute]:
     rail = get_rail(request)
     _check_station(rail, start_station_id, "Start station")
@@ -197,6 +201,7 @@ def get_omawari(
         max_stations=max_stations,
         max_time_min=max_time_min,
         num_results=num_results,
+        seed=seed,
         name_to_id=name_to_id,
     )
 
@@ -256,6 +261,7 @@ def get_omawari_by_fare(
     max_fare: int = Query(..., alias="maxFare", ge=100, le=5000),
     max_time_min: float = Query(480.0, alias="maxTimeMin", ge=1, le=10000),
     num_results: int = Query(5, alias="numResults", ge=1, le=20),
+    seed: int | None = Query(None, ge=0, le=MAX_SEED),
 ) -> list[OmawariRoute]:
     rail = get_rail(request)
     _check_station(rail, start_station_id, "Start station")
@@ -267,5 +273,6 @@ def get_omawari_by_fare(
         max_fare=max_fare,
         max_time_min=max_time_min,
         num_results=num_results,
+        seed=seed,
     )
 

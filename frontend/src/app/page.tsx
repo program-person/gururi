@@ -1,40 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { api, OmawariRoute, Station } from "@/lib/api";
-import type { Line } from "@/lib/api";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { OmawariRoute, Station } from "@/lib/api";
+import {
+  DEFAULT_QUERY,
+  Mode,
+  SearchQuery,
+  fromSearchParams,
+  makeSeed,
+  runSearch,
+  searchHref,
+} from "@/lib/searchQuery";
+import { useRailData } from "@/lib/useRailData";
 import StationSearch from "@/components/StationSearch";
 import RouteCard from "@/components/RouteCard";
 import { LINE_COLORS } from "@/components/RouteMap";
 
-const APP_VERSION = "0.4.0";
-
-type Mode = "free" | "fare" | "dest";
-
-// バックエンド /lines の取得前に使うフォールバック（一覧名のデフォルト）
-// キーは graph.json の路線ID（JR西日本公式の路線記号に準拠）
-export const LINE_MAP_FALLBACK: Record<string, string> = {
-  O:  "大阪環状線",
-  A:  "JR京都線・琵琶湖線・JR神戸線・北陸本線",
-  G:  "JR宝塚線",
-  H:  "JR東西線・学研都市線",
-  Q:  "大和路線",
-  F:  "おおさか東線",
-  R:  "阪和線",
-  D:  "奈良線",
-  B:  "湖西線",
-  C:  "草津線",
-  V:  "関西本線",
-  E:  "嵯峨野線",
-  U:  "万葉まほろば線",
-  T:  "和歌山線",
-  S:  "関西空港線",
-  HA: "羽衣支線",
-  I:  "加古川線",
-  P:  "JRゆめ咲線",
-  J:  "播但線",
-  W:  "紀勢本線",
-};
+const APP_VERSION = "0.5.0";
 
 // JR西日本 2025-04改定後の電車特定区間 普通運賃（fare_table.json の denshaku 帯と一致）。
 // 大回りの出発駅はグラフ上ほぼ全て電車特定区間内のため denshaku 表の額を採用
@@ -54,6 +37,15 @@ const MODE_LABELS: Record<Mode, string> = {
   dest: "駅間指定",
 };
 
+interface FormValues {
+  mode: Mode;
+  maxFare: number;
+  maxTimeMin: number;
+  numResults: number;
+  startStation: Station | null;
+  endStation: Station | null;
+}
+
 const MODE_DESCRIPTIONS: Record<Mode, string> = {
   free: "出発駅から最も多くの駅を回るルートを探索します",
   fare: "指定した運賃（直通運賃）で乗れる最長ルートを探索します",
@@ -61,81 +53,115 @@ const MODE_DESCRIPTIONS: Record<Mode, string> = {
 };
 
 export default function Home() {
-  const [stations, setStations] = useState<Station[]>([]);
-  const [stationMap, setStationMap] = useState<Record<string, string>>({});
-  const [stationGeo, setStationGeo] = useState<Record<string, { lat: number; lng: number }>>({});
-  const [lineMap, setLineMap] = useState<Record<string, string>>(LINE_MAP_FALLBACK);
-  // 表示用の路線数。/lines が取れるまではフォールバック表の件数を使う
-  const [lineCount, setLineCount] = useState(Object.keys(LINE_MAP_FALLBACK).length);
+  // useSearchParams はプリレンダリング時に Suspense 境界を要求する
+  return (
+    <Suspense>
+      <SearchPage />
+    </Suspense>
+  );
+}
 
-  const [startStation, setStartStation] = useState<Station | null>(null);
-  const [endStation, setEndStation] = useState<Station | null>(null);
-  const [mode, setMode] = useState<Mode>("free");
-  const [maxFare, setMaxFare] = useState(180);
-  const [maxTimeMin, setMaxTimeMin] = useState(240);
-  const [numResults, setNumResults] = useState(5);
+interface SearchResult {
+  /** どのURLに対する結果か。これが現在のURLと一致しない間が「探索中」 */
+  key: string;
+  query: SearchQuery | null;
+  routes: OmawariRoute[];
+  error: string | null;
+}
 
-  const [routes, setRoutes] = useState<OmawariRoute[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const EMPTY_RESULT: SearchResult = { key: "", query: null, routes: [], error: null };
+
+function SearchPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { stations, stationMap, stationGeo, lineMap, lineCount } = useRailData();
+
+  // 実行済みの検索はURLが唯一の情報源。こうしておくと、乗換案内ページから
+  // 戻ったときやリロード・URL共有でも同じ結果がそのまま再現される
+  const queryString = searchParams.toString();
+  const urlQuery = useMemo(
+    () => fromSearchParams(new URLSearchParams(queryString)),
+    [queryString]
+  );
+
+  // フォームの入力値。URL由来の値を初期値とし、ユーザーが触った分だけ上書きする
+  // （effect で state を同期すると余計な再レンダーを招くため、導出で済ませる）
+  const [override, setOverride] = useState<Partial<FormValues>>({});
+  const form: FormValues = {
+    mode: override.mode ?? urlQuery?.mode ?? DEFAULT_QUERY.mode,
+    maxFare: override.maxFare ?? urlQuery?.maxFare ?? DEFAULT_QUERY.maxFare,
+    maxTimeMin: override.maxTimeMin ?? urlQuery?.maxTimeMin ?? DEFAULT_QUERY.maxTimeMin,
+    numResults: override.numResults ?? urlQuery?.numResults ?? DEFAULT_QUERY.numResults,
+    startStation:
+      override.startStation !== undefined
+        ? override.startStation
+        : stations.find((s) => s.id === urlQuery?.startStationId) ?? null,
+    endStation:
+      override.endStation !== undefined
+        ? override.endStation
+        : stations.find((s) => s.id === urlQuery?.endStationId) ?? null,
+  };
+  const patch = (values: Partial<FormValues>) =>
+    setOverride((prev) => ({ ...prev, ...values }));
+
+  const [result, setResult] = useState<SearchResult>(EMPTY_RESULT);
+  // ローディングは「結果がまだ現在のURLに追いついていない」ことから導出する
+  const loading = urlQuery !== null && result.key !== queryString;
+  const routes = result.key === queryString ? result.routes : [];
+  const error = result.key === queryString ? result.error : null;
 
   useEffect(() => {
-    api.stations().then((data) => {
-      setStations(data);
-      const sm: Record<string, string> = {};
-      const geo: Record<string, { lat: number; lng: number }> = {};
-      data.forEach((s) => {
-        sm[s.id] = s.name;
-        if (s.lat != null && s.lng != null) geo[s.id] = { lat: s.lat, lng: s.lng };
+    if (urlQuery === null) return;
+    let cancelled = false;
+    runSearch(urlQuery)
+      .then((found) => {
+        if (cancelled) return;
+        setResult({
+          key: queryString,
+          query: urlQuery,
+          routes: found,
+          error:
+            found.length > 0
+              ? null
+              : urlQuery.mode === "dest"
+                ? "指定した駅間のルートが見つかりませんでした。時間制限を延ばしてみてください。"
+                : "ルートが見つかりませんでした。条件を変えて試してください。",
+        });
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setResult({
+          key: queryString,
+          query: urlQuery,
+          routes: [],
+          error: e instanceof Error ? e.message : "エラーが発生しました",
+        });
       });
-      setStationMap(sm);
-      setStationGeo(geo);
-    });
-    api.lines().then((data: Line[]) => {
-      const lm: Record<string, string> = {};
-      data.forEach((l) => { lm[l.id] = l.name; });
-      setLineMap((prev) => ({ ...prev, ...lm }));
-      if (data.length > 0) setLineCount(data.length);
-    }).catch(() => { /* フォールバックを使う */ });
-  }, []);
+    return () => { cancelled = true; };
+  }, [queryString, urlQuery]);
+
+  const { mode, maxFare, maxTimeMin, numResults, startStation, endStation } = form;
 
   const canSearch =
     !!startStation &&
     !loading &&
-    (mode !== "dest" || (!!endStation && endStation.id !== startStation?.id));
+    (mode !== "dest" || (!!endStation && endStation.id !== startStation.id));
 
-  const search = async () => {
+  const search = () => {
     if (!startStation) return;
-    setLoading(true);
-    setError(null);
-    setRoutes([]);
-    try {
-      let result: OmawariRoute[];
-      if (mode === "fare") {
-        result = await api.omawariByFare(startStation.id, maxFare, {
-          maxTimeMin,
-          numResults,
-        });
-      } else {
-        result = await api.omawari(startStation.id, {
-          endStationId: mode === "dest" ? endStation?.id : undefined,
-          maxTimeMin,
-          numResults,
-        });
-      }
-      if (result.length === 0) {
-        setError(
-          mode === "dest"
-            ? `${stationMap[startStation.id] ?? startStation.id} → ${stationMap[endStation?.id ?? ""] ?? endStation?.id} のルートが見つかりませんでした。時間制限を延ばしてみてください。`
-            : "ルートが見つかりませんでした。条件を変えて試してください。"
-        );
-      }
-      setRoutes(result);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "エラーが発生しました");
-    } finally {
-      setLoading(false);
-    }
+    // 検索するたびに新しいシードを引く。URLに載るので、この結果はあとから再現できる
+    setOverride({});
+    router.push(
+      searchHref({
+        mode,
+        startStationId: startStation.id,
+        endStationId: mode === "dest" ? endStation?.id ?? null : null,
+        maxFare,
+        maxTimeMin,
+        numResults,
+        seed: makeSeed(),
+      })
+    );
   };
 
   return (
@@ -181,7 +207,7 @@ export default function Home() {
             {(["free", "fare", "dest"] as Mode[]).map((m) => (
               <button
                 key={m}
-                onClick={() => setMode(m)}
+                onClick={() => patch({ mode: m })}
                 aria-pressed={mode === m}
                 className={`min-h-10 flex-1 rounded-lg px-2 text-[13px] sm:text-sm font-medium transition-all duration-150 ${
                   mode === m
@@ -202,7 +228,7 @@ export default function Home() {
           <StationSearch
             stations={stations}
             value={startStation}
-            onChange={setStartStation}
+            onChange={(s) => patch({ startStation: s })}
             placeholder="例: 大阪、天王寺、京都..."
           />
         </div>
@@ -214,7 +240,7 @@ export default function Home() {
             <StationSearch
               stations={stations.filter((s) => s.id !== startStation?.id)}
               value={endStation}
-              onChange={setEndStation}
+              onChange={(s) => patch({ endStation: s })}
               placeholder="例: 京都、神戸、和歌山..."
             />
           </div>
@@ -229,7 +255,7 @@ export default function Home() {
             </label>
             <select
               value={maxFare}
-              onChange={(e) => setMaxFare(Number(e.target.value))}
+              onChange={(e) => patch({ maxFare: Number(e.target.value) })}
               className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors hover:border-slate-400 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:hover:border-slate-500"
             >
               {FARE_OPTIONS.map((f) => (
@@ -245,7 +271,7 @@ export default function Home() {
             <label className="mb-1.5 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">最大乗車時間</label>
             <select
               value={maxTimeMin}
-              onChange={(e) => setMaxTimeMin(Number(e.target.value))}
+              onChange={(e) => patch({ maxTimeMin: Number(e.target.value) })}
               className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors hover:border-slate-400 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:hover:border-slate-500"
             >
               {TIME_OPTIONS.map((t) => (
@@ -264,7 +290,7 @@ export default function Home() {
             <label className="mb-1.5 block text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">表示件数</label>
             <select
               value={numResults}
-              onChange={(e) => setNumResults(Number(e.target.value))}
+              onChange={(e) => patch({ numResults: Number(e.target.value) })}
               className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors hover:border-slate-400 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:hover:border-slate-500"
             >
               {RESULTS_OPTIONS.map((n) => (
@@ -362,6 +388,8 @@ export default function Home() {
                 stationMap={stationMap}
                 lineMap={lineMap}
                 stationGeo={stationGeo}
+                query={result.query}
+                routeIndex={i}
               />
             ))}
           </div>
