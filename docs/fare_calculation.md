@@ -135,7 +135,10 @@ JRおでかけネットの公式電子ブックは画像ベースで、機械抽
 ## 監査で見つかったその他の未対応項目（2026-07-16 全件対応済み）
 
 - ~~`POST /timetable` の path 長・隣接性バリデーション（外部APIへの踏み台化防止）~~
-  → path 上限200・連続駅ペアの実エッジ検証を追加（`main.py: _validate_timetable_path`）
+  → path 長・連続駅ペアの実エッジ検証を追加（`main.py: _validate_timetable_path`）。
+  上限は当初200だったが、ゴールデンループが `maxStations` を超える長さになるため
+  `MAX_TIMETABLE_PATH_SEGMENTS`=400（グラフ総駅数相当）に緩和済み（`1662145`）。
+  外部API負荷はレッグ数で決まるため `MAX_TIMETABLE_LEGS`=40 を別途設けている
 - ~~`/omawari` 系のレート制限、`transit.py` キャッシュの上限（無限成長）~~
   → 自作スライディングウィンドウ制限（`app/ratelimit.py`、IP単位・デフォルト30回/60秒、
   `JR_ROUTE_RATE_LIMIT_*` で調整）と `MAX_CACHE_ENTRIES=512`（期限切れ→古い順に削除）
