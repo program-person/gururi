@@ -7,6 +7,7 @@ from app.timetable import (
     build_timetable,
     split_legs,
     _fmt,
+    _next_after,
     _parse_hhmm,
     _pick_direct,
 )
@@ -134,3 +135,84 @@ def test_build_timetable_uses_timetable_source(monkeypatch) -> None:
     assert leg.ride_min == 23.0
     assert res.arrival_time == "10:30"
     assert res.total_min == 30.0
+
+
+def test_next_after_same_day_and_rollover() -> None:
+    ten = _parse_hhmm("10:00")
+    assert _next_after(_parse_hhmm("10:48"), ten) == _parse_hhmm("10:48")
+    # 入力が現在カーソルより前なら翌日の同時刻と解釈する
+    assert _next_after(_parse_hhmm("09:00"), ten) == _parse_hhmm("09:00") + 86400
+    # ちょうど同時刻はその日のまま（>= で判定）
+    assert _next_after(ten, ten) == ten
+    # カーソル自体が翌日に入っていても基準日が追従する
+    assert _next_after(_parse_hhmm("00:15"), _parse_hhmm("23:50")) == _parse_hhmm("00:15") + 86400
+
+
+def test_build_timetable_arrival_override_shifts_following_legs(monkeypatch) -> None:
+    """推定区間の着時刻を上書きすると、後続レッグがその時刻を起点に組み直される。"""
+    import app.timetable as tt
+
+    monkeypatch.setattr(tt.transit, "plan", lambda *a, **k: None)
+    data = load_graph_data(TINY_GRAPH)
+    adj = build_adjacency(data.edges)
+
+    # A -L2- C -L1- B の2レッグ。1本目（A→C）の着時刻を上書きする
+    path = _path(("A", ""), ("C", "L2"), ("B", "L1"))
+    base = build_timetable(path, "10:00", adj, {})
+    res = build_timetable(path, "10:00", adj, {}, arrival_overrides={"C": "11:30"})
+
+    assert res.legs[0].overridden is True
+    assert res.legs[0].arrival == "11:30"
+    # 乗車時間は元のまま保たれ、発時刻が着から逆算される
+    assert res.legs[0].ride_min == base.legs[0].ride_min
+    # 2本目は上書き後の 11:30 を起点に組み直される
+    assert res.legs[1].overridden is False
+    assert res.legs[1].departure > "11:30"
+    assert res.arrival_time > base.arrival_time
+
+
+def test_build_timetable_override_clears_estimate_flag(monkeypatch) -> None:
+    """全推定レッグを上書きすれば hasEstimate は下りる（＝「目安」警告が消える）"""
+    import app.timetable as tt
+
+    monkeypatch.setattr(tt.transit, "plan", lambda *a, **k: None)
+    data = load_graph_data(TINY_GRAPH)
+    adj = build_adjacency(data.edges)
+
+    path = _path(("A", ""), ("B", "L1"), ("C", "L1"))
+    assert build_timetable(path, "10:00", adj, {}).has_estimate is True
+    res = build_timetable(path, "10:00", adj, {}, arrival_overrides={"C": "10:40"})
+    assert res.has_estimate is False
+    assert res.legs[0].source == "estimate"  # 出所そのものは推定のまま
+
+
+def test_build_timetable_override_clamps_departure_to_cursor(monkeypatch) -> None:
+    """推定より早い着時刻を入れても、前の駅に着く前の発時刻は作らない。"""
+    import app.timetable as tt
+
+    monkeypatch.setattr(tt.transit, "plan", lambda *a, **k: None)
+    data = load_graph_data(TINY_GRAPH)
+    adj = build_adjacency(data.edges)
+
+    # A→B→C は推定で 10:10発 10:50着。着時刻に 10:20 を入れると乗車40分は入らない
+    path = _path(("A", ""), ("B", "L1"), ("C", "L1"))
+    res = build_timetable(path, "10:00", adj, {}, arrival_overrides={"C": "10:20"})
+    leg = res.legs[0]
+    assert leg.arrival == "10:20"
+    assert leg.departure >= "10:00"  # 出発時刻より前には遡らない
+    assert leg.wait_min >= 0
+    assert leg.ride_min >= 0
+
+
+def test_build_timetable_override_crossing_midnight(monkeypatch) -> None:
+    """23時台発 → 0時台着の上書きは翌日扱いになり、総所要がマイナスにならない。"""
+    import app.timetable as tt
+
+    monkeypatch.setattr(tt.transit, "plan", lambda *a, **k: None)
+    data = load_graph_data(TINY_GRAPH)
+    adj = build_adjacency(data.edges)
+
+    path = _path(("A", ""), ("B", "L1"), ("C", "L1"))
+    res = build_timetable(path, "23:50", adj, {}, arrival_overrides={"C": "00:15"})
+    assert res.arrival_time == "00:15"
+    assert res.total_min == 25.0

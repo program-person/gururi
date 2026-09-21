@@ -51,6 +51,8 @@ export interface TimetableLeg {
   rideMin: number;
   /** timetable=実ダイヤ / estimate=運転間隔ベースの目安 */
   source: "timetable" | "estimate";
+  /** 着時刻をユーザーが入力したレッグ。departure は arrival からの逆算値 */
+  overridden: boolean;
   trainType?: string | null;
   headsign?: string | null;
 }
@@ -120,8 +122,16 @@ export const api = {
     return get(`/omawari?${p}`);
   },
 
-  timetable: (path: PathSegment[], departTime: string): Promise<TimetableResponse> =>
-    post("/timetable", { path, departTime }),
+  /**
+   * @param arrivalOverrides 駅ID -> 実際の着時刻("HH:MM")。ダイヤ未収録区間を
+   *   自分で調べて入れるための上書き。キーはレッグの着駅（乗換駅・終着駅）のみ
+   */
+  timetable: (
+    path: PathSegment[],
+    departTime: string,
+    arrivalOverrides: Record<string, string> = {}
+  ): Promise<TimetableResponse> =>
+    post("/timetable", { path, departTime, arrivalOverrides }),
 
   omawariByFare: (
     startStationId: string,

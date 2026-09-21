@@ -121,7 +121,7 @@ cd frontend && npx tsc --noEmit  # 型チェック
 | `GET /fare` | 2駅間の直線運賃 |
 | `GET /omawari` | 大回りルート候補（最長ルート優先） |
 | `GET /omawari/by-fare` | 運賃指定での大回りルート候補 |
-| `POST /timetable` | ルートの区間別発着時刻（実ダイヤ＋推定） |
+| `POST /timetable` | ルートの区間別発着時刻（実ダイヤ＋推定、着時刻の手入力上書きに対応） |
 | `GET /health` | ヘルスチェック |
 
 - `/omawari`・`/omawari/by-fare` は `seed`（0〜2^31-1）で乱数を固定できる。フロントはこれを URL に載せて結果を再現する
@@ -158,6 +158,7 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 
 ### 乗換案内（`timetable.py` / `transit.py`）
 - ルートの path を同一路線の連続区間（レッグ）に分割し、レッグごとに transit.ls8h.com API（非公式・無償・認証不要）で実ダイヤを照会。乗換0の旅程のみ採用
+- 推定区間は `arrivalOverrides`（駅ID → 実際の着時刻）で上書きできる。時刻カーソルを差し替えるだけなので後続レッグは自動で引き直される。キーは**レッグの着駅**に限る（レッグ番号ではなく駅IDなのは、アルゴリズム更新でレッグの切れ目がズレても壊れないため）。入力は `HH:MM` のみなので「前の駅に着いた時刻以降に最初に来る HH:MM」と解釈し、発時刻は着時刻からの逆算。上書き済みレッグは `overridden: true` で、`hasEstimate` からは除外する
 - 駅IDの対応表は `transit_station_map.json`（`scripts/build_transit_station_map.py --write` で再生成）
 - **未収録**: 奈良線(D)・関西空港線(S)・JR東西線区間（尼崎〜京橋の東西線経由駅）・赤穂線区間（西相生〜播州赤穂）。紀勢本線 和歌山〜和歌山市(W)は駅マッピング済みだが API が徒歩経路しか返さないため実質推定。ここと API 障害時は `HEADWAY_MIN`（路線別日中運転間隔）による推定（待ち=間隔/2＋乗換歩行3分）にフォールバックし、レスポンスの `source: "estimate"` で区別
 - transit API は個人運営のため、依存は `transit.py` に閉じ込めてある（差し替え・撤去はこの1ファイル＋マッピング生成のみ）
@@ -165,11 +166,11 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 ## フロントエンド アーキテクチャ
 
 - `api.ts`: fetch ラッパー。バックエンドの各エンドポイントに対応する関数を提供
-- `searchQuery.ts`: 検索条件（`SearchQuery`）と URLクエリの相互変換。`makeSeed()` でシード生成、`timetableHref()` / `searchHref()` でページ間リンクを組み立てる。**検索状態はすべて URL に載る**ので、共有URLから同じ結果を復元できる
+- `searchQuery.ts`: 検索条件（`SearchQuery`）と URLクエリの相互変換。`makeSeed()` でシード生成、`timetableHref()` / `searchHref()` でページ間リンクを組み立てる。着時刻の手入力は `encodeArrivalOverrides()` / `decodeArrivalOverrides()` で `arr` クエリと相互変換。**検索状態はすべて URL に載る**ので、共有URLから同じ結果を復元できる
 - `useRailData.ts`: 駅・路線データ取得フック。API 失敗時のフォールバックとして `LINE_MAP_FALLBACK`（路線ID→路線名）を持つ
 - `StationSearch.tsx`: 駅名インクリメンタルサーチ（クライアントサイドフィルタリング）
 - `RouteCard.tsx`: 1ルートの概要表示 + 駅一覧・ルート図の展開。乗換案内は**カード内で展開せず** `timetableHref()` のリンクで `/timetable` へ遷移する
-- `app/timetable/page.tsx`: 乗換案内の独立ページ。URLクエリから検索条件を復元して `runSearch()` を再実行し、`i`番目のルートに対して `POST /timetable` を呼ぶ。推定区間は「目安」バッジ
+- `app/timetable/page.tsx`: 乗換案内の独立ページ。URLクエリから検索条件を復元して `runSearch()` を再実行し、`i`番目のルートに対して `POST /timetable` を呼ぶ。推定区間は「目安」バッジ＋着時刻の手入力欄、上書き済みは「入力」バッジ。手入力は `arr` クエリ（`駅ID:HH:MM` のカンマ区切り）に `router.replace` で同期するので共有URLで再現できる。ルート探索のキー（`routeKey`）は**正規化した検索条件だけ**で作り、`depart`/`arr` のURL同期でルートを引き直さない
 - `app/layout.tsx`: 全ページ共通のレイアウトとデータ出典フッター。時刻表データの attribution は静的に埋め込む（transit API の `/feeds` は全国1,145件・746KB を返すが、本アプリの使用20フィードは attribution が全件同一のため動的取得しない）
 - `RouteMap.tsx`: 自前SVGの路線図。viewBox ベースのズーム・パン（ホイール/ドラッグ/ピンチ/ダブルクリック/ボタン/スライダー、最大8倍）。線幅・文字・ドットはズームしても画面上のサイズ一定で、2.2倍以上で画面内の中間駅にもラベルを表示。駅・県名・湖名ラベルは候補位置のスコアリングで衝突回避配置（表示領域基準で毎レンダー再計算）
 - レイアウト: `page.tsx` の `main` は `max-w-5xl`。検索フォームは `max-w-2xl` 中央寄せ、結果カード（地図）は全幅
@@ -193,3 +194,4 @@ Pydantic モデルは JSON camelCase / Python snake_case で相互変換（`popu
 - マルチプラットフォーム対応＋UI刷新（`593e70c`, `379438e`, `acd1c25`）: スマホでの横スクロール解消、鉄道サイン風デザイン
 - 乗換案内の独立ページ化（`2516316`）: URLクエリで検索条件とシードを持ち回り、共有URLから同一ルートを復元
 - データ出典フッター（`d0305c5`）: GTFSフィードのクレジット表示義務に対応
+- 着時刻の手入力: ダイヤ未収録区間の着時刻をユーザーが入れると、そこから先の乗り継ぎを引き直す（`arrivalOverrides` / URLの `arr`）

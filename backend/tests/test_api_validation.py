@@ -82,3 +82,37 @@ def test_omawari_by_fare_rejects_max_time_zero(client: TestClient) -> None:
         params={"startStationId": "A", "maxFare": 200, "maxTimeMin": 0},
     )
     assert r.status_code == 422
+
+
+def test_timetable_accepts_arrival_override_on_leg_end(client: TestClient) -> None:
+    body = _timetable_body([("A", ""), ("C", "L2"), ("B", "L1")])
+    body["arrivalOverrides"] = {"C": "11:30"}
+    r = client.post("/timetable", json=body)
+    assert r.status_code == 200
+    legs = r.json()["legs"]
+    assert legs[0]["overridden"] is True
+    assert legs[0]["arrival"] == "11:30"
+    assert legs[1]["overridden"] is False
+
+
+def test_timetable_rejects_override_on_intermediate_station(client: TestClient) -> None:
+    """通過するだけの中間駅は時刻カーソルの差し替え地点ではないので拒否する。"""
+    body = _timetable_body([("A", ""), ("B", "L1"), ("C", "L1")])
+    body["arrivalOverrides"] = {"B": "10:30"}
+    r = client.post("/timetable", json=body)
+    assert r.status_code == 400
+    assert "leg arrival station" in r.json()["detail"]
+
+
+def test_timetable_rejects_override_on_station_outside_route(client: TestClient) -> None:
+    body = _timetable_body([("A", ""), ("B", "L1"), ("C", "L1")])
+    body["arrivalOverrides"] = {"Z": "10:30"}
+    r = client.post("/timetable", json=body)
+    assert r.status_code == 400
+
+
+def test_timetable_rejects_malformed_override_time(client: TestClient) -> None:
+    body = _timetable_body([("A", ""), ("B", "L1"), ("C", "L1")])
+    body["arrivalOverrides"] = {"C": "25:99"}
+    r = client.post("/timetable", json=body)
+    assert r.status_code == 422

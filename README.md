@@ -401,6 +401,21 @@ APIレスポンスは `(from, to, 時刻)` をキーに 300秒キャッシュし
 
 推定を使ったレッグは `source: "estimate"` を返し、フロントは「目安」バッジを表示します。旅程全体では `hasEstimate` フラグで判別できます。
 
+### 4. 着時刻の手入力による上書き
+
+推定区間は、ユーザーが実際の着時刻を調べて入れることで上書きできます（`arrivalOverrides`）。時刻表の組み立ては時刻カーソルを1レッグずつ前に進めるだけの逐次処理なので、**上書きはそのレッグの後でカーソルを差し替えるだけ**で済み、後続レッグはその時刻を起点に実ダイヤを引き直します。
+
+```
+着時刻 = 前の駅に着いた時刻以降に最初に来る HH:MM
+発時刻 = max(前の駅に着いた時刻, 着時刻 − 元の乗車時間)
+```
+
+- 入力は `HH:MM` だけで日付を持たないため、**「前の駅に着いた時刻より後の、最初の HH:MM」** と解釈します。これで 23:50 着の次に `00:15` と入れれば自動的に翌日扱いになり、大回り成立判定（日跨ぎ警告）がそのまま効きます
+- 発時刻は着時刻から元の乗車時間を引いた逆算値です。前の駅に着く前には発てないので下限でクランプします
+- 上書きしたレッグは `overridden: true` を返し、フロントは「目安」ではなく「入力」バッジを表示します。`hasEstimate` は**上書き済みのレッグを数えない**ので、全推定区間を埋めれば「目安」警告は消えます
+- キーに使うのは**レッグの着駅の駅ID**（乗換駅と終着駅）です。レッグ番号ではなく駅IDなのは、探索アルゴリズムやグラフデータが更新されてもレッグの切れ目がズレないため（大回りは同一駅を再訪しないので、1ルート内で駅IDは一意）
+- 上書きは URL の `arr` パラメータ（`駅ID:HH:MM` のカンマ区切り、例 `arr=kizu:12:20`）に載るので、**手入力込みの旅程を共有URLで再現**できます
+
 ### 実ダイヤが取れない区間
 
 | 区間 | 理由 |
@@ -492,7 +507,11 @@ curl "http://localhost:8000/omawari?startStationId=osak&maxTimeMin=300&numResult
     { "stationId": "kjhk", "lineId": "F" },
     { "stationId": "jrne", "lineId": "F" }
   ],
-  "departTime": "09:30"   // ^([01]?\d|2[0-3]):[0-5]\d$
+  "departTime": "09:30",  // ^([01]?\d|2[0-3]):[0-5]\d$
+
+  // 任意。駅ID -> その駅への実際の着時刻。ダイヤ未収録区間を自分で調べて
+  // 入れるための上書きで、以降のレッグはこの時刻を起点に組み直される
+  "arrivalOverrides": { "jrne": "10:05" }
 }
 ```
 
@@ -513,6 +532,7 @@ curl "http://localhost:8000/omawari?startStationId=osak&maxTimeMin=300&numResult
       "waitMin": 0.0,
       "rideMin": 4.0,
       "source": "timetable",   // または "estimate"
+      "overridden": false,     // 着時刻がユーザー入力で上書きされたか
       "trainType": "新快速",
       "headsign": "新快速 近江塩津"
     },
@@ -538,6 +558,7 @@ curl "http://localhost:8000/omawari?startStationId=osak&maxTimeMin=300&numResult
 - 全駅がグラフに実在する
 - **連続する駅が指定路線の実エッジで結ばれている**
 - レッグ数が `MAX_TIMETABLE_LEGS`（40）以下（＝外部API呼び出し回数の上限）
+- `arrivalOverrides` のキーが**レッグの着駅**であること（通過中の中間駅やルート外の駅を黙って無視すると、入力したのに反映されない挙動になるため `400` で弾く）
 
 ### レート制限
 
@@ -616,7 +637,7 @@ pytest tests/test_route.py::test_dijkstra_by_distance -v
 | `test_route.py` | Dijkstra（距離基準・時間基準・同一駅・到達不能）、`/route` API |
 | `test_fare.py` | 端数切り上げ・表超過・表選択・電特・B表の不規則帯・換算キロ・加算運賃・特定運賃 |
 | `test_omawari.py` | 迂回付き最短経路・ウェイポイント・ゴールデンループの閉路性・時間上限の遵守・結果が最大ループだけで埋まらないこと |
-| `test_timetable.py` | レッグ分割・乗換0旅程の選択・推定フォールバック |
+| `test_timetable.py` | レッグ分割・乗換0旅程の選択・推定フォールバック・着時刻の上書き |
 | `test_transit_cache.py` | 外部APIキャッシュのTTLと件数上限 |
 | `test_ratelimit.py` | スライディングウィンドウ制限・`X-Forwarded-For` の扱い |
 | `test_api_validation.py` | パラメータ境界・`/timetable` のパス検証 |

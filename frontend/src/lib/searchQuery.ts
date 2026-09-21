@@ -93,15 +93,53 @@ export function runSearch(query: SearchQuery): Promise<OmawariRoute[]> {
   });
 }
 
-/** 乗換案内ページのURL。検索条件 + ルート番号 + 出発時刻。 */
+const HHMM_RE = /^([01]?\d|2[0-3]):[0-5]\d$/;
+
+/** 着時刻の上書き（駅ID -> "HH:MM"）。ダイヤ未収録区間のユーザー入力。 */
+export type ArrivalOverrides = Record<string, string>;
+
+/**
+ * 上書きを URL の `arr` パラメータに詰める。形式は `駅ID:HH:MM` のカンマ区切り。
+ *
+ * 駅IDは英数字のみ（graph.json の全374駅で確認済み）なので、最初の `:` で
+ * 分割すれば時刻側の `:` と衝突しない。レッグ番号ではなく駅IDをキーにしているのは、
+ * 探索アルゴリズムやグラフデータが更新されてもレッグの切れ目がズレないため
+ * （大回りは同一駅を再訪しないので、1ルート内で駅IDは一意）。
+ */
+export function encodeArrivalOverrides(overrides: ArrivalOverrides): string {
+  return Object.entries(overrides)
+    .filter(([stationId, time]) => stationId !== "" && HHMM_RE.test(time))
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)) // URLを安定させて無駄な再取得を防ぐ
+    .map(([stationId, time]) => `${stationId}:${time}`)
+    .join(",");
+}
+
+/** `arr` パラメータを読む。壊れたエントリは黙って捨てる（共有URLを落とさない）。 */
+export function decodeArrivalOverrides(raw: string | null): ArrivalOverrides {
+  if (!raw) return {};
+  const out: ArrivalOverrides = {};
+  for (const entry of raw.split(",")) {
+    const sep = entry.indexOf(":");
+    if (sep <= 0) continue;
+    const stationId = entry.slice(0, sep);
+    const time = entry.slice(sep + 1);
+    if (HHMM_RE.test(time)) out[stationId] = time;
+  }
+  return out;
+}
+
+/** 乗換案内ページのURL。検索条件 + ルート番号 + 出発時刻 + 着時刻の上書き。 */
 export function timetableHref(
   query: SearchQuery,
   routeIndex: number,
-  departTime: string
+  departTime: string,
+  arrivalOverrides: ArrivalOverrides = {}
 ): string {
   const params = toSearchParams(query);
   params.set("i", String(routeIndex));
   params.set("depart", departTime);
+  const arr = encodeArrivalOverrides(arrivalOverrides);
+  if (arr) params.set("arr", arr);
   return `/timetable?${params}`;
 }
 

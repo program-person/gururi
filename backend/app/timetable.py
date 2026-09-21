@@ -4,6 +4,9 @@
 transit.ls8h.com API（transit.py）で実ダイヤを照会する。
 未収録路線（奈良線 D・関西空港線 S・JR東西線区間）や API 障害時は、
 運転間隔テーブルによる期待値ベースの推定にフォールバックする。
+
+推定区間はユーザーが実際の着時刻を入力して上書きでき（arrival_overrides）、
+以降のレッグはその時刻を起点に実ダイヤを引き直す。
 """
 from __future__ import annotations
 
@@ -99,6 +102,18 @@ def _fmt(secs: int) -> str:
     return f"{(secs // 3600) % 24:02d}:{(secs % 3600) // 60:02d}"
 
 
+def _next_after(hhmm_secs: int, floor_secs: int) -> int:
+    """floor_secs 以降に最初に来る hhmm_secs（0時起算）の絶対秒。
+
+    ユーザーが入れるのは "10:48" のような時刻だけで日付が無いため、
+    「前の駅に着いた時刻より後の、最初の 10:48」と解釈する。これで
+    23:50 着の次に 00:15 と入れれば自動的に翌日扱いになり、
+    大回り成立判定（日跨ぎ警告）がそのまま効く。
+    """
+    base = floor_secs - (floor_secs % 86400) + hhmm_secs
+    return base if base >= floor_secs else base + 86400
+
+
 def _pick_direct(data: dict[str, Any]) -> tuple[int, int, str | None, str | None] | None:
     """乗換なし（= 指定路線をそのまま乗る）最速の旅程を選ぶ。
 
@@ -126,7 +141,9 @@ def build_timetable(
     depart_hhmm: str,
     adj: Adjacency,
     transit_map: TransitMap,
+    arrival_overrides: dict[str, str] | None = None,
 ) -> TimetableResponse:
+    overrides = arrival_overrides or {}
     legs = split_legs(path)
     start = _parse_hhmm(depart_hhmm)
     cur = start
@@ -152,7 +169,6 @@ def build_timetable(
                 arr += 86400
             source = "timetable"
         else:
-            has_estimate = True
             headway = HEADWAY_MIN.get(leg.line_id, DEFAULT_HEADWAY_MIN)
             wait_min = headway / 2 + (TRANSFER_WALK_MIN if idx > 0 else 0)
             dep = cur + int(wait_min * 60)
@@ -160,6 +176,17 @@ def build_timetable(
             train_type = None
             headsign = None
             source = "estimate"
+
+        # 実際の着時刻の上書き。所要時間は元の値を保ったまま着時刻を動かし、
+        # 発時刻はそこから逆算する（前の駅に着く前には発てないので下限は cur）
+        override = overrides.get(leg.station_ids[-1])
+        overridden = override is not None
+        if override is not None:
+            ride_secs = arr - dep
+            arr = _next_after(_parse_hhmm(override), cur)
+            dep = max(cur, arr - ride_secs)
+        elif source == "estimate":
+            has_estimate = True
 
         out.append(
             TimetableLeg(
@@ -171,6 +198,7 @@ def build_timetable(
                 wait_min=round((dep - cur) / 60, 1),
                 ride_min=round((arr - dep) / 60, 1),
                 source=source,
+                overridden=overridden,
                 train_type=train_type,
                 headsign=headsign,
             )

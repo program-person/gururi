@@ -1,7 +1,11 @@
 from enum import Enum
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
+
+# "H:MM" / "HH:MM"（0:00〜23:59）。時刻入力はすべてこの形式で受ける
+HHMM_PATTERN = r"^([01]?\d|2[0-3]):[0-5]\d$"
+HhMm = Annotated[str, StringConstraints(pattern=HHMM_PATTERN)]
 
 
 class OptimizeBy(str, Enum):
@@ -118,6 +122,8 @@ class TimetableLeg(BaseModel):
     ride_min: float = Field(alias="rideMin")
     # timetable=実ダイヤ（transit API）, estimate=運転間隔ベースの推定
     source: Literal["timetable", "estimate"]
+    # 着時刻がユーザー入力で上書きされたレッグ。departure は arrival からの逆算値
+    overridden: bool = False
     train_type: str | None = Field(None, alias="trainType")
     headsign: str | None = None
 
@@ -126,7 +132,13 @@ class TimetableLeg(BaseModel):
 
 class TimetableRequest(BaseModel):
     path: list[PathSegment]
-    depart_time: str = Field(alias="departTime", pattern=r"^([01]?\d|2[0-3]):[0-5]\d$")
+    depart_time: str = Field(alias="departTime", pattern=HHMM_PATTERN)
+    # 駅ID -> その駅への実際の着時刻。ダイヤ未収録路線をユーザーが自分で
+    # 調べて入れるための上書き。以降のレッグはこの時刻を起点に再照会される。
+    # キーはレッグの着駅（= 乗換駅と終着駅）に限る。上限はレッグ数の上限と同じ
+    arrival_overrides: dict[str, HhMm] = Field(
+        default_factory=dict, alias="arrivalOverrides", max_length=40
+    )
 
     model_config = {"populate_by_name": True}
 

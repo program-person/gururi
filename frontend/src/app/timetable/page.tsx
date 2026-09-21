@@ -1,10 +1,18 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api, OmawariRoute, TimetableResponse } from "@/lib/api";
-import { fromSearchParams, runSearch, searchHref } from "@/lib/searchQuery";
+import {
+  ArrivalOverrides,
+  decodeArrivalOverrides,
+  encodeArrivalOverrides,
+  fromSearchParams,
+  runSearch,
+  searchHref,
+  toSearchParams,
+} from "@/lib/searchQuery";
 import { useRailData } from "@/lib/useRailData";
 import { LINE_COLORS } from "@/components/RouteMap";
 
@@ -44,6 +52,7 @@ interface Keyed<T> {
 const NOT_LOADED: Keyed<never> = { key: "", value: null, error: null };
 
 function Timetable() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { stationMap, lineMap } = useRailData();
 
@@ -54,22 +63,41 @@ function Timetable() {
   );
   const routeIndex = Number.parseInt(searchParams.get("i") ?? "0", 10);
   const urlDepartTime = searchParams.get("depart") ?? "";
+  // 正規化（並べ替え・壊れた値の除去）を通すことで、意味が同じURLが同じ文字列になる
+  const urlOverridesKey = encodeArrivalOverrides(
+    decodeArrivalOverrides(searchParams.get("arr"))
+  );
 
-  // 「検索」を押した出発時刻。押すまではURL由来の値で取得する
+  // 「再計算」を押した出発時刻。押すまではURL由来の値で取得する
   const [submittedDepartTime, setSubmittedDepartTime] = useState<string | null>(null);
   const departTime = submittedDepartTime ?? urlDepartTime;
   // 入力欄の下書き。取得対象の departTime とは別に持つ
   const [draftDepartTime, setDraftDepartTime] = useState<string | null>(null);
   const departInput = draftDepartTime ?? departTime;
 
+  // 着時刻の上書き。オブジェクトではなくURL表現の文字列で保持することで、
+  // 「同じ内容なら同じキー」が自明になり、再取得の判定をそれ一本に寄せられる
+  const [submittedOverridesKey, setSubmittedOverridesKey] = useState<string | null>(null);
+  const overridesKey = submittedOverridesKey ?? urlOverridesKey;
+  const overrides = useMemo(() => decodeArrivalOverrides(overridesKey), [overridesKey]);
+  const [draftOverrides, setDraftOverrides] = useState<ArrivalOverrides | null>(null);
+  const overrideInputs = draftOverrides ?? overrides;
+  const draftOverridesKey = encodeArrivalOverrides(overrideInputs);
+  // 入力しただけで再計算していない状態。黙って無視されたように見えるのを防ぐ
+  const hasPendingEdits =
+    departInput !== departTime || draftOverridesKey !== overridesKey;
+
   // ルート取得（0.4秒程度）とダイヤ照会（区間ごとに外部APIを叩くので十数秒）は
-  // 所要時間の桁が違うので、状態を分けてルート概要だけ先に出す
-  const routeKey = `${queryString}|${routeIndex}`;
+  // 所要時間の桁が違うので、状態を分けてルート概要だけ先に出す。
+  // 出発時刻・着時刻の上書きはルート探索には影響しないので、キーは
+  // 正規化した検索条件だけで作る（URL同期でルートを引き直さないため）
+  const searchKey = useMemo(() => (query ? toSearchParams(query).toString() : ""), [query]);
+  const routeKey = `${searchKey}|${routeIndex}`;
   const [loadedRoute, setLoadedRoute] = useState<Keyed<OmawariRoute>>(NOT_LOADED);
   const routeResult = loadedRoute.key === routeKey ? loadedRoute : NOT_LOADED;
   const route: OmawariRoute | null = routeResult.value;
 
-  const timetableKey = `${routeKey}|${departTime}`;
+  const timetableKey = `${routeKey}|${departTime}|${overridesKey}`;
   const [loadedTimetable, setLoadedTimetable] = useState<Keyed<TimetableResponse>>(NOT_LOADED);
   const timetableResult = loadedTimetable.key === timetableKey ? loadedTimetable : NOT_LOADED;
   const timetable: TimetableResponse | null = timetableResult.value;
@@ -86,8 +114,13 @@ function Timetable() {
 
   // 探索はシード固定なので、検索結果ページと同じ条件で同じルートが取り直せる。
   // ルート本体（最大216駅）をURLに載せずに済ませるための仕組み
+  // URL同期で query の参照だけが変わってもルートは引き直さない
+  const fetchedRouteKey = useRef<string>("");
+
   useEffect(() => {
     if (query === null) return;
+    if (fetchedRouteKey.current === routeKey) return;
+    fetchedRouteKey.current = routeKey;
     let cancelled = false;
     runSearch(query)
       .then((routes) => {
@@ -116,7 +149,7 @@ function Timetable() {
     if (route === null || !departTime) return;
     let cancelled = false;
     api
-      .timetable(route.path, departTime)
+      .timetable(route.path, departTime, overrides)
       .then((result) => {
         if (!cancelled) setLoadedTimetable({ key: timetableKey, value: result, error: null });
       })
@@ -129,7 +162,28 @@ function Timetable() {
         });
       });
     return () => { cancelled = true; };
-  }, [timetableKey, route, departTime]);
+  }, [timetableKey, route, departTime, overrides]);
+
+  /** 入力欄の内容を取得条件に反映し、共有できるようURLにも書き戻す。 */
+  function applyInputs() {
+    setSubmittedDepartTime(departInput);
+    setSubmittedOverridesKey(draftOverridesKey);
+
+    const params = new URLSearchParams(queryString);
+    params.set("depart", departInput);
+    if (draftOverridesKey) params.set("arr", draftOverridesKey);
+    else params.delete("arr");
+    // push ではなく replace。条件をいじるたびに戻る操作が増えても嬉しくない
+    router.replace(`/timetable?${params}`, { scroll: false });
+  }
+
+  /** ある駅の着時刻の上書きを設定・解除する（空文字なら解除）。 */
+  function setOverride(stationId: string, time: string) {
+    const next = { ...overrideInputs };
+    if (time) next[stationId] = time;
+    else delete next[stationId];
+    setDraftOverrides(next);
+  }
 
   const startName = route ? stationMap[route.path[0].stationId] ?? route.path[0].stationId : "";
   const endName = route
@@ -174,12 +228,17 @@ function Timetable() {
           className="min-h-10 rounded-lg border border-slate-300 bg-white px-2 py-1 text-base text-slate-900 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
         />
         <button
-          onClick={() => setSubmittedDepartTime(departInput)}
+          onClick={applyInputs}
           disabled={loading || !departInput || !route}
           className="min-h-10 whitespace-nowrap rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
         >
-          時刻を検索
+          再計算
         </button>
+        {hasPendingEdits && !loading && (
+          <span className="text-xs text-amber-600 dark:text-amber-400">
+            未反映の変更があります
+          </span>
+        )}
       </div>
 
       {error && (
@@ -228,7 +287,8 @@ function Timetable() {
 
           {timetable.hasEstimate && (
             <p className="mt-2 rounded-lg bg-amber-50 p-2.5 text-xs leading-relaxed text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-              ⚠ 「目安」の区間はダイヤ未収録路線（奈良線・関西空港線・JR東西線など）または取得失敗のため、運転間隔からの推定時間です
+              ⚠ 「目安」の区間はダイヤ未収録路線（奈良線・関西空港線・JR東西線など）または取得失敗のため、運転間隔からの推定時間です。
+              実際の着時刻が分かる場合は各区間の「実際の着時刻」に入れて再計算すると、そこから先の乗り継ぎが引き直されます
             </p>
           )}
 
@@ -255,10 +315,16 @@ function Timetable() {
                         {leg.arrival}
                       </span>
                       <span className="font-semibold text-slate-800 dark:text-slate-200">{toName}</span>
-                      {leg.source === "estimate" && (
-                        <span className="rounded bg-amber-100 px-1 py-0 text-xs text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-                          目安
+                      {leg.overridden ? (
+                        <span className="rounded bg-sky-100 px-1 py-0 text-xs text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
+                          入力
                         </span>
+                      ) : (
+                        leg.source === "estimate" && (
+                          <span className="rounded bg-amber-100 px-1 py-0 text-xs text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                            目安
+                          </span>
+                        )
                       )}
                     </div>
                     <div className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
@@ -266,7 +332,36 @@ function Timetable() {
                       {leg.headsign ? ` ${leg.headsign}` : leg.trainType ? ` ${leg.trainType}` : ""}
                       ・乗車{Math.round(leg.rideMin)}分
                       {leg.waitMin > 0 && `・待ち${Math.round(leg.waitMin)}分`}
+                      {/* 上書き時は着時刻だけが実測で、発時刻はそこから所要時間を引いた逆算値 */}
+                      {leg.overridden && "（発時刻は着時刻からの逆算）"}
                     </div>
+
+                    {/* ダイヤ未収録・取得失敗の区間は、実際の着時刻を入れて以降を引き直せる */}
+                    {(leg.source === "estimate" || leg.overridden) && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-2 dark:border-slate-700">
+                        <label
+                          htmlFor={`arr-${leg.toStationId}`}
+                          className="text-xs text-slate-500 dark:text-slate-400"
+                        >
+                          {toName}に実際に着く時刻
+                        </label>
+                        <input
+                          id={`arr-${leg.toStationId}`}
+                          type="time"
+                          value={overrideInputs[leg.toStationId] ?? ""}
+                          onChange={(e) => setOverride(leg.toStationId, e.target.value)}
+                          className="min-h-9 rounded-lg border border-slate-300 bg-white px-2 py-1 text-base text-slate-900 sm:text-xs dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+                        />
+                        {overrideInputs[leg.toStationId] && (
+                          <button
+                            onClick={() => setOverride(leg.toStationId, "")}
+                            className="min-h-9 rounded-lg px-2 text-xs text-slate-500 underline transition-colors hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400"
+                          >
+                            クリア
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </li>
               );

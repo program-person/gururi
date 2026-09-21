@@ -25,7 +25,7 @@ from app.models import (
 from app.omawari import find_omawari_by_fare, find_omawari_routes
 from app.ratelimit import SlidingWindowRateLimiter
 from app.routing import shortest_route
-from app.timetable import TransitMap, build_timetable, load_transit_map, split_legs
+from app.timetable import Leg, TransitMap, build_timetable, load_transit_map, split_legs
 
 # /timetable の path 上限。ゴールデンループは maxStations を超える長さになるため、
 # グラフの総駅数を上限とする（同一駅は再訪しないので、これ以上長い経路は存在しない）
@@ -206,8 +206,8 @@ def get_omawari(
     )
 
 
-def _validate_timetable_path(rail: RailState, path: list[PathSegment]) -> None:
-    """path がグラフ上の実在ルートであることを検証する。
+def _validate_timetable_path(rail: RailState, path: list[PathSegment]) -> list[Leg]:
+    """path がグラフ上の実在ルートであることを検証し、レッグ分割を返す。
 
     任意の駅ペアを受け付けると外部の transit API への踏み台
     （こちらの UA で好きな検索を打たせる）に使えてしまうため、
@@ -236,11 +236,31 @@ def _validate_timetable_path(rail: RailState, path: list[PathSegment]) -> None:
                 ),
             )
 
-    num_legs = len(split_legs(path))
-    if num_legs > MAX_TIMETABLE_LEGS:
+    legs = split_legs(path)
+    if len(legs) > MAX_TIMETABLE_LEGS:
         raise HTTPException(
             status_code=400,
             detail=f"too many legs (max {MAX_TIMETABLE_LEGS})",
+        )
+    return legs
+
+
+def _validate_arrival_overrides(legs: list[Leg], overrides: dict[str, str]) -> None:
+    """着時刻の上書きキーがレッグの着駅であることを検証する。
+
+    上書きが意味を持つのは「そこで時刻カーソルを差し替えられる地点」、
+    つまりレッグの着駅（乗換駅と終着駅）だけ。通過中の中間駅や
+    ルート外の駅を黙って無視すると、入力したのに反映されない挙動になる。
+    """
+    leg_ends = {leg.station_ids[-1] for leg in legs}
+    unknown = sorted(set(overrides) - leg_ends)
+    if unknown:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "arrivalOverrides keys must be leg arrival stations; "
+                f"not a leg arrival station: {', '.join(unknown)}"
+            ),
         )
 
 
@@ -248,10 +268,17 @@ def _validate_timetable_path(rail: RailState, path: list[PathSegment]) -> None:
 def post_timetable(request: Request, body: TimetableRequest) -> TimetableResponse:
     """大回りルートの区間ごとの発着時刻（実ダイヤ + 未収録区間は推定）"""
     rail = get_rail(request)
-    _validate_timetable_path(rail, body.path)
+    legs = _validate_timetable_path(rail, body.path)
+    _validate_arrival_overrides(legs, body.arrival_overrides)
 
     transit_map: TransitMap = request.app.state.transit_map
-    return build_timetable(body.path, body.depart_time, rail.adj, transit_map)
+    return build_timetable(
+        body.path,
+        body.depart_time,
+        rail.adj,
+        transit_map,
+        arrival_overrides=body.arrival_overrides,
+    )
 
 
 @app.get("/omawari/by-fare", response_model=list[OmawariRoute], response_model_by_alias=True)
